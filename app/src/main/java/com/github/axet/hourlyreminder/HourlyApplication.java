@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -86,6 +88,10 @@ public class HourlyApplication extends Application {
             speak = String.format("%d o'clock", hour);
 
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
-        tts.speak(speak, TextToSpeech.QUEUE_FLUSH, null, UUID.randomUUID().toString());
+
+        Bundle params = new Bundle();
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.1f);
+
+        tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
     }
 }
