@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="hour_values">
+        <item name="00">00</item>
+        <item name="01">01</item>
+        <item name="02">02</item>
+        <item name="03">03</item>
+        <item name="04">04</item>
+        <item name="05">05</item>
+        <item name="06">06</item>
+        <item name="07">07</item>
+        <item name="08">08</item>
+        <item name="09">09</item>
+        <item name="10">10</item>
+        <item name="11">11</item>
+        <item name="12">12</item>
+        <item name="13">13</item>
+        <item name="14">14</item>
+        <item name="15">15</item>
+        <item name="16">16</item>
+        <item name="17">17</item>
+        <item name="18">18</item>
+        <item name="19">19</item>
+        <item name="20">20</item>
+        <item name="21">21</item>
+        <item name="22">22</item>
+        <item name="23">23</item>
+    </string-array>
+    <string-array name="empty" />
+</resources>
