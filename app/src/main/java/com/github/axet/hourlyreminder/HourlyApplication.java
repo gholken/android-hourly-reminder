@@ -51,8 +51,11 @@ public class HourlyApplication extends Application {
 
             AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (enabled && hours.contains(h)) {
-                Log.d(HourlyApplication.class.getSimpleName(), "Setting up alarm: " + calendar);
-                alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pe), pe);
+                if (shared.getBoolean("alarm", true)) {
+                    alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pe), pe);
+                } else {
+                    alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
+                }
             } else {
                 alarm.cancel(pe);
             }
@@ -84,7 +87,7 @@ public class HourlyApplication extends Application {
             speak = String.format("%d o'clock", hour);
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if(shared.getBoolean("alarm", true)) {
+        if (shared.getBoolean("alarm", true)) {
             tts.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(AudioAttributes.USAGE_ALARM)
                     .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
