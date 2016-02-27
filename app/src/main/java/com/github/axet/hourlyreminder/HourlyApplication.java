@@ -71,6 +71,11 @@ public class HourlyApplication extends Application {
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.US);
+
+                    tts.setAudioAttributes(new AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build());
                 }
             }
         });
@@ -87,12 +92,6 @@ public class HourlyApplication extends Application {
             speak = String.format("%d o'clock", hour);
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if (shared.getBoolean("alarm", true)) {
-            tts.setAudioAttributes(new AudioAttributes.Builder()
-                    .setUsage(AudioAttributes.USAGE_ALARM)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                    .build());
-        }
 
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
 
