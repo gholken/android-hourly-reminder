@@ -1,6 +1,8 @@
 # Hourly Reminder
 
-User specified hours to prononce with text2speech technology.
+Android friendly - based on system Alarm Manager, you will never miss an alarm!
+
+This application allows you to remind you about hour passed. User specified hours will be notified to you using text2speech technology or user specified sound.
 
 # Install
 
