@@ -52,7 +52,7 @@ public class HourlyApplication extends Application {
             AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (enabled && hours.contains(h)) {
                 Log.d(HourlyApplication.class.getSimpleName(), "Setting up alarm: " + calendar);
-                alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pe);
+                alarm.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), AlarmManager.INTERVAL_DAY, pe);
             } else {
                 alarm.cancel(pe);
             }
