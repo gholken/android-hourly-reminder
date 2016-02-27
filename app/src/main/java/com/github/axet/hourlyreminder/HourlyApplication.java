@@ -96,7 +96,9 @@ public class HourlyApplication extends Application {
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
 
         Bundle params = new Bundle();
-        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, shared.getFloat("volume", 1f));
+
+        float v = (float)(Math.pow(shared.getFloat("volume", 1f), 3));
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, v);
 
         tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
     }
