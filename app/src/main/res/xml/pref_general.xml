@@ -16,4 +16,16 @@
         android:summary="Select hours"
         android:title="Hours" />
 
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="alarm"
+        android:summary="Use alarm channel (sounds on silent mode)"
+        android:title="Alarm Sound Type" />
+
+    <com.github.axet.hourlyreminder.VolumeDialogPreference
+        android:defaultValue="1"
+        android:key="volume"
+        android:summary="Set text speech volume"
+        android:title="Speech Volume" />
+
 </PreferenceScreen>

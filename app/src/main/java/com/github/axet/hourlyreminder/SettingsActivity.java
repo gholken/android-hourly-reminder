@@ -52,7 +52,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference instanceof MultiSelectListPreference) {
+            if (preference instanceof VolumeDialogPreference) {
+                float f = (Float) value;
+                preference.setSummary((int) (f * 100) + "%");
+            } else if (preference instanceof MultiSelectListPreference) {
                 List sortedList = new ArrayList((Set) value);
                 Collections.sort(sortedList);
 
@@ -216,6 +219,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             setHasOptionsMenu(true);
 
             bindPreferenceSummaryToValue(findPreference("hours"));
+            bindPreferenceSummaryToValue(findPreference("volume"));
         }
 
         @Override

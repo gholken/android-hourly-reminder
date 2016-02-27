@@ -52,7 +52,7 @@ public class HourlyApplication extends Application {
             AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (enabled && hours.contains(h)) {
                 Log.d(HourlyApplication.class.getSimpleName(), "Setting up alarm: " + calendar);
-                alarm.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
+                alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pe), pe);
             } else {
                 alarm.cancel(pe);
             }
@@ -68,10 +68,6 @@ public class HourlyApplication extends Application {
             public void onInit(int status) {
                 if (status != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.US);
-                    tts.setAudioAttributes(new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_ALARM)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                            .build());
                 }
             }
         });
@@ -87,10 +83,18 @@ public class HourlyApplication extends Application {
         else
             speak = String.format("%d o'clock", hour);
 
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if(shared.getBoolean("alarm", true)) {
+            tts.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(AudioAttributes.USAGE_ALARM)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build());
+        }
+
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
 
         Bundle params = new Bundle();
-        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.1f);
+        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, shared.getFloat("volume", 1f));
 
         tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
     }
