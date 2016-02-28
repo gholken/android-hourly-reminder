@@ -83,27 +83,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
-            } else if (preference instanceof RingtonePreference) {
-                // For ringtone preferences, look up the correct display value
-                // using RingtoneManager.
-                if (TextUtils.isEmpty(stringValue)) {
-                    // Empty values correspond to 'silent' (no ringtone).
-                    preference.setSummary(R.string.pref_ringtone_silent);
-                } else {
-                    Ringtone ringtone = RingtoneManager.getRingtone(
-                            preference.getContext(), Uri.parse(stringValue));
-
-                    if (ringtone == null) {
-                        // Clear the summary if there was a lookup error.
-                        preference.setSummary(null);
-                    } else {
-                        // Set the summary to reflect the new ringtone display
-                        // name.
-                        String name = ringtone.getTitle(preference.getContext());
-                        preference.setSummary(name);
-                    }
-                }
-
             } else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
@@ -161,8 +140,14 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             int dim = (int) getResources().getDimension(R.dimen.fab_margin);
             lp.setMargins(dim, dim, dim, dim);
             f.setLayoutParams(lp);
-            f.setId(R.id.play);
             layout.addView(f);
+
+            f.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ((HourlyApplication) getApplicationContext()).soundAlarm();
+                }
+            });
         }
 
         final GeneralPreferenceFragment gp = new GeneralPreferenceFragment();
@@ -174,13 +159,6 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         final AtomicInteger i = new AtomicInteger();
         final FrameLayout v = (FrameLayout) findViewById(android.R.id.content);
         final ListView list = (ListView) v.findViewById(android.R.id.list);
-
-        findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((HourlyApplication) getApplicationContext()).soundAlarm();
-            }
-        });
 
         ((HourlyApplication) getApplicationContext()).updateAlerts(getApplicationContext());
     }
