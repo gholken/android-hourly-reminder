@@ -19,20 +19,19 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class VolumeDialogPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
-    // Layout widgets.
+public class SeekBarDialogPreference extends DialogPreference implements SeekBar.OnSeekBarChangeListener {
     private SeekBar seekBar = null;
     private TextView valueText = null;
 
     private float value = 0;
 
     /**
-     * The VolumeDialogPreference constructor.
+     * The SeekBarDialogPreference constructor.
      *
      * @param context of this preference.
      * @param attrs   custom xml attributes.
      */
-    public VolumeDialogPreference(Context context, AttributeSet attrs) {
+    public SeekBarDialogPreference(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 

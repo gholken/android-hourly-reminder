@@ -52,7 +52,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference instanceof VolumeDialogPreference) {
+            if (preference instanceof SeekBarDialogPreference) {
                 float f = (Float) value;
                 preference.setSummary((int) (f * 100) + "%");
             } else if (preference instanceof MultiSelectListPreference) {
