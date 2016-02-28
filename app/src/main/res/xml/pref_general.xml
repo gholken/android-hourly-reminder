@@ -25,5 +25,4 @@
         android:key="volume"
         android:summary="Set text speech volume"
         android:title="Speech Volume" />
-
 </PreferenceScreen>

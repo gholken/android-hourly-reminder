@@ -11,25 +11,37 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.RingtonePreference;
+import android.preference.SwitchPreference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.ContentFrameLayout;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.transition.AutoTransition;
+import android.transition.ChangeBounds;
+import android.transition.Transition;
+import android.transition.TransitionManager;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.BounceInterpolator;
+import android.widget.FrameLayout;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -134,28 +146,36 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setupActionBar();
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
 
+        {
+            ContentFrameLayout layout = (ContentFrameLayout) findViewById(android.R.id.content);
+            FloatingActionButton f = new FloatingActionButton(this);
+            f.setImageResource(R.drawable.play);
+            ContentFrameLayout.LayoutParams lp = new ContentFrameLayout.LayoutParams(ContentFrameLayout.LayoutParams.WRAP_CONTENT, ContentFrameLayout.LayoutParams.WRAP_CONTENT);
+            lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+            int dim = (int) getResources().getDimension(R.dimen.fab_margin);
+            lp.setMargins(dim, dim, dim, dim);
+            f.setLayoutParams(lp);
+            f.setId(R.id.play);
+            layout.addView(f);
+        }
+
+        final GeneralPreferenceFragment gp = new GeneralPreferenceFragment();
+
         getFragmentManager().beginTransaction()
-                .replace(android.R.id.content, new GeneralPreferenceFragment())
+                .replace(android.R.id.content, gp)
                 .commit();
 
-        ContentFrameLayout layout = (ContentFrameLayout) findViewById(android.R.id.content);
+        final AtomicInteger i = new AtomicInteger();
+        final FrameLayout v = (FrameLayout) findViewById(android.R.id.content);
+        final ListView list = (ListView) v.findViewById(android.R.id.list);
 
-        FloatingActionButton f = new FloatingActionButton(this);
-        f.setImageResource(R.drawable.play);
-        ContentFrameLayout.LayoutParams lp = new ContentFrameLayout.LayoutParams(ContentFrameLayout.LayoutParams.WRAP_CONTENT, ContentFrameLayout.LayoutParams.WRAP_CONTENT);
-        lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-        lp.setMargins(16, 16, 16, 16);
-        f.setLayoutParams(lp);
-
-        layout.addView(f);
-
-
-        f.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.play).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 ((HourlyApplication) getApplicationContext()).soundAlarm();
@@ -217,6 +237,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_general);
             setHasOptionsMenu(true);
+
+            // 23 SDK requires to be Alarm to be percice on time
+            if (Build.VERSION.SDK_INT < 23)
+                getPreferenceScreen().removePreference(findPreference("alarm"));
 
             bindPreferenceSummaryToValue(findPreference("hours"));
             bindPreferenceSummaryToValue(findPreference("volume"));
