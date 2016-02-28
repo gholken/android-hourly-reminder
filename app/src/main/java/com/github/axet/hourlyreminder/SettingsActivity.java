@@ -64,10 +64,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference instanceof SeekBarDialogPreference) {
+            /*if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
                 preference.setSummary((int) (f * 100) + "%");
-            } else if (preference instanceof MultiSelectListPreference) {
+            } else */if (preference instanceof MultiSelectListPreference) {
                 List sortedList = new ArrayList((Set) value);
                 Collections.sort(sortedList);
 

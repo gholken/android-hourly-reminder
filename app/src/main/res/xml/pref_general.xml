@@ -1,6 +1,5 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="enabled"
         android:summary="Enable Hourly Reminders"
@@ -14,15 +13,16 @@
         android:summary="Select hours"
         android:title="Hours" />
 
-    <SwitchPreference
+    <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"
         android:summary="Use alarm type for more precise timing"
         android:title="Alarm Type" />
 
-    <com.github.axet.hourlyreminder.SeekBarDialogPreference
+    <com.github.axet.hourlyreminder.SeekBarPreference
         android:defaultValue="1"
         android:key="volume"
         android:summary="Set text speech volume"
         android:title="Speech Volume" />
+
 </PreferenceScreen>
