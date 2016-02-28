@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
@@ -52,9 +53,17 @@ public class HourlyApplication extends Application {
             AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
             if (enabled && hours.contains(h)) {
                 if (shared.getBoolean("alarm", true)) {
-                    alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pe), pe);
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pe), pe);
+                    } else {
+                        alarm.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
+                    }
                 } else {
-                    alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
+                    } else {
+                        alarm.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
+                    }
                 }
             } else {
                 alarm.cancel(pe);
@@ -72,10 +81,12 @@ public class HourlyApplication extends Application {
                 if (status != TextToSpeech.ERROR) {
                     tts.setLanguage(Locale.US);
 
-                    tts.setAudioAttributes(new AudioAttributes.Builder()
-                            .setUsage(AudioAttributes.USAGE_MEDIA)
-                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
-                            .build());
+                    if (Build.VERSION.SDK_INT >= 21) {
+                        tts.setAudioAttributes(new AudioAttributes.Builder()
+                                .setUsage(AudioAttributes.USAGE_MEDIA)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .build());
+                    }
                 }
             }
         });
@@ -95,11 +106,17 @@ public class HourlyApplication extends Application {
 
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
 
-        Bundle params = new Bundle();
+        float v = (float) (Math.pow(shared.getFloat("volume", 1f), 3));
 
-        float v = (float)(Math.pow(shared.getFloat("volume", 1f), 3));
-        params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, v);
+        if (Build.VERSION.SDK_INT >= 21) {
+            Bundle params = new Bundle();
+            params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, v);
 
-        tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
+            tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
+        } else {
+            HashMap<String, String> params = new HashMap<>();
+            params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(v));
+            tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params);
+        }
     }
 }
