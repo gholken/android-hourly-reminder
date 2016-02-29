@@ -1,4 +1,5 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="enabled"
@@ -25,4 +26,9 @@
         android:summary="Set text speech volume"
         android:title="Speech Volume" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="beep"
+        android:summary="Play beep sound before alarm text"
+        android:title="Beep Sound" />
 </PreferenceScreen>

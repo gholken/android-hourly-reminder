@@ -3,8 +3,10 @@ package com.github.axet.hourlyreminder;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DataSetObserver;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
@@ -14,17 +16,21 @@ import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.ContentFrameLayout;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.transition.TransitionManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.TextView;
+import android.widget.FrameLayout;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -101,8 +107,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.registerOnSharedPreferenceChangeListener(this);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
+//        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+//        setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
@@ -114,15 +120,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ((HourlyApplication) getApplicationContext()).soundAlarm();
+//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+//        fab.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                ((HourlyApplication) getApplicationContext()).soundAlarm();
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-            }
-        });
+//            }
+//        });
 
         ((HourlyApplication) getApplicationContext()).updateAlerts(getApplicationContext());
     }
@@ -154,37 +160,168 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+    public static class AlarmsAdapter implements ListAdapter {
+        ArrayList<DataSetObserver> listeners = new ArrayList<>();
+        int count;
+        int selected = -1;
 
-        public PlaceholderFragment() {
+        static final int TYPE_NORMAL = 0;
+        static final int TYPE_DETAIL = 1;
+
+        static final int[] ALL = {TYPE_NORMAL, TYPE_DETAIL};
+
+        @Override
+        public boolean areAllItemsEnabled() {
+            return false;
         }
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
+        @Override
+        public boolean isEnabled(int position) {
+            return false;
+        }
+
+        @Override
+        public void registerDataSetObserver(DataSetObserver observer) {
+            listeners.add(observer);
+        }
+
+        @Override
+        public void unregisterDataSetObserver(DataSetObserver observer) {
+            listeners.remove(observer);
+        }
+
+        @Override
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public Object getItem(int position) {
+            return null;
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return 0;
+        }
+
+        @Override
+        public boolean hasStableIds() {
+            return false;
+        }
+
+        @Override
+        public View getView(final int position, View convertView, final ViewGroup parent) {
+            LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
+
+            if (convertView == null) {
+                convertView = inflater.inflate(R.layout.alarm, parent, false);
+                convertView.setTag(-1);
+            }
+
+            if (selected == position) {
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        select(-1);
+                    }
+                });
+
+                if ((int) convertView.getTag() == TYPE_NORMAL) {
+                    AlarmExpandAnimation e = new AlarmExpandAnimation(convertView);
+                    convertView.clearAnimation();
+                    convertView.startAnimation(e);
+                } else {
+                    convertView.findViewById(R.id.alarm_detailed).setVisibility(View.VISIBLE);
+                    convertView.findViewById(R.id.alarm_bottom).setVisibility(View.VISIBLE);
+                    convertView.findViewById(R.id.alarm_compact).setVisibility(View.GONE);
+                }
+                convertView.setTag(TYPE_DETAIL);
+
+                return convertView;
+            }
+
+            if ((int) convertView.getTag() == TYPE_DETAIL) {
+                AlarmCollapseAnimation e = new AlarmCollapseAnimation(convertView);
+                convertView.clearAnimation();
+                convertView.startAnimation(e);
+            } else {
+                convertView.findViewById(R.id.alarm_detailed).setVisibility(View.GONE);
+                convertView.findViewById(R.id.alarm_bottom).setVisibility(View.GONE);
+                convertView.findViewById(R.id.alarm_compact).setVisibility(View.VISIBLE);
+            }
+            convertView.setTag(TYPE_NORMAL);
+
+            convertView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    select(position);
+                }
+            });
+
+            return convertView;
+        }
+
+        void select(int pos) {
+            selected = pos;
+            changed();
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return TYPE_NORMAL;
+        }
+
+        @Override
+        public int getViewTypeCount() {
+            return ALL.length;
+        }
+
+        @Override
+        public boolean isEmpty() {
+            return count == 0;
+        }
+
+        public void addAlarm() {
+            count++;
+            changed();
+        }
+
+        void changed() {
+            for (DataSetObserver l : listeners) {
+                l.onChanged();
+            }
+        }
+    }
+
+    public static class AlarmsFragment extends Fragment {
+        AlarmsAdapter adapter;
+
+        public AlarmsFragment() {
+        }
+
+        @Override
+        public void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+
+            adapter = new AlarmsAdapter();
         }
 
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
+            final ListView list = (ListView) rootView.findViewById(R.id.section_label);
+            list.setAdapter(adapter);
+            FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
+            fab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (Build.VERSION.SDK_INT >= 19)
+                        TransitionManager.beginDelayedTransition(list);
+                    adapter.addAlarm();
+                }
+            });
             return rootView;
         }
     }
@@ -206,8 +343,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     return new GeneralPreferenceFragment();
             }
             // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            // Return a AlarmsFragment (defined as a static inner class below).
+            return new AlarmsFragment();
         }
 
         @Override
@@ -220,9 +357,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Reminders";
+                    return "Hourly Reminders";
                 case 1:
-                    return "Alarms";
+                    return "Custom Alarms";
             }
             return null;
         }
@@ -240,7 +377,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         @Override
         public boolean onPreferenceDisplayDialog(PreferenceFragment preferenceFragment, Preference preference) {
-            if(preference instanceof SeekBarPreference) {
+            if (preference instanceof SeekBarPreference) {
                 SeekBarPreferenceDialogFragment f = SeekBarPreferenceDialogFragment.newInstance(preference.getKey());
                 ((DialogFragment) f).setTargetFragment(this, 0);
                 ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
@@ -262,6 +399,33 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
             bindPreferenceSummaryToValue(findPreference("hours"));
             bindPreferenceSummaryToValue(findPreference("volume"));
+        }
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+            View view = super.onCreateView(inflater, container, savedInstanceState);
+
+            {
+                final Context context = inflater.getContext();
+                ViewGroup layout = (ViewGroup) view.findViewById(R.id.list_container);
+                FloatingActionButton f = new FloatingActionButton(context);
+                f.setImageResource(R.drawable.play);
+                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ContentFrameLayout.LayoutParams.WRAP_CONTENT, ContentFrameLayout.LayoutParams.WRAP_CONTENT);
+                lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
+                int dim = (int) getResources().getDimension(R.dimen.fab_margin);
+                lp.setMargins(dim, dim, dim, dim);
+                f.setLayoutParams(lp);
+                layout.addView(f);
+
+                f.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ((HourlyApplication) context.getApplicationContext()).soundAlarm();
+                    }
+                });
+            }
+
+            return view;
         }
 
         @Override

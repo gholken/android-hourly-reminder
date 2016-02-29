@@ -7,8 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
@@ -23,6 +26,7 @@ import java.util.UUID;
 
 public class HourlyApplication extends Application {
     TextToSpeech tts;
+    Handler handler;
 
     public static void updateAlerts(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -75,6 +79,7 @@ public class HourlyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        handler = new Handler();
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -93,13 +98,38 @@ public class HourlyApplication extends Application {
     }
 
     public void soundAlarm() {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        if (shared.getBoolean("beep", false)) {
+            int volume = (int) (shared.getFloat("volume", 1f) * 100);
+            int delay = 500;
+
+            ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, volume);
+            toneG.startTone(ToneGenerator.TONE_PROP_BEEP, delay);
+
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    playSound();
+                }
+            }, delay);
+        } else {
+            playSound();
+        }
+    }
+
+    void playSound() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int min = Calendar.getInstance().get(Calendar.MINUTE);
         String speak;
 
-        if (min != 0)
-            speak = String.format("Time is %d:%02d", hour, min);
-        else
+        if (min != 0) {
+            if( min < 10) {
+                speak = String.format("Time is %d o %d.", hour, min);
+            }else {
+                speak = String.format("Time is %d %02d.", hour, min);
+            }
+        } else
             speak = String.format("%d o'clock", hour);
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
