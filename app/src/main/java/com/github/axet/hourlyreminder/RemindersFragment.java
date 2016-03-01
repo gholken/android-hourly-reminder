@@ -20,11 +20,11 @@ import java.util.ArrayList;
 public class RemindersFragment extends AlarmsFragment {
 
     public static class RemindersAdapter extends AlarmsAdapter {
-        public RemindersAdapter(Context context) {
-            super(context);
+        public RemindersAdapter(Context context, Fragment r) {
+            super(context, r);
             layout_id = R.layout.reminder;
         }
-        
+
         @Override
         public void load() {
         }
@@ -37,7 +37,7 @@ public class RemindersFragment extends AlarmsFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        adapter = new RemindersAdapter(getActivity().getApplicationContext());
+        adapter = new RemindersAdapter(getActivity(), this);
     }
 
 }

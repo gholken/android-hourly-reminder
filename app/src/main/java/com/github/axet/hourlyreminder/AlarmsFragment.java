@@ -1,14 +1,20 @@
 package com.github.axet.hourlyreminder;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.DataSetObserver;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.preference.RingtonePreference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.widget.ContentFrameLayout;
 import android.transition.TransitionManager;
@@ -22,9 +28,13 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.w3c.dom.Text;
 
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -35,7 +45,7 @@ public class AlarmsFragment extends Fragment {
 
     AlarmsAdapter adapter;
 
-    public static class AlarmsAdapter implements ListAdapter, AbsListView.OnScrollListener {
+    public static class AlarmsAdapter implements ListAdapter, AbsListView.OnScrollListener, PreferenceManager.OnActivityResultListener {
         ArrayList<DataSetObserver> listeners = new ArrayList<>();
         List<Alarm> alarms = new ArrayList<>();
         int selected = -1;
@@ -46,13 +56,16 @@ public class AlarmsFragment extends Fragment {
 
         static final int[] ALL = {TYPE_NORMAL, TYPE_DETAIL};
 
-        int layout_id;
+        int layout_id = R.layout.alarm;
 
         Context context;
 
-        public AlarmsAdapter(Context context) {
+        Alarm fragmentRequest;
+        Fragment fragment;
+
+        public AlarmsAdapter(Context context, Fragment fragment) {
             this.context = context;
-            layout_id = R.layout.alarm;
+            this.fragment = fragment;
 
             load();
         }
@@ -191,9 +204,41 @@ public class AlarmsFragment extends Fragment {
                                 }
                             }
                         };
-                        AlertDialog.Builder builder = new AlertDialog.Builder(parent.getContext());
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
                         builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
                                 .setNegativeButton("No", dialogClickListener).show();
+                    }
+                });
+
+                View ringtoneButton = convertView.findViewById(R.id.alarm_ringtone_button);
+                ringtoneButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fragmentRequest = a;
+                        Uri uri = null;
+                        if (!a.ringtoneValue.isEmpty()) {
+                            uri = Uri.parse(a.ringtoneValue);
+                        }
+
+                        fragment.startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+                                .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+                                .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone")
+                                .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) uri), 0);
+                    }
+                });
+                View ringtoneBrowse = convertView.findViewById(R.id.alarm_ringtone_browse);
+                ringtoneBrowse.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        fragmentRequest = a;
+
+                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        intent.setType("*/*");
+                        intent.addCategory(Intent.CATEGORY_OPENABLE);
+
+                        fragment.startActivityForResult(
+                                Intent.createChooser(intent, "Select a File to Upload"),
+                                1);
                     }
                 });
 
@@ -272,13 +317,14 @@ public class AlarmsFragment extends Fragment {
             final CheckBox ringtone = (CheckBox) view.findViewById(R.id.alarm_ringtone);
             ringtone.setChecked(a.ringtone);
             TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
-            ringtoneValue.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //TODO add file choise dialog
-                }
-            });
-            ringtoneValue.setText(a.ringtoneValue.isEmpty() ? "Default Ringtone" : a.ringtoneValue);
+
+            String title = "";
+            if (!a.ringtoneValue.isEmpty()) {
+                Ringtone rt = RingtoneManager.getRingtone(context, Uri.parse(a.ringtoneValue));
+                title = rt.getTitle(context);
+            }
+
+            ringtoneValue.setText(title.isEmpty() ? "Default Ringtone" : title);
             final CheckBox beep = (CheckBox) view.findViewById(R.id.alarm_beep);
             beep.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -334,6 +380,36 @@ public class AlarmsFragment extends Fragment {
                 l.onChanged();
             }
         }
+
+        @Override
+        public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+            if (fragmentRequest == null)
+                return false;
+
+            if (resultCode != Activity.RESULT_OK) {
+                fragmentRequest = null;
+                return true;
+            }
+
+            if (requestCode == 0) {
+                Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+                if (uri != null) {
+                    fragmentRequest.ringtoneValue = uri.toString();
+                } else {
+                    fragmentRequest.ringtoneValue = "";
+                }
+                save(fragmentRequest);
+                fragmentRequest = null;
+                changed();
+                return true;
+            }
+
+            if (requestCode == 1) {
+                Uri uri = data.getData();
+            }
+
+            return false;
+        }
     }
 
     public AlarmsFragment() {
@@ -343,7 +419,7 @@ public class AlarmsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        adapter = new AlarmsAdapter(getActivity().getApplicationContext());
+        adapter = new AlarmsAdapter(getActivity(), this);
     }
 
     @Override
@@ -362,6 +438,14 @@ public class AlarmsFragment extends Fragment {
                 adapter.addAlarm();
             }
         });
+
         return rootView;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        adapter.onActivityResult(requestCode, resultCode, data);
     }
 }

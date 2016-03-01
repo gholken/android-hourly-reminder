@@ -50,7 +50,7 @@ public class HourlyApplication extends Application {
             a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
             a.setWeekDays(shared.getStringSet(prefix + "WeekDays_Values", null));
             a.ringtone = shared.getBoolean(prefix + "Ringtone", false);
-            a.ringtoneValue = shared.getString(prefix + "Ringtone_Values", "");
+            a.ringtoneValue = shared.getString(prefix + "Ringtone_Value", "");
             a.beep = shared.getBoolean(prefix + "Beep", false);
             a.speech = shared.getBoolean(prefix + "Speech", false);
             alarms.add(a);

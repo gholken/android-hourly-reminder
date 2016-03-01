@@ -10,7 +10,7 @@
         android:layout_height="match_parent"
         android:divider="@color/colorAccent"
         android:dividerHeight="1dp"
-        android:padding="@dimen/appbar_padding_top" />
+        android:padding="5dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
