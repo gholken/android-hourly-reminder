@@ -22,7 +22,6 @@
                     android:id="@+id/alarm_week_days"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:checked="false"
                     android:text="Week days" />
 
                 <FrameLayout
@@ -122,6 +121,7 @@
                         android:tint="@color/colorAccent" />
 
                     <TextView
+                        android:id="@+id/alarm_ringtone_value"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_gravity="center"
@@ -163,17 +163,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
+            <TextView
                 android:id="@+id/alarm_compact_first"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Tomorrow"
-                    android:textStyle="bold" />
-            </LinearLayout>
+                android:layout_height="wrap_content"
+                android:text="Tomorrow"
+                android:textStyle="bold" />
 
             <ImageButton
                 android:id="@+id/alarm_compact_second"

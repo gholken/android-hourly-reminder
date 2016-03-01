@@ -9,33 +9,19 @@
 
     <com.github.axet.hourlyreminder.EqualLinearLayout
         android:id="@+id/alarm_top"
-        android:layout_marginBottom="16dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
         android:orientation="horizontal">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/alarm_time"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:text="Hours:"
-                android:textSize="16dp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/alarm_time"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="16dp"
-                android:text="00, 01, 02, 03, 04, 05\n06, 07, 08, 09, 10, 11\n12, 13, 14, 15, 16, 17\n18, 19, 20, 21, 22, 23"
-                android:textSize="16dp"
-                android:textStyle="bold" />
-        </LinearLayout>
+            android:paddingLeft="16dp"
+            android:text="00-23h"
+            android:textSize="36dp"
+            android:textStyle="bold" />
 
         <Switch
             android:id="@+id/alarm_enable"

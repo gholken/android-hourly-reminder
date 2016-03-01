@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/colorAccent"
-        android:dividerHeight="2dp"
+        android:dividerHeight="1dp"
         android:padding="@dimen/appbar_padding_top" />
 
     <android.support.design.widget.FloatingActionButton
