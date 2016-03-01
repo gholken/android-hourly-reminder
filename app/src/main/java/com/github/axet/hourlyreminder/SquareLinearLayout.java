@@ -4,19 +4,20 @@ import android.content.Context;
 import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.LinearLayout;
 
-public class SquareLinerarLayout extends LinearLayout {
+public class SquareLinearLayout extends LinearLayout {
 
-    public SquareLinerarLayout(Context context) {
+    public SquareLinearLayout(Context context) {
         super(context);
     }
 
-    public SquareLinerarLayout(Context context, AttributeSet attrs, int defStyle) {
+    public SquareLinearLayout(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
     }
 
-    public SquareLinerarLayout(Context context, AttributeSet attrs) {
+    public SquareLinearLayout(Context context, AttributeSet attrs) {
         super(context, attrs);
     }
 
@@ -42,8 +43,10 @@ public class SquareLinerarLayout extends LinearLayout {
             final View child = getChildAt(i);
             if (child.getVisibility() == GONE)
                 continue;
-            int s = MeasureSpec.makeMeasureSpec(w, MeasureSpec.EXACTLY);
-            child.measure(s, s);
+            MarginLayoutParams lp = (MarginLayoutParams) child.getLayoutParams();
+            int s = MeasureSpec.makeMeasureSpec(w - lp.leftMargin - lp.rightMargin, MeasureSpec.EXACTLY);
+            int t = MeasureSpec.makeMeasureSpec(w - lp.topMargin - lp.bottomMargin, MeasureSpec.EXACTLY);
+            child.measure(s, t);
         }
     }
 }

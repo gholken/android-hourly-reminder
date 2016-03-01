@@ -41,51 +41,6 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, Object value) {
-            String stringValue = value.toString();
-
-            if (preference instanceof SeekBarPreference) {
-                float f = (Float) value;
-                preference.setSummary((int) (f * 100) + "%");
-            } else if (preference instanceof android.support.v14.preference.MultiSelectListPreference) {
-                List sortedList = new ArrayList((Set) value);
-                Collections.sort(sortedList);
-
-                preference.setSummary(sortedList.toString());
-            } else if (preference instanceof ListPreference) {
-                // For list preferences, look up the correct display value in
-                // the preference's 'entries' list.
-                ListPreference listPreference = (ListPreference) preference;
-                int index = listPreference.findIndexOfValue(stringValue);
-
-                // Set the summary to reflect the new value.
-                preference.setSummary(
-                        index >= 0
-                                ? listPreference.getEntries()[index]
-                                : null);
-            } else {
-                // For all other preferences, set the summary to the value's
-                // simple string representation.
-                preference.setSummary(stringValue);
-            }
-            return true;
-        }
-    };
-
-    private static void bindPreferenceSummaryToValue(Preference preference) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(preference,
-                PreferenceManager
-                        .getDefaultSharedPreferences(preference.getContext())
-                        .getAll().get(preference.getKey()));
-    }
-
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
      * fragments for each of the sections. We use a
@@ -149,7 +104,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
+        // Handle action bar base clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
@@ -162,228 +117,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return super.onOptionsItemSelected(item);
     }
 
-    public static class AlarmsAdapter implements ListAdapter, AbsListView.OnScrollListener {
-        ArrayList<DataSetObserver> listeners = new ArrayList<>();
-        int count;
-        int selected = -1;
-        int scrollState;
-
-        static final int TYPE_NORMAL = 0;
-        static final int TYPE_DETAIL = 1;
-
-        static final int[] ALL = {TYPE_NORMAL, TYPE_DETAIL};
-
-        @Override
-        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        }
-
-        @Override
-        public void onScrollStateChanged(AbsListView view, int scrollState) {
-            this.scrollState = scrollState;
-        }
-
-        @Override
-        public boolean areAllItemsEnabled() {
-            return true;
-        }
-
-        @Override
-        public boolean isEnabled(int position) {
-            return true;
-        }
-
-        @Override
-        public void registerDataSetObserver(DataSetObserver observer) {
-            listeners.add(observer);
-        }
-
-        @Override
-        public void unregisterDataSetObserver(DataSetObserver observer) {
-            listeners.remove(observer);
-        }
-
-        @Override
-        public int getCount() {
-            return count;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return null;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return 0;
-        }
-
-        @Override
-        public boolean hasStableIds() {
-            return false;
-        }
-
-        @Override
-        public View getView(final int position, View convertView, final ViewGroup parent) {
-            LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(LAYOUT_INFLATER_SERVICE);
-
-            if (convertView == null) {
-                convertView = inflater.inflate(R.layout.alarm, parent, false);
-                convertView.setTag(-1);
-            }
-
-            if (selected == position) {
-                //
-                // fill detailed alarm
-                //
-
-                if ((int) convertView.getTag() == TYPE_NORMAL && scrollState == SCROLL_STATE_IDLE) {
-                    AlarmExpandAnimation e = new AlarmExpandAnimation(convertView);
-                    convertView.startAnimation(e);
-                } else {
-                    convertView.findViewById(R.id.alarm_detailed).setVisibility(View.VISIBLE);
-                    convertView.findViewById(R.id.alarm_bottom).setVisibility(View.VISIBLE);
-                    convertView.findViewById(R.id.alarm_compact).setVisibility(View.GONE);
-                }
-                convertView.setTag(TYPE_DETAIL);
-
-                final CheckBox alarmRepeat = (CheckBox) convertView.findViewById(R.id.alarm_week_days);
-                final View alarmWeek = convertView.findViewById(R.id.alarm_week);
-
-                alarmRepeat.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (alarmRepeat.isChecked()) {
-                            MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmWeek);
-                            alarmWeek.startAnimation(e);
-                        } else {
-                            MarginCollapseAnimation e = new MarginCollapseAnimation(alarmWeek);
-                            alarmWeek.startAnimation(e);
-                        }
-                    }
-                });
-                alarmWeek.setVisibility(alarmRepeat.isChecked() ? View.VISIBLE : View.GONE);
-
-                final CheckBox alarmRingtone = (CheckBox) convertView.findViewById(R.id.alarm_ringtone);
-                final View alarmRingtoneLayout = convertView.findViewById(R.id.alarm_ringtone_layout);
-
-                alarmRingtone.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        if (alarmRingtone.isChecked()) {
-                            MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmRingtoneLayout);
-                            alarmRingtoneLayout.startAnimation(e);
-                        } else {
-                            MarginCollapseAnimation e = new MarginCollapseAnimation(alarmRingtoneLayout);
-                            alarmRingtoneLayout.startAnimation(e);
-                        }
-                    }
-                });
-                alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
-
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        select(-1);
-                    }
-                });
-
-                return convertView;
-            } else {
-                //
-                // fill compact alarm
-                //
-
-                if ((int) convertView.getTag() == TYPE_DETAIL && scrollState == SCROLL_STATE_IDLE) {
-                    AlarmCollapseAnimation e = new AlarmCollapseAnimation(convertView);
-                    convertView.startAnimation(e);
-                } else {
-                    convertView.findViewById(R.id.alarm_detailed).setVisibility(View.GONE);
-                    convertView.findViewById(R.id.alarm_bottom).setVisibility(View.GONE);
-                    convertView.findViewById(R.id.alarm_compact).setVisibility(View.VISIBLE);
-                }
-                convertView.setTag(TYPE_NORMAL);
-
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        select(position);
-                    }
-                });
-                return convertView;
-            }
-        }
-
-        void select(int pos) {
-            selected = pos;
-            changed();
-        }
-
-        @Override
-        public int getItemViewType(int position) {
-            return TYPE_NORMAL;
-        }
-
-        @Override
-        public int getViewTypeCount() {
-            return ALL.length;
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return count == 0;
-        }
-
-        public void addAlarm() {
-            count++;
-            changed();
-        }
-
-        void changed() {
-            for (DataSetObserver l : listeners) {
-                l.onChanged();
-            }
-        }
-    }
-
-    public static class AlarmsFragment extends Fragment {
-        AlarmsAdapter adapter;
-
-        public AlarmsFragment() {
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-
-            adapter = new AlarmsAdapter();
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
-            final ListView list = (ListView) rootView.findViewById(R.id.section_label);
-            list.setAdapter(adapter);
-            list.setOnScrollListener(adapter);
-            FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
-            fab.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (Build.VERSION.SDK_INT >= 19)
-                        TransitionManager.beginDelayedTransition(list);
-                    adapter.addAlarm();
-                }
-            });
-            return rootView;
-        }
-    }
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
      */
     public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
         public SectionsPagerAdapter(FragmentManager fm) {
             super(fm);
         }
@@ -392,17 +130,19 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
+                    return new RemindersFragment();
+                case 1:
+                    return new AlarmsFragment();
+                case 2:
                     return new GeneralPreferenceFragment();
+                default:
+                    throw new RuntimeException("bad page");
             }
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a AlarmsFragment (defined as a static inner class below).
-            return new AlarmsFragment();
         }
 
         @Override
         public int getCount() {
-            // Show 3 total pages.
-            return 2;
+            return 3;
         }
 
         @Override
@@ -412,82 +152,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     return "Hourly Reminders";
                 case 1:
                     return "Custom Alarms";
+                case 2:
+                    return "Settings";
             }
             return null;
         }
     }
 
-    public static class GeneralPreferenceFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback {
-        @Override
-        public void onCreatePreferences(Bundle bundle, String s) {
-        }
-
-        @Override
-        public Fragment getCallbackFragment() {
-            return this;
-        }
-
-        @Override
-        public boolean onPreferenceDisplayDialog(PreferenceFragment preferenceFragment, Preference preference) {
-            if (preference instanceof SeekBarPreference) {
-                SeekBarPreferenceDialogFragment f = SeekBarPreferenceDialogFragment.newInstance(preference.getKey());
-                ((DialogFragment) f).setTargetFragment(this, 0);
-                ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
-                return true;
-            }
-
-            return false;
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
-            setHasOptionsMenu(true);
-
-            // 23 SDK requires to be Alarm to be percice on time
-            if (Build.VERSION.SDK_INT < 23)
-                getPreferenceScreen().removePreference(findPreference("alarm"));
-
-            bindPreferenceSummaryToValue(findPreference("hours"));
-            bindPreferenceSummaryToValue(findPreference("volume"));
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-            View view = super.onCreateView(inflater, container, savedInstanceState);
-
-            {
-                final Context context = inflater.getContext();
-                ViewGroup layout = (ViewGroup) view.findViewById(R.id.list_container);
-                FloatingActionButton f = new FloatingActionButton(context);
-                f.setImageResource(R.drawable.play);
-                FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ContentFrameLayout.LayoutParams.WRAP_CONTENT, ContentFrameLayout.LayoutParams.WRAP_CONTENT);
-                lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-                int dim = (int) getResources().getDimension(R.dimen.fab_margin);
-                lp.setMargins(dim, dim, dim, dim);
-                f.setLayoutParams(lp);
-                layout.addView(f);
-
-                f.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        ((HourlyApplication) context.getApplicationContext()).soundAlarm();
-                    }
-                });
-            }
-
-            return view;
-        }
-
-        @Override
-        public boolean onOptionsItemSelected(MenuItem item) {
-            int id = item.getItemId();
-            if (id == android.R.id.home) {
-                startActivity(new Intent(getActivity(), SettingsActivity.class));
-                return true;
-            }
-            return super.onOptionsItemSelected(item);
-        }
-    }
 }
