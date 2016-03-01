@@ -19,9 +19,11 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
@@ -29,6 +31,54 @@ import java.util.UUID;
 public class HourlyApplication extends Application {
     TextToSpeech tts;
     Handler handler;
+    List<Alarm> alarms;
+
+    public void loadAlarms() {
+        alarms = new ArrayList<>();
+
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        int c = shared.getInt("Alarm_Count", 0);
+        if (c == 0) {
+            alarms.add(new Alarm());
+        }
+
+        for (int i = 0; i < c; i++) {
+            String prefix = "Alarm_" + i + "_";
+            Alarm a = new Alarm();
+            a.time = shared.getLong(prefix + "Time", 0);
+            a.enable = shared.getBoolean(prefix + "Enable", false);
+            a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
+            a.setWeekDays(shared.getStringSet(prefix + "WeekDays_Values", null));
+            a.ringtone = shared.getBoolean(prefix + "Ringtone", false);
+            a.ringtoneValue = shared.getString(prefix + "Ringtone_Values", "");
+            a.beep = shared.getBoolean(prefix + "Beep", false);
+            a.speech = shared.getBoolean(prefix + "Speech", false);
+            alarms.add(a);
+        }
+    }
+
+    public List<Alarm> getAlarms() {
+        return alarms;
+    }
+
+    public void saveAlarms() {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor edit = shared.edit();
+        edit.putInt("Alarm_Count", alarms.size());
+        for (int i = 0; i < alarms.size(); i++) {
+            Alarm a = alarms.get(i);
+            String prefix = "Alarm_" + i + "_";
+            edit.putLong(prefix + "Time", a.time);
+            edit.putBoolean(prefix + "Enable", a.enable);
+            edit.putBoolean(prefix + "WeekDays", a.weekdays);
+            edit.putStringSet(prefix + "WeekDays_Values", a.getWeekDays());
+            edit.putBoolean(prefix + "Ringtone", a.ringtone);
+            edit.putString(prefix + "Ringtone_Value", a.ringtoneValue);
+            edit.putBoolean(prefix + "Beep", a.beep);
+            edit.putBoolean(prefix + "Speech", a.speech);
+        }
+        edit.commit();
+    }
 
     public static void updateAlerts(Context context) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
@@ -80,6 +130,8 @@ public class HourlyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        loadAlarms();
 
         handler = new Handler();
         tts = new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
@@ -177,4 +229,5 @@ public class HourlyApplication extends Application {
             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params);
         }
     }
+
 }

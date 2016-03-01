@@ -37,7 +37,7 @@ public class AlarmsFragment extends Fragment {
 
     public static class AlarmsAdapter implements ListAdapter, AbsListView.OnScrollListener {
         ArrayList<DataSetObserver> listeners = new ArrayList<>();
-        ArrayList<Alarm> alarms = new ArrayList<>();
+        List<Alarm> alarms = new ArrayList<>();
         int selected = -1;
         int scrollState;
 
@@ -58,44 +58,7 @@ public class AlarmsFragment extends Fragment {
         }
 
         void load() {
-            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            int c = shared.getInt("Alarm_Count", 0);
-            if (c == 0) {
-                alarms.add(new Alarm());
-            }
-
-            for (int i = 0; i < c; i++) {
-                String prefix = "Alarm_" + i + "_";
-                Alarm a = new Alarm();
-                a.time = shared.getLong(prefix + "Time", 0);
-                a.enable = shared.getBoolean(prefix + "Enable", false);
-                a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
-                a.setWeekDays(shared.getStringSet(prefix + "WeekDays_Values", null));
-                a.ringtone = shared.getBoolean(prefix + "Ringtone", false);
-                a.ringtoneValue = shared.getString(prefix + "Ringtone_Values", "");
-                a.beep = shared.getBoolean(prefix + "Beep", false);
-                a.speech = shared.getBoolean(prefix + "Speech", false);
-                alarms.add(a);
-            }
-        }
-
-        void save() {
-            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            SharedPreferences.Editor edit = shared.edit();
-            edit.putInt("Alarm_Count", alarms.size());
-            for (int i = 0; i < alarms.size(); i++) {
-                Alarm a = alarms.get(i);
-                String prefix = "Alarm_" + i + "_";
-                edit.putLong(prefix + "Time", a.time);
-                edit.putBoolean(prefix + "Enable", a.enable);
-                edit.putBoolean(prefix + "WeekDays", a.weekdays);
-                edit.putStringSet(prefix + "WeekDays_Values", a.getWeekDays());
-                edit.putBoolean(prefix + "Ringtone", a.ringtone);
-                edit.putString(prefix + "Ringtone_Value", a.ringtoneValue);
-                edit.putBoolean(prefix + "Beep", a.beep);
-                edit.putBoolean(prefix + "Speech", a.speech);
-            }
-            edit.commit();
+            alarms = ((HourlyApplication) context.getApplicationContext()).getAlarms();
         }
 
         @Override
@@ -223,7 +186,7 @@ public class AlarmsFragment extends Fragment {
                             public void onClick(DialogInterface dialog, int which) {
                                 if (which == DialogInterface.BUTTON_POSITIVE) {
                                     alarms.remove(a);
-                                    save();
+                                    ((HourlyApplication) context.getApplicationContext()).saveAlarms();
                                     select(-1);
                                 }
                             }
@@ -315,7 +278,7 @@ public class AlarmsFragment extends Fragment {
                     //TODO add file choise dialog
                 }
             });
-            ringtoneValue.setText(a.ringtoneValue);
+            ringtoneValue.setText(a.ringtoneValue.isEmpty() ? "Default Ringtone" : a.ringtoneValue);
             final CheckBox beep = (CheckBox) view.findViewById(R.id.alarm_beep);
             beep.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -342,7 +305,7 @@ public class AlarmsFragment extends Fragment {
         }
 
         void save(Alarm a) {
-            save();
+            ((HourlyApplication) context.getApplicationContext()).saveAlarms();
         }
 
         @Override
@@ -362,7 +325,7 @@ public class AlarmsFragment extends Fragment {
 
         public void addAlarm() {
             alarms.add(new Alarm(System.currentTimeMillis()));
-            save();
+            ((HourlyApplication) context.getApplicationContext()).saveAlarms();
             changed();
         }
 

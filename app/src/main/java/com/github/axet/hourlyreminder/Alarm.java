@@ -84,8 +84,54 @@ public class Alarm {
         return false;
     }
 
+    // check if all 7 days are enabled (mon-sun)
+    public boolean isEveryday() {
+        for (int i = 0; i <= 6; i++) {
+            if (!isWeek(i))
+                return false;
+        }
+        return true;
+    }
+
+    // check if all 5 days are enabled (mon-fri)
+    public boolean isWeekdays() {
+        for (int i = 0; i <= 4; i++) {
+            if (!isWeek(i))
+                return false;
+        }
+        // check all weekend days are disabled
+        for (int i = 5; i <= 6; i++) {
+            if (isWeek(i))
+                return false;
+        }
+        return true;
+    }
+
+    // check if all 2 week days are enabled (sat, sun)
+    public boolean isWeekend() {
+        for (int i = 5; i <= 6; i++) {
+            if (!isWeek(i))
+                return false;
+        }
+        // check all weekdays are disabled
+        for (int i = 0; i <= 4; i++) {
+            if (isWeek(i))
+                return false;
+        }
+        return true;
+    }
+
     public String getDays(Context context) {
         if (weekdays) {
+            if (isEveryday()) {
+                return "Everyday";
+            }
+            if (isWeekdays()) {
+                return "Weekdays";
+            }
+            if (isWeekend()) {
+                return "Weekend";
+            }
             String str = "";
             String[] ww = context.getResources().getStringArray(R.array.weekdays_short);
             for (Integer i : weekdaysValues) {
@@ -94,7 +140,7 @@ public class Alarm {
                 str += ww[i];
             }
             if (str.isEmpty())
-                str = "No days selected";
+                str = "No days selected"; // wrong, should not be allowed by UI
             return str;
         } else {
             if (isToday()) {
