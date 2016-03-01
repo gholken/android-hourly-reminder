@@ -28,6 +28,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AbsListView;
+import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -160,10 +162,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         return super.onOptionsItemSelected(item);
     }
 
-    public static class AlarmsAdapter implements ListAdapter {
+    public static class AlarmsAdapter implements ListAdapter, AbsListView.OnScrollListener {
         ArrayList<DataSetObserver> listeners = new ArrayList<>();
         int count;
         int selected = -1;
+        int scrollState;
 
         static final int TYPE_NORMAL = 0;
         static final int TYPE_DETAIL = 1;
@@ -171,13 +174,22 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         static final int[] ALL = {TYPE_NORMAL, TYPE_DETAIL};
 
         @Override
+        public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+            this.scrollState = scrollState;
+        }
+
+        @Override
         public boolean areAllItemsEnabled() {
-            return false;
+            return true;
         }
 
         @Override
         public boolean isEnabled(int position) {
-            return false;
+            return true;
         }
 
         @Override
@@ -220,16 +232,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             }
 
             if (selected == position) {
-                convertView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        select(-1);
-                    }
-                });
+                //
+                // fill detailed alarm
+                //
 
-                if ((int) convertView.getTag() == TYPE_NORMAL) {
+                if ((int) convertView.getTag() == TYPE_NORMAL && scrollState == SCROLL_STATE_IDLE) {
                     AlarmExpandAnimation e = new AlarmExpandAnimation(convertView);
-                    convertView.clearAnimation();
                     convertView.startAnimation(e);
                 } else {
                     convertView.findViewById(R.id.alarm_detailed).setVisibility(View.VISIBLE);
@@ -238,28 +246,71 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                 }
                 convertView.setTag(TYPE_DETAIL);
 
+                final CheckBox alarmRepeat = (CheckBox) convertView.findViewById(R.id.alarm_week_days);
+                final View alarmWeek = convertView.findViewById(R.id.alarm_week);
+
+                alarmRepeat.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (alarmRepeat.isChecked()) {
+                            MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmWeek);
+                            alarmWeek.startAnimation(e);
+                        } else {
+                            MarginCollapseAnimation e = new MarginCollapseAnimation(alarmWeek);
+                            alarmWeek.startAnimation(e);
+                        }
+                    }
+                });
+                alarmWeek.setVisibility(alarmRepeat.isChecked() ? View.VISIBLE : View.GONE);
+
+                final CheckBox alarmRingtone = (CheckBox) convertView.findViewById(R.id.alarm_ringtone);
+                final View alarmRingtoneLayout = convertView.findViewById(R.id.alarm_ringtone_layout);
+
+                alarmRingtone.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (alarmRingtone.isChecked()) {
+                            MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmRingtoneLayout);
+                            alarmRingtoneLayout.startAnimation(e);
+                        } else {
+                            MarginCollapseAnimation e = new MarginCollapseAnimation(alarmRingtoneLayout);
+                            alarmRingtoneLayout.startAnimation(e);
+                        }
+                    }
+                });
+                alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
+
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        select(-1);
+                    }
+                });
+
+                return convertView;
+            } else {
+                //
+                // fill compact alarm
+                //
+
+                if ((int) convertView.getTag() == TYPE_DETAIL && scrollState == SCROLL_STATE_IDLE) {
+                    AlarmCollapseAnimation e = new AlarmCollapseAnimation(convertView);
+                    convertView.startAnimation(e);
+                } else {
+                    convertView.findViewById(R.id.alarm_detailed).setVisibility(View.GONE);
+                    convertView.findViewById(R.id.alarm_bottom).setVisibility(View.GONE);
+                    convertView.findViewById(R.id.alarm_compact).setVisibility(View.VISIBLE);
+                }
+                convertView.setTag(TYPE_NORMAL);
+
+                convertView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        select(position);
+                    }
+                });
                 return convertView;
             }
-
-            if ((int) convertView.getTag() == TYPE_DETAIL) {
-                AlarmCollapseAnimation e = new AlarmCollapseAnimation(convertView);
-                convertView.clearAnimation();
-                convertView.startAnimation(e);
-            } else {
-                convertView.findViewById(R.id.alarm_detailed).setVisibility(View.GONE);
-                convertView.findViewById(R.id.alarm_bottom).setVisibility(View.GONE);
-                convertView.findViewById(R.id.alarm_compact).setVisibility(View.VISIBLE);
-            }
-            convertView.setTag(TYPE_NORMAL);
-
-            convertView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    select(position);
-                }
-            });
-
-            return convertView;
         }
 
         void select(int pos) {
@@ -313,6 +364,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
             final ListView list = (ListView) rootView.findViewById(R.id.section_label);
             list.setAdapter(adapter);
+            list.setOnScrollListener(adapter);
             FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
             fab.setOnClickListener(new View.OnClickListener() {
                 @Override

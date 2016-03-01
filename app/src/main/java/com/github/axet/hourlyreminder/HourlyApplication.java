@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
+import android.media.AudioFormat;
 import android.media.AudioManager;
+import android.media.AudioTrack;
 import android.media.ToneGenerator;
 import android.os.Build;
 import android.os.Bundle;
@@ -97,55 +99,81 @@ public class HourlyApplication extends Application {
         });
     }
 
+    // https://gist.github.com/slightfoot/6330866
+    private AudioTrack generateTone(double freqHz, int durationMs) {
+        int count = (int) (44100.0 * 2.0 * (durationMs / 1000.0)) & ~1;
+        short[] samples = new short[count];
+        for (int i = 0; i < count; i += 2) {
+            short sample = (short) (Math.sin(2 * Math.PI * i / (44100.0 / freqHz)) * 0x7FFF);
+            samples[i + 0] = sample;
+            samples[i + 1] = sample;
+        }
+        AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+                AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
+                count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
+        track.write(samples, 0, count);
+        return track;
+    }
+
     public void soundAlarm() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         if (shared.getBoolean("beep", false)) {
-            int volume = (int) (shared.getFloat("volume", 1f) * 100);
-            int delay = 500;
+            int delay = 100;
 
-            ToneGenerator toneG = new ToneGenerator(AudioManager.STREAM_ALARM, volume);
-            toneG.startTone(ToneGenerator.TONE_PROP_BEEP, delay);
+            AudioTrack track = generateTone(900, delay);
+
+            if (Build.VERSION.SDK_INT < 21) {
+                track.setStereoVolume(getVolume(), getVolume());
+            } else {
+                track.setVolume(getVolume());
+            }
+
+            track.play();
 
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     playSound();
                 }
-            }, delay);
+            }, delay * 2);
         } else {
             playSound();
         }
     }
 
+    float getVolume() {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        float v = (float) (Math.pow(shared.getFloat("volume", 1f), 3));
+
+        return v;
+    }
+
     void playSound() {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int min = Calendar.getInstance().get(Calendar.MINUTE);
+
         String speak;
 
         if (min != 0) {
-            if( min < 10) {
+            if (min < 10) {
                 speak = String.format("Time is %d o %d.", hour, min);
-            }else {
+            } else {
                 speak = String.format("Time is %d %02d.", hour, min);
             }
         } else
             speak = String.format("%d o'clock", hour);
 
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
-
-        float v = (float) (Math.pow(shared.getFloat("volume", 1f), 3));
 
         if (Build.VERSION.SDK_INT >= 21) {
             Bundle params = new Bundle();
-            params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, v);
+            params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, getVolume());
 
             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
         } else {
             HashMap<String, String> params = new HashMap<>();
-            params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(v));
+            params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(getVolume()));
             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params);
         }
     }
