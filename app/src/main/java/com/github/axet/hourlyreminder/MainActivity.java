@@ -88,6 +88,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 //        });
 
         ((HourlyApplication) getApplicationContext()).updateAlerts();
+
+        Intent intent = getIntent();
+        if(intent.getAction() == HourlyApplication.NOTIFICATION) {
+            mViewPager.setCurrentItem(1);
+        }
     }
 
     @Override

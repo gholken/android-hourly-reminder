@@ -264,11 +264,16 @@ public class HourlyApplication extends Application {
             intent.putExtra("time", time);
             PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
+            Intent maini = new Intent(this, MainActivity.class).setAction(NOTIFICATION);
+            maini.putExtra("time", time);
+            PendingIntent main = PendingIntent.getActivity(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
             String text = String.format("%02d:%02d", hour, min);
 
             RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification);
             view.setOnClickPendingIntent(R.id.notification_cancel, pe);
             view.setTextViewText(R.id.notification_text, text);
+            view.setOnClickPendingIntent(R.id.notification_base, main);
 
             Notification.Builder builder = new Notification.Builder(this)
                     .setOngoing(true)
