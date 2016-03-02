@@ -3,6 +3,7 @@
     package="com.github.axet.hourlyreminder">
 
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:name=".HourlyApplication"
@@ -24,8 +25,7 @@
 
         <activity
             android:name=".SettingsActivity"
-            android:label="@string/app_name">
-        </activity>
+            android:label="@string/app_name"></activity>
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"

@@ -3,6 +3,7 @@ package com.github.axet.hourlyreminder;
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
+import android.widget.HorizontalScrollView;
 
 public class AlarmService extends IntentService {
 
@@ -12,9 +13,11 @@ public class AlarmService extends IntentService {
 
     @Override
     public void onHandleIntent(Intent workIntent) {
-        Log.d(AlarmService.class.getSimpleName(), "Alarm: " + workIntent);
-        ((HourlyApplication) getApplication()).updateAlerts(getApplicationContext());
+        long time = workIntent.getLongExtra("time", 0);
 
-        ((HourlyApplication) getApplication()).soundAlarm();
+        Log.d(HourlyApplication.class.getSimpleName(), "AlarmService: " + HourlyApplication.formatTime(time));
+        ((HourlyApplication) getApplication()).updateAlerts();
+
+        ((HourlyApplication) getApplication()).soundAlarm(time);
     }
 }

@@ -87,12 +87,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 //            }
 //        });
 
-        ((HourlyApplication) getApplicationContext()).updateAlerts(getApplicationContext());
+        ((HourlyApplication) getApplicationContext()).updateAlerts();
     }
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        HourlyApplication.updateAlerts(getApplicationContext());
+        ((HourlyApplication) getApplicationContext()).updateAlerts();
     }
 
     @Override
@@ -130,11 +130,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new RemindersFragment();
+                    return new GeneralPreferenceFragment();
                 case 1:
                     return new AlarmsFragment();
-                case 2:
-                    return new GeneralPreferenceFragment();
                 default:
                     throw new RuntimeException("bad page");
             }
@@ -142,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
@@ -152,8 +150,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
                     return "Hourly Reminders";
                 case 1:
                     return "Custom Alarms";
-                case 2:
-                    return "Settings";
             }
             return null;
         }

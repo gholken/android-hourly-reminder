@@ -10,7 +10,8 @@ import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
-import android.media.ToneGenerator;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -19,13 +20,16 @@ import android.speech.tts.TextToSpeech;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.UUID;
 
 public class HourlyApplication extends Application {
@@ -33,18 +37,30 @@ public class HourlyApplication extends Application {
     Handler handler;
     List<Alarm> alarms;
 
+    // beep ms
+    public static final int BEEP = 100;
+
+    public static String formatTime(long time) {
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return s.format(new Date(time));
+    }
+
+    public List<Alarm> getAlarms() {
+        return alarms;
+    }
+
     public void loadAlarms() {
         alarms = new ArrayList<>();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         int c = shared.getInt("Alarm_Count", 0);
         if (c == 0) {
-            alarms.add(new Alarm());
+            alarms.add(new Alarm(this));
         }
 
         for (int i = 0; i < c; i++) {
             String prefix = "Alarm_" + i + "_";
-            Alarm a = new Alarm();
+            Alarm a = new Alarm(this);
             a.time = shared.getLong(prefix + "Time", 0);
             a.enable = shared.getBoolean(prefix + "Enable", false);
             a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
@@ -55,10 +71,6 @@ public class HourlyApplication extends Application {
             a.speech = shared.getBoolean(prefix + "Speech", false);
             alarms.add(a);
         }
-    }
-
-    public List<Alarm> getAlarms() {
-        return alarms;
     }
 
     public void saveAlarms() {
@@ -80,49 +92,95 @@ public class HourlyApplication extends Application {
         edit.commit();
     }
 
-    public static void updateAlerts(Context context) {
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        boolean enabled = shared.getBoolean("enabled", false);
+    public boolean isReminder(int hour) {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
+        String h = String.format("%02d", hour);
+        return hours.contains(h);
+    }
+
+    public TreeSet<Long> generateReminders(Calendar cur) {
+        TreeSet<Long> alarms = new TreeSet<>();
+
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
+
+        int hour = cur.get(Calendar.HOUR_OF_DAY);
 
         for (int i = 0; i < 24; i++) {
             String h = String.format("%02d", i);
-            String a = SettingsActivity.class.getName() + "#" + h;
 
-            final Intent intent = new Intent(context, AlarmService.class).setAction(a);
-            intent.putExtra("hour", i);
-
-            PendingIntent pe = PendingIntent.getService(context, i, intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
-
-            Calendar calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(System.currentTimeMillis());
-            calendar.set(Calendar.HOUR_OF_DAY, i);
-            calendar.set(Calendar.MINUTE, 0);
-            calendar.set(Calendar.SECOND, 0);
-
-            int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, i);
+            cal.set(Calendar.MINUTE, 0);
+            cal.set(Calendar.SECOND, 0);
 
             if (i <= hour)
-                calendar.add(Calendar.DATE, 1);
+                cal.add(Calendar.DATE, 1);
 
-            AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            if (enabled && hours.contains(h)) {
-                if (shared.getBoolean("alarm", true)) {
-                    if (Build.VERSION.SDK_INT >= 21) {
-                        alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(calendar.getTimeInMillis(), pe), pe);
-                    } else {
-                        alarm.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
-                    }
+            if (hours.contains(h)) {
+                alarms.add(cal.getTimeInMillis());
+            }
+        }
+
+        return alarms;
+    }
+
+    public TreeSet<Long> generateAlarms(Calendar cur) {
+        TreeSet<Long> alarms = new TreeSet<>();
+
+        for (Alarm a : this.alarms) {
+            if (!a.enable)
+                continue;
+            alarms.add(a.getAlarmTime(cur));
+        }
+
+        return alarms;
+    }
+
+    public void updateAlerts() {
+        Context context = this;
+
+        AlarmManager alarm = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        TreeSet<Long> alarms = new TreeSet<>();
+
+        Calendar cur = Calendar.getInstance();
+
+        // check hourly reminders
+        if (shared.getBoolean("enabled", false)) {
+            alarms.addAll(generateReminders(cur));
+        }
+        // check alarms
+        alarms.addAll(generateAlarms(cur));
+
+        final Intent intent = new Intent(context, AlarmService.class).setAction(HourlyApplication.class.getSimpleName());
+
+        if (alarms.isEmpty()) {
+            PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            alarm.cancel(pe);
+        } else {
+            long time = alarms.first();
+
+            intent.putExtra("time", time);
+
+            PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+            Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
+
+            if (shared.getBoolean("alarm", true)) {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(time, pe), pe);
                 } else {
-                    if (Build.VERSION.SDK_INT >= 23) {
-                        alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
-                    } else {
-                        alarm.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pe);
-                    }
+                    alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
                 }
             } else {
-                alarm.cancel(pe);
+                if (Build.VERSION.SDK_INT >= 23) {
+                    alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pe);
+                } else {
+                    alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
+                }
             }
         }
     }
@@ -167,31 +225,105 @@ public class HourlyApplication extends Application {
         return track;
     }
 
+    public Alarm getAlarm(int hour, int min) {
+        for (Alarm a : alarms) {
+            if (a.getHour() == hour && a.getMin() == min)
+                return a;
+        }
+        return null;
+    }
+
+    // alarm come from service call (System Alarm Manager) at specified time
+    public void soundAlarm(long time) {
+        // find hourly reminder + alarm = combine proper sound notification (can be merge beep, speech, ringtone)
+        //
+        // then sound alarm or hourly reminder
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+
+        int ah = cal.get(Calendar.HOUR_OF_DAY);
+        int am = cal.get(Calendar.MINUTE);
+
+        // merge notifications
+        boolean reminder = isReminder(ah);
+        Alarm a = getAlarm(ah, am);
+
+        boolean beep = false;
+        boolean speech = false;
+        boolean ringtone = false;
+        String ringtoneValue;
+
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        if (reminder) {
+            beep = shared.getBoolean("beep", false);
+            speech = true;
+        }
+
+        if (a != null && a.enable) {
+            beep |= a.beep;
+            speech |= a.speech;
+            ringtone |= a.ringtone;
+            ringtoneValue = a.ringtoneValue;
+
+            // show Dismiss activity. or for now just a stub with sounds.
+            if (beep) {
+                playBeep();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        playSound();
+                    }
+                }, BEEP * 2);
+            } else {
+                playSound();
+            }
+            return;
+        }
+
+        if (reminder) {
+            if (beep) {
+                playBeep();
+                handler.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        playSound();
+                    }
+                }, BEEP * 2);
+            } else {
+                playSound();
+            }
+            return;
+        }
+    }
+
     public void soundAlarm() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         if (shared.getBoolean("beep", false)) {
-            int delay = 100;
-
-            AudioTrack track = generateTone(900, delay);
-
-            if (Build.VERSION.SDK_INT < 21) {
-                track.setStereoVolume(getVolume(), getVolume());
-            } else {
-                track.setVolume(getVolume());
-            }
-
-            track.play();
-
+            playBeep();
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     playSound();
                 }
-            }, delay * 2);
+            }, BEEP * 2);
         } else {
             playSound();
         }
+    }
+
+    void playBeep() {
+        AudioTrack track = generateTone(900, BEEP);
+
+        if (Build.VERSION.SDK_INT < 21) {
+            track.setStereoVolume(getVolume(), getVolume());
+        } else {
+            track.setVolume(getVolume());
+        }
+
+        track.play();
     }
 
     float getVolume() {
@@ -228,6 +360,22 @@ public class HourlyApplication extends Application {
             params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(getVolume()));
             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params);
         }
+    }
+
+    public void playOnce(Uri uri) {
+        // https://code.google.com/p/android/issues/detail?id=1314
+        final MediaPlayer player = MediaPlayer.create(this, uri);
+        player.setLooping(false);
+        player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                                           @Override
+                                           public void onCompletion(MediaPlayer mp) {
+                                               player.stop();
+                                               player.release();
+                                           }
+                                       }
+        );
+        player.setVolume(getVolume(), getVolume());
+        player.start();
     }
 
 }

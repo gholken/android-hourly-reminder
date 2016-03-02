@@ -160,7 +160,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         final FrameLayout v = (FrameLayout) findViewById(android.R.id.content);
         final ListView list = (ListView) v.findViewById(android.R.id.list);
 
-        ((HourlyApplication) getApplicationContext()).updateAlerts(getApplicationContext());
+        ((HourlyApplication) getApplicationContext()).updateAlerts();
     }
 
     /**
@@ -201,7 +201,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        HourlyApplication.updateAlerts(getApplicationContext());
+        ((HourlyApplication)(getApplicationContext())).updateAlerts();
     }
 
     /**
