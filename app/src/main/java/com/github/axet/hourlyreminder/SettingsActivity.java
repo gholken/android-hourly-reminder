@@ -64,10 +64,10 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference instanceof SeekBarDialogPreference) {
+            /*if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
                 preference.setSummary((int) (f * 100) + "%");
-            } else if (preference instanceof MultiSelectListPreference) {
+            } else */if (preference instanceof MultiSelectListPreference) {
                 List sortedList = new ArrayList((Set) value);
                 Collections.sort(sortedList);
 
@@ -160,7 +160,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
         final FrameLayout v = (FrameLayout) findViewById(android.R.id.content);
         final ListView list = (ListView) v.findViewById(android.R.id.list);
 
-        ((HourlyApplication) getApplicationContext()).updateAlerts(getApplicationContext());
+        ((HourlyApplication) getApplicationContext()).updateAlerts();
     }
 
     /**
@@ -201,7 +201,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        HourlyApplication.updateAlerts(getApplicationContext());
+        ((HourlyApplication)(getApplicationContext())).updateAlerts();
     }
 
     /**

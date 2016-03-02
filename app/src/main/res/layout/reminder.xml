@@ -1,0 +1,304 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/alarm_base"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/appbar_padding_top"
+    tools:context=".MainActivity$AlarmsFragment">
+
+    <com.github.axet.hourlyreminder.EqualLinearLayout
+        android:id="@+id/alarm_top"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/alarm_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="16dp"
+            android:text="00-23h"
+            android:textSize="36dp"
+            android:textStyle="bold" />
+
+        <Switch
+            android:id="@+id/alarm_enable"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center" />
+    </com.github.axet.hourlyreminder.EqualLinearLayout>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.github.axet.hourlyreminder.SquareLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    style="@style/RoundCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="00" />
+
+                <CheckBox
+                    style="@style/RoundCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="01" />
+
+                <CheckBox
+                    style="@style/RoundCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="02" />
+
+                <CheckBox
+                    style="@style/RoundCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="03" />
+
+                <CheckBox
+                    style="@style/RoundCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="04" />
+
+                <CheckBox
+                    style="@style/RoundCheckBox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="05" />
+                />
+            </com.github.axet.hourlyreminder.SquareLinearLayout>
+
+            <com.github.axet.hourlyreminder.SquareLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="06"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="07"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="08"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="09"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="10"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="11"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+            </com.github.axet.hourlyreminder.SquareLinearLayout>
+
+            <com.github.axet.hourlyreminder.SquareLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="12"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="13"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="14"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="15"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="16"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="17"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+            </com.github.axet.hourlyreminder.SquareLinearLayout>
+
+            <com.github.axet.hourlyreminder.SquareLinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="18"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="19"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="20"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="21"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="22"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+
+                <CheckBox
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:background="@drawable/checkbox_background"
+                    android:button="@android:color/transparent"
+                    android:text="23"
+                    android:textAlignment="center"
+                    android:textColor="@drawable/checkbox_textcolor"
+                    android:textStyle="bold" />
+            </com.github.axet.hourlyreminder.SquareLinearLayout>
+        </LinearLayout>
+    </FrameLayout>
+
+
+</LinearLayout>

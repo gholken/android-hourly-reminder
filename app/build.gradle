@@ -6,10 +6,10 @@ android {
 
     defaultConfig {
         applicationId "com.github.axet.hourlyreminder"
-        minSdkVersion 11
+        minSdkVersion 17
         targetSdkVersion 23
-        versionCode 11
-        versionName "1.0.10"
+        versionCode 12
+        versionName "1.0.11"
     }
     signingConfigs {
         release {
@@ -31,7 +31,9 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:design:23.2.0'
     compile 'com.android.support:appcompat-v7:23.2.0'
+    compile 'com.android.support:support-v13:23.2.0'
+    compile 'com.android.support:preference-v14:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
 }
