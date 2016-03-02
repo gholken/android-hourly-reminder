@@ -2,6 +2,8 @@ package com.github.axet.hourlyreminder;
 
 import android.app.AlarmManager;
 import android.app.Application;
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -16,8 +18,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.CalendarContract;
 import android.speech.tts.TextToSpeech;
 import android.util.Log;
+import android.widget.RemoteViews;
 import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
@@ -33,6 +37,9 @@ import java.util.TreeSet;
 import java.util.UUID;
 
 public class HourlyApplication extends Application {
+    public static final String CANCEL = "CANCEL";
+    public static final String NOTIFICATION = "NOTIFICATION";
+
     TextToSpeech tts;
     Handler handler;
     List<Alarm> alarms;
@@ -138,6 +145,22 @@ public class HourlyApplication extends Application {
         return alarms;
     }
 
+    public void tomorrow(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+
+        int ah = cal.get(Calendar.HOUR_OF_DAY);
+        int am = cal.get(Calendar.MINUTE);
+
+        Alarm a = getAlarm(ah, am);
+        if (a == null)
+            return;
+
+        a.setTomorrow();
+        updateAlerts();
+    }
+
+    // return current alarm set, 0 if none.
     public void updateAlerts() {
         Context context = this;
 
@@ -155,11 +178,12 @@ public class HourlyApplication extends Application {
         // check alarms
         alarms.addAll(generateAlarms(cur));
 
-        final Intent intent = new Intent(context, AlarmService.class).setAction(HourlyApplication.class.getSimpleName());
+        Intent intent = new Intent(context, AlarmService.class).setAction(HourlyApplication.class.getSimpleName());
 
         if (alarms.isEmpty()) {
             PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
             alarm.cancel(pe);
+            updateNotification(0);
         } else {
             long time = alarms.first();
 
@@ -168,6 +192,8 @@ public class HourlyApplication extends Application {
             PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
             Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
+
+            updateNotification(time);
 
             if (shared.getBoolean("alarm", true)) {
                 if (Build.VERSION.SDK_INT >= 21) {
@@ -182,6 +208,79 @@ public class HourlyApplication extends Application {
                     alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
                 }
             }
+        }
+    }
+
+    void updateNotification(long time) {
+        Intent intent = new Intent(this, AlarmService.class).setAction(NOTIFICATION);
+        intent.putExtra("time", time);
+        PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+
+        alarm.cancel(pe);
+
+        if (time == 0) {
+            showNotification(0);
+            return;
+        } else {
+            Calendar cur = Calendar.getInstance();
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(time);
+            cal.add(Calendar.MINUTE, -15);
+
+            if (cur.after(cal)) {
+                // we already 15 before alarm, show notification
+                showNotification(time);
+            } else {
+                showNotification(0);
+                // time to wait before show notification
+                time = cal.getTimeInMillis();
+
+                if (Build.VERSION.SDK_INT >= 23) {
+                    alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pe);
+                } else {
+                    alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
+                }
+            }
+        }
+    }
+
+    // time - 0 cancel notifcation
+    // time - upcoming alarm time, show text.
+    void showNotification(long time) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (time == 0) {
+            notificationManager.cancel(0);
+        } else {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(time);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int min = c.get(Calendar.MINUTE);
+
+            Intent intent = new Intent(this, AlarmService.class).setAction(CANCEL);
+            intent.putExtra("time", time);
+            PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+            String text = String.format("%02d:%02d", hour, min);
+
+            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification);
+            view.setOnClickPendingIntent(R.id.notification_cancel, pe);
+            view.setTextViewText(R.id.notification_text, text);
+
+            Notification.Builder builder = new Notification.Builder(this)
+                    .setOngoing(true)
+                    .setContentTitle("Upcoming alarm")
+                    .setContentText(text)
+                    .setSmallIcon(R.drawable.ic_notifications_black_24dp)
+                    .setContent(view);
+
+            if (Build.VERSION.SDK_INT >= 21)
+                builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+
+            notificationManager.notify(0, builder.build());
         }
     }
 

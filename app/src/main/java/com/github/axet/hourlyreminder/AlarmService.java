@@ -14,10 +14,16 @@ public class AlarmService extends IntentService {
     @Override
     public void onHandleIntent(Intent workIntent) {
         long time = workIntent.getLongExtra("time", 0);
+        if (workIntent.getAction() == HourlyApplication.NOTIFICATION) {
+            ((HourlyApplication) getApplication()).showNotification(time);
+        } else if (workIntent.getAction() == HourlyApplication.CANCEL) {
+            ((HourlyApplication) getApplication()).tomorrow(time);
+        } else {
+            Log.d(HourlyApplication.class.getSimpleName(), "AlarmService: " + HourlyApplication.formatTime(time));
+            ((HourlyApplication) getApplication()).updateAlerts();
 
-        Log.d(HourlyApplication.class.getSimpleName(), "AlarmService: " + HourlyApplication.formatTime(time));
-        ((HourlyApplication) getApplication()).updateAlerts();
-
-        ((HourlyApplication) getApplication()).soundAlarm(time);
+            ((HourlyApplication) getApplication()).soundAlarm(time);
+        }
     }
 }
+
