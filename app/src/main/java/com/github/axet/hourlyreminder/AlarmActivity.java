@@ -129,6 +129,16 @@ public class AlarmActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (player != null) {
+            player.release();
+            player = null;
+        }
+    }
+
     void playRingtone(Alarm a) {
         final HourlyApplication app = ((HourlyApplication) getApplicationContext());
         if (player != null)

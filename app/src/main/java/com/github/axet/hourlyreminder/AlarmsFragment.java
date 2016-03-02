@@ -5,11 +5,13 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -23,6 +25,8 @@ import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
@@ -33,6 +37,9 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,12 +49,15 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     final int[] ALL = {TYPE_NORMAL, TYPE_DETAIL};
 
-    Alarm fragmentRequest;
+    Alarm fragmentRequestRingtone;
+
     ArrayList<DataSetObserver> listeners = new ArrayList<>();
     List<Alarm> alarms = new ArrayList<>();
     int selected = -1;
     int scrollState;
     Handler handler;
+    // preview ringtone
+    MediaPlayer preview;
 
     public AlarmsFragment() {
     }
@@ -85,29 +95,38 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (fragmentRequest == null)
+        if (fragmentRequestRingtone == null)
             return;
 
         if (resultCode != Activity.RESULT_OK) {
-            fragmentRequest = null;
+            fragmentRequestRingtone = null;
             return;
         }
 
         if (requestCode == 0) {
             Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri != null) {
-                fragmentRequest.ringtoneValue = uri.toString();
+                fragmentRequestRingtone.ringtoneValue = uri.toString();
             } else {
-                fragmentRequest.ringtoneValue = "";
+                fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
             }
-            save(fragmentRequest);
-            fragmentRequest = null;
+            save(fragmentRequestRingtone);
+            fragmentRequestRingtone = null;
             changed();
             return;
         }
 
         if (requestCode == 1) {
             Uri uri = data.getData();
+            if (uri != null) {
+                File f = ((HourlyApplication) getActivity().getApplicationContext()).storeRingtone(uri);
+                fragmentRequestRingtone.ringtoneValue = f.getAbsolutePath();
+            } else {
+                fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
+            }
+            save(fragmentRequestRingtone);
+            fragmentRequestRingtone = null;
+            changed();
             return;
         }
     }
@@ -172,6 +191,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         final Alarm a = alarms.get(position);
 
+        final View alarmRingtonePlay = convertView.findViewById(R.id.alarm_ringtone_play);
+        alarmRingtonePlay.clearAnimation();
+
         if (selected == position) {
             fillDetailed(parent, convertView, a);
 
@@ -204,6 +226,11 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     void select(int pos) {
+        // stop sound preview when detailed view closed.
+        if (preview != null) {
+            preview.release();
+            preview = null;
+        }
         selected = pos;
         changed();
     }
@@ -267,8 +294,14 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
 
         String title = "";
-        Ringtone rt = RingtoneManager.getRingtone(getActivity(), Uri.parse(a.ringtoneValue));
-        title = rt.getTitle(getActivity());
+
+        File f = new File(a.ringtoneValue);
+        if (f.exists()) {
+            title = f.getName();
+        } else {
+            Ringtone rt = RingtoneManager.getRingtone(getActivity(), Uri.parse(a.ringtoneValue));
+            title = rt.getTitle(getActivity());
+        }
 
         ringtoneValue.setText(title.isEmpty() ? Alarm.DEFAULT_RING : title);
         final CheckBox beep = (CheckBox) view.findViewById(R.id.alarm_beep);
@@ -333,11 +366,19 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         alarmRingtonePlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (preview != null) {
+                    alarmRingtonePlay.clearAnimation();
+                    preview.release();
+                    preview = null;
+                    return;
+                }
                 if (a.ringtoneValue.isEmpty())
                     return;
                 Uri uri = Uri.parse(a.ringtoneValue);
 
-                ((HourlyApplication) getActivity().getApplicationContext()).playOnce(uri);
+                preview = ((HourlyApplication) getActivity().getApplicationContext()).playOnce(uri);
+                Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
+                alarmRingtonePlay.startAnimation(a);
             }
         });
 
@@ -364,15 +405,15 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         ringtoneButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragmentRequest = a;
+                fragmentRequestRingtone = a;
                 Uri uri = null;
                 if (!a.ringtoneValue.isEmpty()) {
                     uri = Uri.parse(a.ringtoneValue);
                 }
 
                 startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
-                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Tone")
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm")
                         .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) uri), 0);
             }
         });
@@ -380,7 +421,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         ringtoneBrowse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                fragmentRequest = a;
+                fragmentRequestRingtone = a;
 
                 if (permitted())
                     selectFile();
@@ -434,6 +475,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
     }
 
+    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+
     boolean permitted(String[] ss) {
         for (String s : ss) {
             if (ContextCompat.checkSelfPermission(getActivity(), s) != PackageManager.PERMISSION_GRANTED) {
@@ -444,10 +487,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     boolean permitted() {
-        String[] permissions = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
-        for (String s : permissions) {
+        for (String s : PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(getActivity(), s) != PackageManager.PERMISSION_GRANTED) {
-                FragmentCompat.requestPermissions(this, permissions, 1);
+                FragmentCompat.requestPermissions(this, PERMISSIONS, 1);
                 return false;
             }
         }
@@ -480,4 +522,13 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         });
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (preview != null) {
+            preview.release();
+            preview = null;
+        }
+    }
 }
