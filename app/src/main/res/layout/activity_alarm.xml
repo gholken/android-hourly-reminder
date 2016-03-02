@@ -1,0 +1,17 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#0099cc"
+    android:id="@android:id/content"
+    tools:context="com.github.axet.hourlyreminder.AlarmActivity">
+
+    <Button
+        android:id="@+id/alarm_activity_button"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_gravity="center"
+        android:text="Dismiss Alarm" />
+
+
+</FrameLayout>

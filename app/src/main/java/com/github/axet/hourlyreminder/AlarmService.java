@@ -2,13 +2,23 @@ package com.github.axet.hourlyreminder;
 
 import android.app.IntentService;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.util.Log;
-import android.widget.HorizontalScrollView;
 
 public class AlarmService extends IntentService {
 
     public AlarmService() {
         super("AlarmService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
     }
 
     @Override

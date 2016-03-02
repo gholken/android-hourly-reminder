@@ -18,8 +18,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.CalendarContract;
 import android.speech.tts.TextToSpeech;
+import android.speech.tts.UtteranceProgressListener;
 import android.util.Log;
 import android.widget.RemoteViews;
 import android.widget.Toast;
@@ -47,9 +47,27 @@ public class HourlyApplication extends Application {
     // beep ms
     public static final int BEEP = 100;
 
+    // when alarm fires, it stay on for 45 min unless turned off by user.
+    Alarm activeAlarm;
+
     public static String formatTime(long time) {
         SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return s.format(new Date(time));
+    }
+
+    public void activateAlarm(Alarm a) {
+        activeAlarm = a;
+        startService(new Intent(this, ScreenService.class));
+        showAlarmActivity();
+    }
+
+    public Alarm getActiveAlarm() {
+        return activeAlarm;
+    }
+
+    public void clearActiveAlarm() {
+        stopService(new Intent(this, ScreenService.class));
+        activeAlarm = null;
     }
 
     public List<Alarm> getAlarms() {
@@ -99,13 +117,20 @@ public class HourlyApplication extends Application {
         edit.commit();
     }
 
-    public boolean isReminder(int hour) {
+    // check if 'hour' is a enabled reminder
+    public boolean isReminder(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+
+        int ah = cal.get(Calendar.HOUR_OF_DAY);
+
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
-        String h = String.format("%02d", hour);
+        String h = String.format("%02d", ah);
         return hours.contains(h);
     }
 
+    // create list for hour reminders. 'time' list for reminder (hronological order)
     public TreeSet<Long> generateReminders(Calendar cur) {
         TreeSet<Long> alarms = new TreeSet<>();
 
@@ -133,6 +158,7 @@ public class HourlyApplication extends Application {
         return alarms;
     }
 
+    // create list for alarms. 'time' list for alarms (hronological order)
     public TreeSet<Long> generateAlarms(Calendar cur) {
         TreeSet<Long> alarms = new TreeSet<>();
 
@@ -145,14 +171,9 @@ public class HourlyApplication extends Application {
         return alarms;
     }
 
+    // cancel alarm 'time' by set it time for day+1 (same hour:min)
     public void tomorrow(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
-        int ah = cal.get(Calendar.HOUR_OF_DAY);
-        int am = cal.get(Calendar.MINUTE);
-
-        Alarm a = getAlarm(ah, am);
+        Alarm a = getAlarm(time);
         if (a == null)
             return;
 
@@ -160,7 +181,9 @@ public class HourlyApplication extends Application {
         updateAlerts();
     }
 
-    // return current alarm set, 0 if none.
+    // scan all alarms and hourly reminders and register alarm for next one.
+    //
+    //
     public void updateAlerts() {
         Context context = this;
 
@@ -211,6 +234,10 @@ public class HourlyApplication extends Application {
         }
     }
 
+    // register notification alarm for 'time' - 15min.
+    //
+    // service will call showNotification(time)
+    //
     void updateNotification(long time) {
         Intent intent = new Intent(this, AlarmService.class).setAction(NOTIFICATION);
         intent.putExtra("time", time);
@@ -247,6 +274,8 @@ public class HourlyApplication extends Application {
         }
     }
 
+    // show notification.
+    //
     // time - 0 cancel notifcation
     // time - upcoming alarm time, show text.
     void showNotification(long time) {
@@ -316,6 +345,7 @@ public class HourlyApplication extends Application {
     // https://gist.github.com/slightfoot/6330866
     private AudioTrack generateTone(double freqHz, int durationMs) {
         int count = (int) (44100.0 * 2.0 * (durationMs / 1000.0)) & ~1;
+        int end = (int) (count / 2);
         short[] samples = new short[count];
         for (int i = 0; i < count; i += 2) {
             short sample = (short) (Math.sin(2 * Math.PI * i / (44100.0 / freqHz)) * 0x7FFF);
@@ -326,99 +356,83 @@ public class HourlyApplication extends Application {
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
                 count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
         track.write(samples, 0, count);
+        track.setNotificationMarkerPosition(end);
         return track;
     }
 
-    public Alarm getAlarm(int hour, int min) {
-        for (Alarm a : alarms) {
-            if (a.getHour() == hour && a.getMin() == min)
-                return a;
-        }
-        return null;
-    }
-
-    // alarm come from service call (System Alarm Manager) at specified time
-    public void soundAlarm(long time) {
-        // find hourly reminder + alarm = combine proper sound notification (can be merge beep, speech, ringtone)
-        //
-        // then sound alarm or hourly reminder
-
+    public Alarm getAlarm(long time) {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
 
         int ah = cal.get(Calendar.HOUR_OF_DAY);
         int am = cal.get(Calendar.MINUTE);
 
-        // merge notifications
-        boolean reminder = isReminder(ah);
-        Alarm a = getAlarm(ah, am);
-
-        boolean beep = false;
-        boolean speech = false;
-        boolean ringtone = false;
-        String ringtoneValue;
-
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
-        if (reminder) {
-            beep = shared.getBoolean("beep", false);
-            speech = true;
+        for (Alarm a : alarms) {
+            if (a.getHour() == ah && a.getMin() == am)
+                return a;
         }
+        return null;
+    }
+
+    // alarm come from service call (System Alarm Manager) for specified time
+    //
+    // we have to check what 'alarms' do we have at specified time (can be reminder + alarm)
+    // and act propertly.
+    public void soundAlarm(long time) {
+        // find hourly reminder + alarm = combine proper sound notification (can be merge beep, speech, ringtone)
+        //
+        // then sound alarm or hourly reminder
+
+        Alarm a = getAlarm(time);
 
         if (a != null && a.enable) {
-            beep |= a.beep;
-            speech |= a.speech;
-            ringtone |= a.ringtone;
-            ringtoneValue = a.ringtoneValue;
-
-            // show Dismiss activity. or for now just a stub with sounds.
-            if (beep) {
-                playBeep();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        playSound();
-                    }
-                }, BEEP * 2);
-            } else {
-                playSound();
-            }
+            activateAlarm(a);
             return;
         }
+
+        // merge notifications
+        boolean reminder = isReminder(time);
 
         if (reminder) {
-            if (beep) {
-                playBeep();
-                handler.postDelayed(new Runnable() {
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            if (shared.getBoolean("beep", false)) {
+                playBeep(new Runnable() {
                     @Override
                     public void run() {
-                        playSound();
+                        playSpeech(null);
                     }
-                }, BEEP * 2);
+                });
             } else {
-                playSound();
+                playSpeech(null);
             }
             return;
         }
+    }
+
+    public void showAlarmActivity() {
+        long time = activeAlarm.time;
+        Intent intent = new Intent(this, AlarmActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("time", time);
+        startActivity(intent);
     }
 
     public void soundAlarm() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         if (shared.getBoolean("beep", false)) {
-            playBeep();
-            handler.postDelayed(new Runnable() {
+            playBeep(new Runnable() {
                 @Override
                 public void run() {
-                    playSound();
+                    playSpeech(null);
                 }
-            }, BEEP * 2);
+            });
         } else {
-            playSound();
+            playSpeech(null);
         }
     }
 
-    void playBeep() {
+    void playBeep(final Runnable done) {
         AudioTrack track = generateTone(900, BEEP);
 
         if (Build.VERSION.SDK_INT < 21) {
@@ -427,7 +441,28 @@ public class HourlyApplication extends Application {
             track.setVolume(getVolume());
         }
 
+        track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
+            @Override
+            public void onMarkerReached(AudioTrack track) {
+                if (done != null)
+                    done.run();
+            }
+
+            @Override
+            public void onPeriodicNotification(AudioTrack track) {
+            }
+        });
+
         track.play();
+    }
+
+    public MediaPlayer playRingtone(Alarm a) {
+        Uri uri = Uri.parse(a.ringtoneValue);
+        MediaPlayer player = MediaPlayer.create(this, uri);
+        player.setLooping(true);
+        player.setVolume(getVolume(), getVolume());
+        player.start();
+        return player;
     }
 
     float getVolume() {
@@ -437,7 +472,7 @@ public class HourlyApplication extends Application {
         return v;
     }
 
-    void playSound() {
+    void playSpeech(final Runnable run) {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int min = Calendar.getInstance().get(Calendar.MINUTE);
 
@@ -454,14 +489,33 @@ public class HourlyApplication extends Application {
 
         Toast.makeText(getApplicationContext(), speak, Toast.LENGTH_SHORT).show();
 
+        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override
+            public void onStart(String utteranceId) {
+            }
+
+            @Override
+            public void onDone(String utteranceId) {
+                if (run != null)
+                    run.run();
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+                if (run != null)
+                    run.run();
+            }
+        });
+
         if (Build.VERSION.SDK_INT >= 21) {
             Bundle params = new Bundle();
             params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, getVolume());
-
+            params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
         } else {
             HashMap<String, String> params = new HashMap<>();
             params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(getVolume()));
+            params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
             tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params);
         }
     }
