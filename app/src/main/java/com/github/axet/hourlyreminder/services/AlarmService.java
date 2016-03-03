@@ -28,15 +28,20 @@ public class AlarmService extends Service {
     // alarm activity action. close it.
     public static final String CLOSE_ACTIVITY = AlarmService.class.getCanonicalName() + ".CLOSE_ACTIVITY";
 
+    // show activity broadcast
+    public static final String SHOW_ACTIVITY = AlarmService.class.getCanonicalName() + ".SHOW_ACTIVITY";
+
     // minutes
-    public static final int ALARM_AUTO_OFF = 1;
+    public static final int ALARM_AUTO_OFF = 15;
 
     public class ScreenReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(ScreenReceiver.class.getSimpleName(), "ScreenReceiver");
+            Log.d(ScreenReceiver.class.getSimpleName(), "ScreenReceiver " + intent.getAction());
 
             Intent i = new Intent(context, AlarmActivity.class);
+            long time = intent.getLongExtra("time", 0);
+            i.putExtra("time", time);
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(i);
         }
@@ -63,6 +68,7 @@ public class AlarmService extends Service {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_ON);
         //filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(SHOW_ACTIVITY);
         registerReceiver(receiver, filter);
 
         final long time = intent.getLongExtra("time", 0);
@@ -197,7 +203,7 @@ public class AlarmService extends Service {
 
             Intent maini = new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE);
             maini.putExtra("time", time);
-            PendingIntent main = PendingIntent.getBroadcast(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent main = PendingIntent.getActivity(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT);
 
             String text = String.format("Alarm %02d:%02d dismissed after %d mins", hour, min, ALARM_AUTO_OFF);
 
@@ -234,9 +240,9 @@ public class AlarmService extends Service {
             intent.putExtra("time", time);
             PendingIntent pe = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-            Intent maini = new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE);
+            Intent maini = new Intent().setAction(SHOW_ACTIVITY);
             maini.putExtra("time", time);
-            PendingIntent main = PendingIntent.getBroadcast(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent main = PendingIntent.getBroadcast(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT);
 
             String text = String.format("%02d:%02d", hour, min);
 
