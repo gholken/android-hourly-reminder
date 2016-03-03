@@ -13,16 +13,14 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.github.axet.hourlyreminder.activities.AlarmActivity;
 import com.github.axet.hourlyreminder.activities.MainActivity;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
 import com.github.axet.hourlyreminder.basics.Sound;
 import com.github.axet.hourlyreminder.basics.Storage;
+import com.github.axet.hourlyreminder.services.AlarmIntentService;
 import com.github.axet.hourlyreminder.services.AlarmService;
-import com.github.axet.hourlyreminder.services.ScreenService;
 
-import java.lang.reflect.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -34,13 +32,17 @@ import java.util.TreeSet;
 
 public class HourlyApplication extends Application {
     public static final String CANCEL = "CANCEL";
+    // upcoming noticiation alarm action. triggers notification upcoming.
     public static final String NOTIFICATION = "NOTIFICATION";
+
+    // MainActivity action
+    public static final String SHOW_ALARMS_PAGE = "SHOW_ALARMS_PAGE";
+
+    public static final int NOTIFICATION_UPCOMING_ICON = 0;
+    public static final int NOTIFICATION_ALARM_ICON = 1;
 
     List<Alarm> alarms;
     List<Reminder> reminders;
-
-    // when alarm fires, it stay on for 45 min unless turned off by user.
-    Alarm activeAlarm;
 
     public Sound sound;
     public Storage storage;
@@ -54,7 +56,7 @@ public class HourlyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        sound = new Sound(this, this);
+        sound = new Sound(this);
         storage = new Storage(this);
 
         loadAlarms();
@@ -70,18 +72,16 @@ public class HourlyApplication extends Application {
     }
 
     public void activateAlarm(Alarm a) {
-        activeAlarm = a;
-        startService(new Intent(this, ScreenService.class));
-        showAlarmActivity();
+        startService(new Intent(this, AlarmService.class)
+                .putExtra("time", a.time)
+                .putExtra("beep", a.beep)
+                .putExtra("speech", a.speech)
+                .putExtra("ringtone", a.ringtone)
+                .putExtra("ringtoneValue", a.ringtoneValue));
     }
 
-    public Alarm getActiveAlarm() {
-        return activeAlarm;
-    }
-
-    public void clearActiveAlarm() {
-        stopService(new Intent(this, ScreenService.class));
-        activeAlarm = null;
+    public void dismissActiveAlarm() {
+        stopService(new Intent(this, AlarmService.class));
     }
 
     public List<Alarm> getAlarms() {
@@ -234,12 +234,12 @@ public class HourlyApplication extends Application {
         // check alarms
         alarms.addAll(generateAlarms(cur));
 
-        Intent intent = new Intent(context, AlarmService.class).setAction(HourlyApplication.class.getSimpleName());
+        Intent intent = new Intent(context, AlarmIntentService.class).setAction(HourlyApplication.class.getSimpleName());
 
         if (alarms.isEmpty()) {
             PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
             alarm.cancel(pe);
-            updateNotification(0);
+            updateNotificationAlarm(0);
         } else {
             long time = alarms.first();
 
@@ -249,7 +249,7 @@ public class HourlyApplication extends Application {
 
             Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
 
-            updateNotification(time);
+            updateNotificationAlarm(time);
 
             if (shared.getBoolean("alarm", true)) {
                 if (Build.VERSION.SDK_INT >= 21) {
@@ -267,12 +267,12 @@ public class HourlyApplication extends Application {
         }
     }
 
-    // register notification alarm for 'time' - 15min.
+    // register notification_upcoming alarm for 'time' - 15min.
     //
-    // service will call showNotification(time)
+    // service will call showNotificationUpcoming(time)
     //
-    void updateNotification(long time) {
-        Intent intent = new Intent(this, AlarmService.class).setAction(NOTIFICATION);
+    void updateNotificationAlarm(long time) {
+        Intent intent = new Intent(this, AlarmIntentService.class).setAction(NOTIFICATION);
         intent.putExtra("time", time);
         PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
@@ -281,7 +281,7 @@ public class HourlyApplication extends Application {
         alarm.cancel(pe);
 
         if (time == 0) {
-            showNotification(0);
+            showNotificationUpcoming(0);
             return;
         } else {
             Calendar cur = Calendar.getInstance();
@@ -291,11 +291,11 @@ public class HourlyApplication extends Application {
             cal.add(Calendar.MINUTE, -15);
 
             if (cur.after(cal)) {
-                // we already 15 before alarm, show notification
-                showNotification(time);
+                // we already 15 before alarm, show notification_upcoming
+                showNotificationUpcoming(time);
             } else {
-                showNotification(0);
-                // time to wait before show notification
+                showNotificationUpcoming(0);
+                // time to wait before show notification_upcoming
                 time = cal.getTimeInMillis();
 
                 if (Build.VERSION.SDK_INT >= 23) {
@@ -307,32 +307,32 @@ public class HourlyApplication extends Application {
         }
     }
 
-    // show notification.
+    // show notification_upcoming. (about upcoming alarm)
     //
     // time - 0 cancel notifcation
     // time - upcoming alarm time, show text.
-    public void showNotification(long time) {
+    public void showNotificationUpcoming(long time) {
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (time == 0) {
-            notificationManager.cancel(0);
+            notificationManager.cancel(NOTIFICATION_UPCOMING_ICON);
         } else {
             Calendar c = Calendar.getInstance();
             c.setTimeInMillis(time);
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int min = c.get(Calendar.MINUTE);
 
-            Intent intent = new Intent(this, AlarmService.class).setAction(CANCEL);
+            Intent intent = new Intent(this, AlarmIntentService.class).setAction(CANCEL);
             intent.putExtra("time", time);
             PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-            Intent maini = new Intent(this, MainActivity.class).setAction(NOTIFICATION);
+            Intent maini = new Intent(this, MainActivity.class).setAction(SHOW_ALARMS_PAGE);
             maini.putExtra("time", time);
             PendingIntent main = PendingIntent.getActivity(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
             String text = String.format("%02d:%02d", hour, min);
 
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification);
+            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_upcoming);
             view.setOnClickPendingIntent(R.id.notification_cancel, pe);
             view.setTextViewText(R.id.notification_text, text);
             view.setOnClickPendingIntent(R.id.notification_base, main);
@@ -347,7 +347,7 @@ public class HourlyApplication extends Application {
             if (Build.VERSION.SDK_INT >= 21)
                 builder.setVisibility(Notification.VISIBILITY_PUBLIC);
 
-            notificationManager.notify(0, builder.build());
+            notificationManager.notify(NOTIFICATION_UPCOMING_ICON, builder.build());
         }
     }
 
@@ -363,14 +363,6 @@ public class HourlyApplication extends Application {
                 return a;
         }
         return null;
-    }
-
-    public void showAlarmActivity() {
-        long time = activeAlarm.time;
-        Intent intent = new Intent(this, AlarmActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("time", time);
-        startActivity(intent);
     }
 
 }

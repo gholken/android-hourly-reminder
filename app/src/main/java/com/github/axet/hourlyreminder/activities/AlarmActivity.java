@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.services.AlarmService;
 
 import java.util.Calendar;
 import java.util.Timer;
@@ -32,7 +33,6 @@ public class AlarmActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler handler = new Handler();
     private View mContentView;
-    MediaPlayer player;
     Timer timer;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -77,7 +77,10 @@ public class AlarmActivity extends AppCompatActivity {
                 WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON);
 
         Intent intent = getIntent();
-        long time = intent.getLongExtra("time", 0);
+
+        String action = intent.getAction();
+        if (action != null && action.equals(AlarmService.CLOSE_ACTIVITY))
+            finish();
 
         findViewById(R.id.alarm_activity_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,7 +88,15 @@ public class AlarmActivity extends AppCompatActivity {
                 finish();
             }
         });
+    }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+        String action = intent.getAction();
+        if (action != null && action.equals(AlarmService.CLOSE_ACTIVITY))
+            finish();
     }
 
     @Override
@@ -93,44 +104,6 @@ public class AlarmActivity extends AppCompatActivity {
         super.onPostCreate(savedInstanceState);
 
         hide();
-
-        final HourlyApplication app = ((HourlyApplication) getApplicationContext());
-
-        final Alarm a = app.getActiveAlarm();
-
-        if (a == null) {
-            finish();
-        } else {
-            if (a.beep) {
-                app.Sound().playBeep(new Runnable() {
-                                         @Override
-                                         public void run() {
-                                             if (a.speech) {
-                                                 app.Sound().playSpeech(new Runnable() {
-                                                     @Override
-                                                     public void run() {
-                                                         if (a.ringtone) {
-                                                             playRingtone(a);
-                                                         }
-                                                     }
-                                                 });
-                                             } else if (a.ringtone) {
-                                                 playRingtone(a);
-                                             }
-                                         }
-                                     }
-                );
-            } else if (a.speech) {
-                app.Sound().playSpeech(new Runnable() {
-                    @Override
-                    public void run() {
-                        playRingtone(a);
-                    }
-                });
-            } else if (a.ringtone) {
-                player = app.Sound().playRingtone(a);
-            }
-        }
 
         updateClock();
     }
@@ -182,24 +155,12 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        ((HourlyApplication) getApplicationContext()).clearActiveAlarm();
+        ((HourlyApplication) getApplicationContext()).dismissActiveAlarm();
 
         if (timer != null) {
             timer.cancel();
             timer = null;
         }
-
-        if (player != null) {
-            player.release();
-            player = null;
-        }
-    }
-
-    void playRingtone(Alarm a) {
-        final HourlyApplication app = ((HourlyApplication) getApplicationContext());
-        if (player != null)
-            player.release();
-        player = app.Sound().playRingtone(a);
     }
 
     private void hide() {

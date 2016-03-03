@@ -27,12 +27,10 @@ public class Sound {
     public static final int BEEP = 100;
 
     Context context;
-    HourlyApplication app;
     TextToSpeech tts;
 
-    public Sound(Context context, HourlyApplication app) {
+    public Sound(Context context) {
         this.context = context;
-        this.app = app;
 
         tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
@@ -51,6 +49,13 @@ public class Sound {
         });
     }
 
+    public void close() {
+        if (tts != null) {
+            tts.shutdown();
+            tts = null;
+        }
+    }
+
     // https://gist.github.com/slightfoot/6330866
     private AudioTrack generateTone(double freqHz, int durationMs) {
         int count = (int) (44100.0 * 2.0 * (durationMs / 1000.0)) & ~1;
@@ -67,41 +72,6 @@ public class Sound {
         track.write(samples, 0, count);
         track.setNotificationMarkerPosition(end);
         return track;
-    }
-
-    // alarm come from service call (System Alarm Manager) for specified time
-    //
-    // we have to check what 'alarms' do we have at specified time (can be reminder + alarm)
-    // and act propertly.
-    public void soundAlarm(long time) {
-        // find hourly reminder + alarm = combine proper sound notification (can be merge beep, speech, ringtone)
-        //
-        // then sound alarm or hourly reminder
-
-        Alarm a = app.getAlarm(time);
-
-        if (a != null && a.enable) {
-            app.activateAlarm(a);
-            return;
-        }
-
-        // merge notifications
-        Reminder reminder = app.getReminder(time);
-
-        if (reminder != null) {
-            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            if (shared.getBoolean("beep", false)) {
-                playBeep(new Runnable() {
-                    @Override
-                    public void run() {
-                        playSpeech(null);
-                    }
-                });
-            } else {
-                playSpeech(null);
-            }
-            return;
-        }
     }
 
     public void soundAlarm() {
@@ -143,8 +113,7 @@ public class Sound {
         track.play();
     }
 
-    public MediaPlayer playRingtone(Alarm a) {
-        Uri uri = Uri.parse(a.ringtoneValue);
+    public MediaPlayer playRingtone(Uri uri) {
         MediaPlayer player = MediaPlayer.create(context, uri);
         if (player == null) {
             player = MediaPlayer.create(context, Uri.parse(Alarm.DEFAULT_RING));

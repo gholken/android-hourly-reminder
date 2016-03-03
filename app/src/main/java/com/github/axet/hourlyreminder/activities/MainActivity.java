@@ -70,7 +70,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         ((HourlyApplication) getApplicationContext()).updateAlerts();
 
         Intent intent = getIntent();
-        if(intent.getAction() == HourlyApplication.NOTIFICATION) {
+        if(intent.getAction() == HourlyApplication.SHOW_ALARMS_PAGE) {
             mViewPager.setCurrentItem(1);
         }
     }
