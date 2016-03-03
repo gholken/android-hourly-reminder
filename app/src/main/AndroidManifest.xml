@@ -14,11 +14,11 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".services.AlarmService"
+            android:name=".services.AlarmIntentService"
             android:enabled="true"
             android:exported="false" />
         <service
-            android:name=".services.ScreenService"
+            android:name=".services.AlarmService"
             android:enabled="true"
             android:exported="true" />
 
