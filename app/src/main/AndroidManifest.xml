@@ -6,17 +6,13 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:persistent="true"
         android:name=".HourlyApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:persistent="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <service
-            android:name=".services.AlarmIntentService"
-            android:enabled="true"
-            android:exported="false" />
         <service
             android:name=".services.AlarmService"
             android:enabled="true"
@@ -42,10 +38,10 @@
             </intent-filter>
         </activity>
         <activity
-            android:launchMode="singleInstance"
             android:name=".activities.AlarmActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="@string/title_activity_alarm"
+            android:launchMode="singleInstance"
             android:showOnLockScreen="true"
             android:theme="@style/FullscreenTheme"></activity>
     </application>
