@@ -186,12 +186,18 @@ public class Sound {
             Bundle params = new Bundle();
             params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, getVolume());
             params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
-            tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString());
+            if (tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString()) != TextToSpeech.SUCCESS) {
+                if (run != null)
+                    run.run();
+            }
         } else {
             HashMap<String, String> params = new HashMap<>();
             params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(getVolume()));
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
-            tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params);
+            if (tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params) != TextToSpeech.SUCCESS) {
+                if (run != null)
+                    run.run();
+            }
         }
     }
 

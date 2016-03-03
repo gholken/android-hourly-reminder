@@ -58,10 +58,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
-                        <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+                        <LinearLayout
                             android:id="@+id/alarm_week"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
                             android:orientation="horizontal">
 
                             <CheckBox
@@ -112,7 +113,7 @@
                                 android:layout_height="wrap_content"
                                 android:tag="@string/SUNDAY"
                                 android:text="S" />
-                        </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+                        </LinearLayout>
                     </FrameLayout>
                 </LinearLayout>
 
