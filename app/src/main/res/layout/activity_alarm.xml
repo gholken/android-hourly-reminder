@@ -1,17 +1,31 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@android:id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#0099cc"
-    android:id="@android:id/content"
     tools:context=".activities.AlarmActivity">
+
+    <TextView
+        android:id="@+id/time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="20dp"
+        android:text="09:00"
+        android:textColor="@android:color/secondary_text_dark"
+        android:textSize="80dp" />
 
     <Button
         android:id="@+id/alarm_activity_button"
-        android:layout_width="160dp"
-        android:layout_height="160dp"
+        android:layout_width="170dp"
+        android:layout_height="170dp"
         android:layout_gravity="center"
-        android:text="Dismiss Alarm" />
+        android:background="@drawable/round_circle"
+        android:padding="5dp"
+        android:text="Dismiss Alarm"
+        android:textColor="@android:color/white"
+        android:textSize="20dp" />
 
 
 </FrameLayout>
