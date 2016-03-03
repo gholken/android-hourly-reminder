@@ -9,10 +9,15 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
+
+import java.util.Calendar;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -28,6 +33,7 @@ public class AlarmActivity extends AppCompatActivity {
     private final Handler handler = new Handler();
     private View mContentView;
     MediaPlayer player;
+    Timer timer;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
         @Override
@@ -76,11 +82,6 @@ public class AlarmActivity extends AppCompatActivity {
         findViewById(R.id.alarm_activity_button).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (player != null) {
-                    player.release();
-                    player = null;
-                }
-                ((HourlyApplication) getApplicationContext()).clearActiveAlarm();
                 finish();
             }
         });
@@ -130,11 +131,63 @@ public class AlarmActivity extends AppCompatActivity {
                 player = app.Sound().playRingtone(a);
             }
         }
+
+        updateClock();
+    }
+
+    void updateClock() {
+        Calendar cal = Calendar.getInstance();
+
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+
+        TextView text = (TextView) findViewById(R.id.time);
+        text.setText(String.format("%02d:%02d", hour, min));
+
+        if (timer != null)
+            timer.cancel();
+
+        timer = new Timer();
+        timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        updateClock();
+                    }
+                });
+            }
+        }, 1000);
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        updateClock();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        ((HourlyApplication) getApplicationContext()).clearActiveAlarm();
+
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
 
         if (player != null) {
             player.release();

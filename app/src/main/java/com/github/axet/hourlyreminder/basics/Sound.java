@@ -164,8 +164,9 @@ public class Sound {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int min = Calendar.getInstance().get(Calendar.MINUTE);
 
-        String speak;
+        String text = String.format("Time is %d:%d.", hour, min);
 
+        String speak;
         if (min != 0) {
             if (min < 10) {
                 speak = String.format("Time is %d o %d.", hour, min);
@@ -175,7 +176,7 @@ public class Sound {
         } else
             speak = String.format("%d o'clock", hour);
 
-        Toast.makeText(context, speak, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
 
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
@@ -213,6 +214,10 @@ public class Sound {
         MediaPlayer player = MediaPlayer.create(context, uri);
         if (player == null) {
             player = MediaPlayer.create(context, Uri.parse(Alarm.DEFAULT_RING));
+        }
+        if (player == null) {
+            Toast.makeText(context, "No default ringtone", Toast.LENGTH_SHORT).show();
+            return null;
         }
         final MediaPlayer p = player;
         player.setLooping(false);
