@@ -94,6 +94,7 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
 
+        // handing Intent.FLAG_ACTIVITY_NEW_TASK
         String action = intent.getAction();
         if (action != null && action.equals(AlarmService.CLOSE_ACTIVITY))
             finish();

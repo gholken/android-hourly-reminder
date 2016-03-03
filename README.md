@@ -14,4 +14,4 @@ Manual install
 
 # Screenshots
 
-![shot1](/docs/shot1.png)
+![shot](/docs/shot.png)
