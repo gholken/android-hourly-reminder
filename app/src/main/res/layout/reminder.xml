@@ -5,9 +5,9 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="@dimen/appbar_padding_top"
-    tools:context=".MainActivity$AlarmsFragment">
+    tools:context=".activities.MainActivity$AlarmsFragment">
 
-    <com.github.axet.hourlyreminder.EqualLinearLayout
+    <com.github.axet.hourlyreminder.layouts.EqualLinearLayout
         android:id="@+id/alarm_top"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:gravity="center" />
-    </com.github.axet.hourlyreminder.EqualLinearLayout>
+    </com.github.axet.hourlyreminder.layouts.EqualLinearLayout>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -39,7 +39,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <com.github.axet.hourlyreminder.SquareLinearLayout
+            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -80,9 +80,9 @@
                     android:layout_height="wrap_content"
                     android:text="05" />
                 />
-            </com.github.axet.hourlyreminder.SquareLinearLayout>
+            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
 
-            <com.github.axet.hourlyreminder.SquareLinearLayout
+            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -152,9 +152,9 @@
                     android:textAlignment="center"
                     android:textColor="@drawable/checkbox_textcolor"
                     android:textStyle="bold" />
-            </com.github.axet.hourlyreminder.SquareLinearLayout>
+            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
 
-            <com.github.axet.hourlyreminder.SquareLinearLayout
+            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -224,9 +224,9 @@
                     android:textAlignment="center"
                     android:textColor="@drawable/checkbox_textcolor"
                     android:textStyle="bold" />
-            </com.github.axet.hourlyreminder.SquareLinearLayout>
+            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
 
-            <com.github.axet.hourlyreminder.SquareLinearLayout
+            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
@@ -296,7 +296,7 @@
                     android:textAlignment="center"
                     android:textColor="@drawable/checkbox_textcolor"
                     android:textStyle="bold" />
-            </com.github.axet.hourlyreminder.SquareLinearLayout>
+            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
         </LinearLayout>
     </FrameLayout>
 

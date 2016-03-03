@@ -1,6 +1,8 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.basics;
 
 import android.content.Context;
+
+import com.github.axet.hourlyreminder.R;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -341,14 +343,24 @@ public class Alarm {
 
             if ((ah < ch) || ((ah == ch) && (am <= cm))) {
                 // if it too late to play, point to for tomorrow
+                cal = Calendar.getInstance();
+                cal.setTime(cur.getTime());
+                cal.set(Calendar.HOUR_OF_DAY, ah);
+                cal.set(Calendar.MINUTE, am);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
+
                 cal.add(Calendar.DATE, 1);
                 cal = rollWeek(cal);
                 return cal.getTimeInMillis();
             } else {
                 // it is today alarm, fix day
                 cal = Calendar.getInstance();
+                cal.setTime(cur.getTime());
                 cal.set(Calendar.HOUR_OF_DAY, ah);
                 cal.set(Calendar.MINUTE, am);
+                cal.set(Calendar.SECOND, 0);
+                cal.set(Calendar.MILLISECOND, 0);
                 return cal.getTimeInMillis();
             }
         }

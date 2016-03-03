@@ -1,43 +1,23 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.activities;
 
-import android.app.DialogFragment;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.DataSetObserver;
-import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.Preference;
-import android.support.v7.widget.ContentFrameLayout;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.transition.TransitionManager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
 
-import android.widget.AbsListView;
-import android.widget.CheckBox;
-import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
+import com.github.axet.hourlyreminder.fragments.AlarmsFragment;
+import com.github.axet.hourlyreminder.fragments.GeneralPreferenceFragment;
+import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.R;
 
 public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
 

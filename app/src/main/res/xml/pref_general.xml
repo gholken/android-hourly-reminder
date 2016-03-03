@@ -20,7 +20,7 @@
         android:summary="Use alarm type for more precise timing"
         android:title="Alarm Type" />
 
-    <com.github.axet.hourlyreminder.SeekBarPreference
+    <com.github.axet.hourlyreminder.layouts.SeekBarPreference
         android:defaultValue="1"
         android:key="volume"
         android:summary="Set text speech volume"

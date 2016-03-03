@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.layouts;
 
 import android.content.Context;
 import android.util.AttributeSet;

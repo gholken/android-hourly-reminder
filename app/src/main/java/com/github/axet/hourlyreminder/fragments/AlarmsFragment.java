@@ -1,11 +1,10 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.fragments;
 
 import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Fragment;
 import android.app.TimePickerDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -37,9 +36,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.animations.AlarmCollapseAnimation;
+import com.github.axet.hourlyreminder.animations.AlarmExpandAnimation;
+import com.github.axet.hourlyreminder.animations.MarginCollapseAnimation;
+import com.github.axet.hourlyreminder.animations.MarginExpandAnimation;
+import com.github.axet.hourlyreminder.basics.Alarm;
+
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,7 +124,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         if (requestCode == 1) {
             Uri uri = data.getData();
             if (uri != null) {
-                File f = ((HourlyApplication) getActivity().getApplicationContext()).storeRingtone(uri);
+                File f = ((HourlyApplication) getActivity().getApplicationContext()).Storage().storeRingtone(uri);
                 fragmentRequestRingtone.ringtoneValue = f.getAbsolutePath();
             } else {
                 fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
@@ -376,7 +381,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     return;
                 Uri uri = Uri.parse(a.ringtoneValue);
 
-                preview = ((HourlyApplication) getActivity().getApplicationContext()).playOnce(uri);
+                preview = ((HourlyApplication) getActivity().getApplicationContext()).Sound().playOnce(uri);
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
                 alarmRingtonePlay.startAnimation(a);
             }
