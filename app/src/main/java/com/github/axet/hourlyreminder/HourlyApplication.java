@@ -5,8 +5,10 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -18,7 +20,6 @@ import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
 import com.github.axet.hourlyreminder.basics.Sound;
 import com.github.axet.hourlyreminder.basics.Storage;
-import com.github.axet.hourlyreminder.services.AlarmIntentService;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
 import java.text.SimpleDateFormat;
@@ -31,21 +32,46 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class HourlyApplication extends Application {
-    public static final String CANCEL = "CANCEL";
+    // alarm broadcast, trigs sounds
+    public static final String ALARM = HourlyApplication.class.getCanonicalName() + ".ALARM";
+    // cancel alarm
+    public static final String CANCEL = HourlyApplication.class.getCanonicalName() + ".CANCEL";
     // upcoming noticiation alarm action. triggers notification upcoming.
-    public static final String NOTIFICATION = "NOTIFICATION";
+    public static final String NOTIFICATION = HourlyApplication.class.getCanonicalName() + ".NOTIFICATION";
+    // dismiss current alarm action
+    public static final String DISMISS = HourlyApplication.class.getCanonicalName() + ".DISMISS";
 
     // MainActivity action
-    public static final String SHOW_ALARMS_PAGE = "SHOW_ALARMS_PAGE";
+    public static final String SHOW_ALARMS_PAGE = HourlyApplication.class.getCanonicalName() + ".SHOW_ALARMS_PAGE";
 
     public static final int NOTIFICATION_UPCOMING_ICON = 0;
     public static final int NOTIFICATION_ALARM_ICON = 1;
+    public static final int NOTIFICATION_MISSED_ICON = 2;
 
     List<Alarm> alarms;
     List<Reminder> reminders;
 
     public Sound sound;
     public Storage storage;
+
+    MyBroadcastReceiver reciver = new MyBroadcastReceiver();
+
+    public class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long time = intent.getLongExtra("time", 0);
+
+            if (intent.getAction() == HourlyApplication.NOTIFICATION) {
+                showNotificationUpcoming(time);
+            } else if (intent.getAction() == HourlyApplication.CANCEL) {
+                tomorrow(time);
+            } else if (intent.getAction() == HourlyApplication.DISMISS) {
+                dismissActiveAlarm();
+            } else if (intent.getAction() == HourlyApplication.ALARM) {
+                soundAlarm(time);
+            }
+        }
+    }
 
     public static String formatTime(long time) {
         SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -55,6 +81,13 @@ public class HourlyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(HourlyApplication.ALARM);
+        intentFilter.addAction(HourlyApplication.NOTIFICATION);
+        intentFilter.addAction(HourlyApplication.CANCEL);
+        intentFilter.addAction(HourlyApplication.DISMISS);
+        registerReceiver(reciver, intentFilter);
 
         sound = new Sound(this);
         storage = new Storage(this);
@@ -239,10 +272,10 @@ public class HourlyApplication extends Application {
         // check alarms
         alarms.addAll(generateAlarms(cur));
 
-        Intent intent = new Intent(context, AlarmIntentService.class).setAction(HourlyApplication.class.getSimpleName());
+        Intent intent = new Intent().setAction(ALARM);
 
         if (alarms.isEmpty()) {
-            PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pe = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
             alarm.cancel(pe);
             updateNotificationAlarm(0);
         } else {
@@ -250,7 +283,7 @@ public class HourlyApplication extends Application {
 
             intent.putExtra("time", time);
 
-            PendingIntent pe = PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pe = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
             Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
 
@@ -277,9 +310,9 @@ public class HourlyApplication extends Application {
     // service will call showNotificationUpcoming(time)
     //
     void updateNotificationAlarm(long time) {
-        Intent intent = new Intent(this, AlarmIntentService.class).setAction(NOTIFICATION);
+        Intent intent = new Intent().setAction(NOTIFICATION);
         intent.putExtra("time", time);
-        PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+        PendingIntent pe = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
         AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
 
@@ -327,9 +360,9 @@ public class HourlyApplication extends Application {
             int hour = c.get(Calendar.HOUR_OF_DAY);
             int min = c.get(Calendar.MINUTE);
 
-            Intent intent = new Intent(this, AlarmIntentService.class).setAction(CANCEL);
+            Intent intent = new Intent().setAction(CANCEL);
             intent.putExtra("time", time);
-            PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            PendingIntent pe = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
             Intent maini = new Intent(this, MainActivity.class).setAction(SHOW_ALARMS_PAGE);
             maini.putExtra("time", time);
@@ -368,6 +401,42 @@ public class HourlyApplication extends Application {
                 return a;
         }
         return null;
+    }
+
+    // alarm come from service call (System Alarm Manager) for specified time
+    //
+    // we have to check what 'alarms' do we have at specified time (can be reminder + alarm)
+    // and act propertly.
+    public void soundAlarm(long time) {
+        updateAlerts();
+
+        // find hourly reminder + alarm = combine proper sound notification_upcoming (can be merge beep, speech, ringtone)
+        //
+        // then sound alarm or hourly reminder
+
+        Alarm a = getAlarm(time);
+
+        if (a != null && a.enable) {
+            activateAlarm(a);
+            return;
+        }
+
+        Reminder reminder = getReminder(time);
+
+        if (reminder != null) {
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            if (shared.getBoolean("beep", false)) {
+                sound.playBeep(new Runnable() {
+                    @Override
+                    public void run() {
+                        sound.playSpeech(null);
+                    }
+                });
+            } else {
+                sound.playSpeech(null);
+            }
+            return;
+        }
     }
 
 }

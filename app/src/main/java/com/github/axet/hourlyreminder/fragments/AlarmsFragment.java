@@ -49,6 +49,7 @@ import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView.OnScrollListener, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -67,6 +68,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     // preview ringtone
     MediaPlayer preview;
 
+    HashMap<Uri, String> titles = new HashMap<>();
+
     public AlarmsFragment() {
     }
 
@@ -82,9 +85,20 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
+    String getTitle(Uri uri) {
+        String title = titles.get(uri);
+        if (title != null)
+            return title;
+        Ringtone rt = RingtoneManager.getRingtone(getActivity(), uri);
+        title = rt.getTitle(getActivity());
+        rt.stop();
+        titles.put(uri, title);
+        return title;
+    }
+
+
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
         final ListView list = (ListView) rootView.findViewById(R.id.section_label);
         list.setAdapter(this);
@@ -104,12 +118,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        handler.post(new Runnable() {
-            @Override
-            public void run() {
-                changed();
-            }
-        });
+        changed();
     }
 
     @Override
@@ -343,6 +352,16 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     void fillDetailed(final View parent, View view, final Alarm a) {
+        final Switch enable = (Switch) view.findViewById(R.id.alarm_enable);
+        enable.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                a.setEnable(enable.isChecked());
+                save(a);
+            }
+        });
+        enable.setChecked(a.getEnable());
+
         final CheckBox weekdays = (CheckBox) view.findViewById(R.id.alarm_week_days);
         LinearLayout weekdaysValues = (LinearLayout) view.findViewById(R.id.alarm_week);
         for (int i = 0; i < weekdaysValues.getChildCount(); i++) {
@@ -382,9 +401,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             if (f.exists()) {
                 title = f.getName();
             } else {
-                Ringtone rt = RingtoneManager.getRingtone(getActivity(), Uri.parse(a.ringtoneValue));
-                title = rt.getTitle(getActivity());
-                rt.stop();
+                title = getTitle(Uri.parse(a.ringtoneValue));
             }
             ringtoneValue.setText(title.isEmpty() ? Alarm.DEFAULT_RING : title);
         }

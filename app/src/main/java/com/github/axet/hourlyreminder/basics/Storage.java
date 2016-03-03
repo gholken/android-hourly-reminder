@@ -19,12 +19,14 @@ import java.io.OutputStream;
 public class Storage {
     Context context;
 
+    public static final String RINGTONES = "ringtones";
+
     public Storage(Context context) {
         this.context = context;
     }
 
     public File storeRingtone(Uri uri) {
-        File dir = new File(context.getApplicationInfo().dataDir, "tmp");
+        File dir = new File(context.getApplicationInfo().dataDir, RINGTONES);
         if (!dir.exists()) {
             if (!dir.mkdirs())
                 throw new RuntimeException("unable to create: " + dir);

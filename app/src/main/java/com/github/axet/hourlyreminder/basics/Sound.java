@@ -7,6 +7,7 @@ import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -28,6 +29,8 @@ public class Sound {
 
     Context context;
     TextToSpeech tts;
+    ToneGenerator tone;
+    MediaPlayer player;
 
     public Sound(Context context) {
         this.context = context;
@@ -54,12 +57,19 @@ public class Sound {
             tts.shutdown();
             tts = null;
         }
+        if (player != null) {
+            player.stop();
+            player.release();
+            player = null;
+        }
     }
 
     // https://gist.github.com/slightfoot/6330866
     private AudioTrack generateTone(double freqHz, int durationMs) {
-        int count = (int) (44100.0 * 2.0 * (durationMs / 1000.0)) & ~1;
-        int end = (int) (count / 2);
+        int count = (int) (44100.0 * (durationMs / 1000.0)) & ~1;
+        int end = count;
+
+        count = count * 2;
         short[] samples = new short[count];
         for (int i = 0; i < count; i += 2) {
             short sample = (short) (Math.sin(2 * Math.PI * i / (44100.0 / freqHz)) * 0x7FFF);
@@ -113,15 +123,22 @@ public class Sound {
         track.play();
     }
 
-    public MediaPlayer playRingtone(Uri uri) {
-        MediaPlayer player = MediaPlayer.create(context, uri);
+    public void playRingtone(Uri uri) {
+        if (player != null) {
+            player.release();
+        }
+        player = MediaPlayer.create(context, uri);
         if (player == null) {
             player = MediaPlayer.create(context, Uri.parse(Alarm.DEFAULT_RING));
+        }
+        if (player == null) {
+            tone = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+            tone.startTone(ToneGenerator.TONE_CDMA_CALL_SIGNAL_ISDN_NORMAL);
+            return;
         }
         player.setLooping(true);
         player.setVolume(getVolume(), getVolume());
         player.start();
-        return player;
     }
 
     float getVolume() {
