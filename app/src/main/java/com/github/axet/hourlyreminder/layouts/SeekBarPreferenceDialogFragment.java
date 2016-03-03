@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.layouts;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -6,16 +6,12 @@ import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v14.preference.PreferenceDialogFragment;
-import android.support.v7.preference.DialogPreference;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
-import java.util.HashSet;
-import java.util.Set;
 
 public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment implements SeekBar.OnSeekBarChangeListener {
     private static final String SAVE_STATE_VALUES = "SeekBarPreferenceDialogFragment.values";

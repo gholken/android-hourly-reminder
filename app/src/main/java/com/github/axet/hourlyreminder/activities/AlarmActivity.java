@@ -1,15 +1,18 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.WindowManager;
+
+import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.R;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -98,33 +101,33 @@ public class AlarmActivity extends AppCompatActivity {
             finish();
         } else {
             if (a.beep) {
-                app.playBeep(new Runnable() {
-                                 @Override
-                                 public void run() {
-                                     if (a.speech) {
-                                         app.playSpeech(new Runnable() {
-                                             @Override
-                                             public void run() {
-                                                 if (a.ringtone) {
-                                                     playRingtone(a);
-                                                 }
+                app.Sound().playBeep(new Runnable() {
+                                         @Override
+                                         public void run() {
+                                             if (a.speech) {
+                                                 app.Sound().playSpeech(new Runnable() {
+                                                     @Override
+                                                     public void run() {
+                                                         if (a.ringtone) {
+                                                             playRingtone(a);
+                                                         }
+                                                     }
+                                                 });
+                                             } else if (a.ringtone) {
+                                                 playRingtone(a);
                                              }
-                                         });
-                                     } else if (a.ringtone) {
-                                         playRingtone(a);
+                                         }
                                      }
-                                 }
-                             }
                 );
             } else if (a.speech) {
-                app.playSpeech(new Runnable() {
+                app.Sound().playSpeech(new Runnable() {
                     @Override
                     public void run() {
                         playRingtone(a);
                     }
                 });
             } else if (a.ringtone) {
-                player = app.playRingtone(a);
+                player = app.Sound().playRingtone(a);
             }
         }
     }
@@ -143,7 +146,7 @@ public class AlarmActivity extends AppCompatActivity {
         final HourlyApplication app = ((HourlyApplication) getApplicationContext());
         if (player != null)
             player.release();
-        player = app.playRingtone(a);
+        player = app.Sound().playRingtone(a);
     }
 
     private void hide() {

@@ -1,9 +1,11 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.services;
 
 import android.app.IntentService;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.Log;
+
+import com.github.axet.hourlyreminder.HourlyApplication;
 
 public class AlarmService extends IntentService {
 
@@ -32,7 +34,7 @@ public class AlarmService extends IntentService {
             Log.d(HourlyApplication.class.getSimpleName(), "AlarmService: " + HourlyApplication.formatTime(time));
             ((HourlyApplication) getApplication()).updateAlerts();
 
-            ((HourlyApplication) getApplication()).soundAlarm(time);
+            ((HourlyApplication) getApplication()).Sound().soundAlarm(time);
         }
     }
 }

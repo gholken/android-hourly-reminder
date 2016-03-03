@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.activities;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

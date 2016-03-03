@@ -1,27 +1,29 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.animations;
 
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-public class MarginCollapseAnimation extends Animation {
+public class MarginExpandAnimation extends Animation {
 
     View detailed;
     ViewGroup.MarginLayoutParams detailedLp;
     int h;
 
-    public MarginCollapseAnimation(View v) {
+    public MarginExpandAnimation(View p, View v) {
         setDuration(500);
 
         detailed = v;
 
         detailed.setVisibility(View.VISIBLE);
 
+        detailed.measure(View.MeasureSpec.makeMeasureSpec(p.getWidth(), View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(p.getHeight(), View.MeasureSpec.UNSPECIFIED));
         detailedLp = (ViewGroup.MarginLayoutParams) detailed.getLayoutParams();
         h = detailed.getMeasuredHeight();
 
-        detailedLp.topMargin = 0;
+        detailedLp.topMargin = -h;
     }
 
     @Override
@@ -34,9 +36,8 @@ public class MarginCollapseAnimation extends Animation {
         super.applyTransformation(interpolatedTime, t);
 
         if (interpolatedTime < 1.0f) {
-            detailedLp.topMargin = - (int) (h * interpolatedTime);
+            detailedLp.topMargin = -h + (int) (h * interpolatedTime);
         } else {
-            detailed.setVisibility(View.GONE);
         }
 
         detailed.requestLayout();

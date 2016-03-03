@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.activities;
 
 
 import android.annotation.TargetApi;
@@ -6,36 +6,25 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.media.Ringtone;
-import android.media.RingtoneManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.MultiSelectListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.RingtonePreference;
-import android.preference.SwitchPreference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.ContentFrameLayout;
-import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
-import android.transition.AutoTransition;
-import android.transition.ChangeBounds;
-import android.transition.Transition;
-import android.transition.TransitionManager;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.BounceInterpolator;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+
+import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.R;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -145,7 +134,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity implements Sha
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((HourlyApplication) getApplicationContext()).soundAlarm();
+                    ((HourlyApplication) getApplicationContext()).Sound().soundAlarm();
                 }
             });
         }

@@ -1,11 +1,14 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.animations;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-public class AlarmCollapseAnimation extends Animation {
+import com.github.axet.hourlyreminder.R;
+
+public class AlarmExpandAnimation extends Animation {
 
     View detailed;
     View bottom;
@@ -18,7 +21,7 @@ public class AlarmCollapseAnimation extends Animation {
     ViewGroup.MarginLayoutParams detailedLp;
     int h;
 
-    public AlarmCollapseAnimation(View v) {
+    public AlarmExpandAnimation(View v) {
         setDuration(500);
 
         detailed = v.findViewById(R.id.alarm_detailed);
@@ -31,17 +34,19 @@ public class AlarmCollapseAnimation extends Animation {
 
         detailed.setVisibility(View.VISIBLE);
         bottom.setVisibility(View.VISIBLE);
-        bottom_s.setVisibility(View.VISIBLE);
-        compact_s.setVisibility(View.INVISIBLE);
-        compact.setVisibility(View.VISIBLE);
+        bottom_s.setVisibility(View.GONE);
 
         compact_f.setAlpha(1);
         compact_s.setRotation(0);
         bottom_s.setAlpha(1);
         bottom_s.setRotation(0);
 
+        detailed.measure(View.MeasureSpec.makeMeasureSpec(v.getWidth(), View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(v.getHeight(), View.MeasureSpec.UNSPECIFIED));
         detailedLp = (ViewGroup.MarginLayoutParams) detailed.getLayoutParams();
         h = detailed.getMeasuredHeight();
+
+        detailedLp.topMargin = -h;
     }
 
     @Override
@@ -54,16 +59,17 @@ public class AlarmCollapseAnimation extends Animation {
         super.applyTransformation(interpolatedTime, t);
 
         if (interpolatedTime < 1.0f) {
-            detailedLp.topMargin = - (int) (h * interpolatedTime);
-            bottom_f.setAlpha(1.0f - interpolatedTime);
-            bottom_s.setRotation(-180 * interpolatedTime);
-            compact_f.setAlpha(interpolatedTime);
+            detailedLp.topMargin = -h + (int) (h * interpolatedTime);
+
+            compact_f.setAlpha(1 - interpolatedTime);
+            compact_s.setRotation(180 * interpolatedTime);
+            bottom_f.setAlpha(interpolatedTime);
         } else {
-            detailed.setVisibility(View.GONE);
-            bottom.setVisibility(View.GONE);
-            bottom_s.setRotation(0);
-            compact.setVisibility(View.VISIBLE);
-            compact_s.setVisibility(View.VISIBLE);
+            bottom_s.setVisibility(View.VISIBLE);
+            compact.setVisibility(View.GONE);
+            // restore
+            compact_f.setAlpha(1);
+            compact_s.setRotation(0);
         }
 
         detailed.requestLayout();

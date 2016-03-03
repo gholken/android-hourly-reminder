@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.fragments;
 
 import android.app.DialogFragment;
 import android.app.Fragment;
@@ -19,6 +19,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
+import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.layouts.SeekBarPreference;
+import com.github.axet.hourlyreminder.layouts.SeekBarPreferenceDialogFragment;
+import com.github.axet.hourlyreminder.activities.SettingsActivity;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -30,6 +36,10 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
+
+            if (preference.getKey().equals("hours")) {
+                ((HourlyApplication) preference.getContext().getApplicationContext()).loadReminders();
+            }
 
             if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
@@ -102,6 +112,13 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         if (Build.VERSION.SDK_INT < 23)
             getPreferenceScreen().removePreference(findPreference("alarm"));
 
+        findPreference("enabled").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                ((HourlyApplication) preference.getContext().getApplicationContext()).loadReminders();
+                return true;
+            }
+        });
         bindPreferenceSummaryToValue(findPreference("hours"));
         bindPreferenceSummaryToValue(findPreference("volume"));
     }
@@ -125,7 +142,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((HourlyApplication) context.getApplicationContext()).soundAlarm();
+                    ((HourlyApplication) context.getApplicationContext()).Sound().soundAlarm();
                 }
             });
         }
