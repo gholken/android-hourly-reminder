@@ -51,6 +51,7 @@ public class AlarmService extends Service {
     Binder binder = new Binder();
     Sound sound;
     Handler handle = new Handler();
+    Runnable cancel;
 
     public AlarmService() {
     }
@@ -132,7 +133,7 @@ public class AlarmService extends Service {
         boolean b = cal.after(cur);
 
         if (b) {
-            handle.postDelayed(new Runnable() {
+            cancel = new Runnable() {
                 @Override
                 public void run() {
                     if (!alive(time)) {
@@ -140,7 +141,8 @@ public class AlarmService extends Service {
                         showNotificationMissed(time);
                     }
                 }
-            }, 1000 * 60);
+            };
+            handle.postDelayed(cancel, 1000 * 60);
         }
 
         return b;
@@ -187,6 +189,11 @@ public class AlarmService extends Service {
         intent.setAction(CLOSE_ACTIVITY);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
+
+        if (cancel != null) {
+            handle.removeCallbacks(cancel);
+            cancel = null;
+        }
     }
 
     // show notification about missed alarm
