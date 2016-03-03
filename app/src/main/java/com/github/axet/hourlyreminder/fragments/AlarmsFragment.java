@@ -8,6 +8,7 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
 import android.media.MediaPlayer;
@@ -17,6 +18,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
@@ -48,7 +50,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView.OnScrollListener {
+public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView.OnScrollListener, SharedPreferences.OnSharedPreferenceChangeListener {
     static final int TYPE_NORMAL = 0;
     static final int TYPE_DETAIL = 1;
 
@@ -74,6 +76,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         handler = new Handler();
 
         alarms = ((HourlyApplication) getActivity().getApplicationContext()).getAlarms();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefs.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -97,6 +102,16 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        handler.post(new Runnable() {
+            @Override
+            public void run() {
+                changed();
+            }
+        });
+    }
+
+    @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -117,7 +132,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             }
             save(fragmentRequestRingtone);
             fragmentRequestRingtone = null;
-            changed();
             return;
         }
 
@@ -131,7 +145,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             }
             save(fragmentRequestRingtone);
             fragmentRequestRingtone = null;
-            changed();
             return;
         }
     }
@@ -262,13 +275,11 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     public void addAlarm() {
         alarms.add(new Alarm(getActivity(), System.currentTimeMillis()));
         ((HourlyApplication) getActivity().getApplicationContext()).saveAlarms();
-        changed();
     }
 
     public void remove(Alarm a) {
         alarms.remove(a);
         ((HourlyApplication) getActivity().getApplicationContext()).saveAlarms();
-        changed();
     }
 
     void changed() {
@@ -530,6 +541,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
 
         if (preview != null) {
             preview.release();

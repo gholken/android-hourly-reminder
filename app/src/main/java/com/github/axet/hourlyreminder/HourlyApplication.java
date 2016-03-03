@@ -203,7 +203,12 @@ public class HourlyApplication extends Application {
     public void tomorrow(long time) {
         Alarm a = getAlarm(time);
         if (a != null) {
-            a.setTomorrow();
+            if (a.weekdays) {
+                a.setTomorrow();
+            } else {
+                a.setEnable(false);
+                saveAlarms();
+            }
             updateAlerts();
         }
 
