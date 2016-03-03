@@ -192,6 +192,17 @@ public class Alarm {
         return true;
     }
 
+    public boolean noDays() {
+        return weekdaysValues.isEmpty();
+    }
+
+    public void setEveryday() {
+        for (int w : EVERYDAY) {
+            weekdaysValues.add(w);
+        }
+    }
+
+
     // check if all 5 days are enabled (mon-fri)
     public boolean isWeekdays() {
         for (Integer i : WEEKDAY) {

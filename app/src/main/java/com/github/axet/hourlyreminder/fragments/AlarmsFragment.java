@@ -23,6 +23,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
 import android.transition.TransitionManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,10 +52,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView.OnScrollListener, SharedPreferences.OnSharedPreferenceChangeListener {
-    static final int TYPE_NORMAL = 0;
-    static final int TYPE_DETAIL = 1;
+    static final int TYPE_COLLAPSED = 0;
+    static final int TYPE_EXPANDED = 1;
 
-    final int[] ALL = {TYPE_NORMAL, TYPE_DETAIL};
+    final int[] ALL = {TYPE_COLLAPSED, TYPE_EXPANDED};
 
     Alarm fragmentRequestRingtone;
 
@@ -198,6 +199,24 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         return false;
     }
 
+    static boolean checkboxAnimate(CheckBox checkbox, View view) {
+        boolean animate;
+        if (checkbox.isChecked()) {
+            animate = view.getVisibility() != View.VISIBLE;
+        } else {
+            animate = view.getVisibility() == View.VISIBLE;
+        }
+
+        if (!animate) {
+            view.setVisibility(checkbox.isChecked() ? View.VISIBLE : View.GONE);
+            view.clearAnimation();
+            ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
+            lp.topMargin = 0;
+        }
+        return animate;
+    }
+
+
     @Override
     public View getView(final int position, View convertView, final ViewGroup parent) {
         LayoutInflater inflater = (LayoutInflater) parent.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -215,21 +234,56 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         if (selected == position) {
             fillDetailed(parent, convertView, a);
 
-            if ((int) convertView.getTag() == TYPE_NORMAL && scrollState == SCROLL_STATE_IDLE) {
-                AlarmExpandAnimation e = new AlarmExpandAnimation(convertView);
-                convertView.startAnimation(e);
-            } else {
+            final CheckBox weekdays = (CheckBox) convertView.findViewById(R.id.alarm_week_days);
+            final LinearLayout weekdaysValues = (LinearLayout) convertView.findViewById(R.id.alarm_week);
+            final View alarmRingtoneLayout = convertView.findViewById(R.id.alarm_ringtone_layout);
+            final CheckBox alarmRingtone = (CheckBox) convertView.findViewById(R.id.alarm_ringtone);
+
+            if (scrollState != SCROLL_STATE_IDLE) {
                 convertView.findViewById(R.id.alarm_detailed).setVisibility(View.VISIBLE);
                 convertView.findViewById(R.id.alarm_bottom).setVisibility(View.VISIBLE);
                 convertView.findViewById(R.id.alarm_compact).setVisibility(View.GONE);
+
+                weekdaysValues.setVisibility(weekdays.isChecked() ? View.VISIBLE : View.GONE);
+                alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
+            } else {
+                if ((int) convertView.getTag() == TYPE_COLLAPSED) {
+                    weekdaysValues.setVisibility(weekdays.isChecked() ? View.VISIBLE : View.GONE);
+                    alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
+
+                    AlarmExpandAnimation e = new AlarmExpandAnimation(convertView);
+                    convertView.startAnimation(e);
+                } else {
+                    if (checkboxAnimate(weekdays, weekdaysValues)) {
+                        if (weekdays.isChecked()) {
+                            MarginExpandAnimation e = new MarginExpandAnimation(parent, weekdaysValues);
+                            weekdaysValues.startAnimation(e);
+                        } else {
+                            MarginCollapseAnimation e = new MarginCollapseAnimation(weekdaysValues);
+                            weekdaysValues.startAnimation(e);
+                        }
+                    }
+
+                    if (checkboxAnimate(alarmRingtone, alarmRingtoneLayout)) {
+                        alarmRingtone.setTag(alarmRingtone.isChecked());
+                        if (alarmRingtone.isChecked()) {
+                            MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmRingtoneLayout);
+                            alarmRingtoneLayout.startAnimation(e);
+                        } else {
+                            MarginCollapseAnimation e = new MarginCollapseAnimation(alarmRingtoneLayout);
+                            alarmRingtoneLayout.startAnimation(e);
+                        }
+                    }
+                }
             }
-            convertView.setTag(TYPE_DETAIL);
+
+            convertView.setTag(TYPE_EXPANDED);
 
             return convertView;
         } else {
             fillCompact(convertView, a, position);
 
-            if ((int) convertView.getTag() == TYPE_DETAIL && scrollState == SCROLL_STATE_IDLE) {
+            if ((int) convertView.getTag() == TYPE_EXPANDED && scrollState == SCROLL_STATE_IDLE) {
                 AlarmCollapseAnimation e = new AlarmCollapseAnimation(convertView);
                 convertView.startAnimation(e);
             } else {
@@ -237,7 +291,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 convertView.findViewById(R.id.alarm_bottom).setVisibility(View.GONE);
                 convertView.findViewById(R.id.alarm_compact).setVisibility(View.VISIBLE);
             }
-            convertView.setTag(TYPE_NORMAL);
+            convertView.setTag(TYPE_COLLAPSED);
 
             return convertView;
         }
@@ -259,7 +313,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     @Override
     public int getItemViewType(int position) {
-        return TYPE_NORMAL;
+        return TYPE_COLLAPSED;
     }
 
     @Override
@@ -290,7 +344,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     void fillDetailed(final View parent, View view, final Alarm a) {
         final CheckBox weekdays = (CheckBox) view.findViewById(R.id.alarm_week_days);
-        weekdays.setChecked(a.weekdays);
         LinearLayout weekdaysValues = (LinearLayout) view.findViewById(R.id.alarm_week);
         for (int i = 0; i < weekdaysValues.getChildCount(); i++) {
             final CheckBox child = (CheckBox) weekdaysValues.getChildAt(i);
@@ -299,27 +352,43 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     @Override
                     public void onClick(View v) {
                         a.setWeek(a.parseTag(child.getTag()), child.isChecked());
+                        if (a.noDays()) {
+                            a.weekdays = false;
+                        }
                         save(a);
                     }
                 });
                 child.setChecked(a.isWeek(a.parseTag(child.getTag())));
             }
         }
+        weekdays.setChecked(a.weekdays);
+        weekdays.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                a.weekdays = weekdays.isChecked();
+                if (a.weekdays && a.noDays()) {
+                    a.setEveryday();
+                }
+                save(a);
+            }
+        });
+
         final CheckBox ringtone = (CheckBox) view.findViewById(R.id.alarm_ringtone);
         ringtone.setChecked(a.ringtone);
-        TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
-
-        String title = "";
-
-        File f = new File(a.ringtoneValue);
-        if (f.exists()) {
-            title = f.getName();
-        } else {
-            Ringtone rt = RingtoneManager.getRingtone(getActivity(), Uri.parse(a.ringtoneValue));
-            title = rt.getTitle(getActivity());
+        if (ringtone.isChecked()) {
+            TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
+            String title = "";
+            File f = new File(a.ringtoneValue);
+            if (f.exists()) {
+                title = f.getName();
+            } else {
+                Ringtone rt = RingtoneManager.getRingtone(getActivity(), Uri.parse(a.ringtoneValue));
+                title = rt.getTitle(getActivity());
+                rt.stop();
+            }
+            ringtoneValue.setText(title.isEmpty() ? Alarm.DEFAULT_RING : title);
         }
 
-        ringtoneValue.setText(title.isEmpty() ? Alarm.DEFAULT_RING : title);
         final CheckBox beep = (CheckBox) view.findViewById(R.id.alarm_beep);
         beep.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -339,26 +408,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         });
         speech.setChecked(a.speech);
 
-        final CheckBox alarmRepeat = (CheckBox) view.findViewById(R.id.alarm_week_days);
-        final View alarmWeek = view.findViewById(R.id.alarm_week);
-
-        alarmRepeat.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                a.weekdays = alarmRepeat.isChecked();
-                save(a);
-
-                if (alarmRepeat.isChecked()) {
-                    MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmWeek);
-                    alarmWeek.startAnimation(e);
-                } else {
-                    MarginCollapseAnimation e = new MarginCollapseAnimation(alarmWeek);
-                    alarmWeek.startAnimation(e);
-                }
-            }
-        });
-        alarmWeek.setVisibility(alarmRepeat.isChecked() ? View.VISIBLE : View.GONE);
-
         final CheckBox alarmRingtone = (CheckBox) view.findViewById(R.id.alarm_ringtone);
         final View alarmRingtoneLayout = view.findViewById(R.id.alarm_ringtone_layout);
         final View alarmRingtonePlay = view.findViewById(R.id.alarm_ringtone_play);
@@ -368,17 +417,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             public void onClick(View v) {
                 a.ringtone = alarmRingtone.isChecked();
                 save(a);
-
-                if (alarmRingtone.isChecked()) {
-                    MarginExpandAnimation e = new MarginExpandAnimation(parent, alarmRingtoneLayout);
-                    alarmRingtoneLayout.startAnimation(e);
-                } else {
-                    MarginCollapseAnimation e = new MarginCollapseAnimation(alarmRingtoneLayout);
-                    alarmRingtoneLayout.startAnimation(e);
-                }
             }
         });
-        alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
         alarmRingtonePlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -512,7 +552,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         return true;
     }
 
-    void fillCompact(View view, final Alarm a, final int position) {
+    void fillCompact(final View view, final Alarm a, final int position) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
         time.setText(a.getTimeString());
         time.setClickable(false);
