@@ -2,7 +2,6 @@ package com.github.axet.hourlyreminder.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -11,10 +10,9 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
 
-import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
-import com.github.axet.hourlyreminder.services.AlarmService;
+import com.github.axet.hourlyreminder.services.FireAlarmService;
 
 import java.util.Calendar;
 import java.util.Timer;
@@ -45,7 +43,7 @@ public class AlarmActivity extends AppCompatActivity {
             // at compile-time and do nothing on earlier devices.
             mContentView.setSystemUiVisibility(
                     View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
+                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
         }
     };
 
@@ -76,8 +74,10 @@ public class AlarmActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         String action = intent.getAction();
-        if (action != null && action.equals(AlarmService.CLOSE_ACTIVITY))
+        if (action != null && action.equals(FireAlarmService.CLOSE_ACTIVITY)) {
             finish();
+            return;
+        }
 
         findViewById(R.id.alarm_activity_button).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -93,7 +93,7 @@ public class AlarmActivity extends AppCompatActivity {
 
         // handing startActivity with Intent.FLAG_ACTIVITY_NEW_TASK
         String action = intent.getAction();
-        if (action != null && action.equals(AlarmService.CLOSE_ACTIVITY))
+        if (action != null && action.equals(FireAlarmService.CLOSE_ACTIVITY))
             finish();
     }
 
@@ -153,7 +153,7 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        ((HourlyApplication) getApplicationContext()).dismissActiveAlarm();
+        FireAlarmService.dismissActiveAlarm(this);
 
         if (timer != null) {
             timer.cancel();

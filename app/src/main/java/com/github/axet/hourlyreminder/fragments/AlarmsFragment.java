@@ -79,7 +79,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         handler = new Handler();
 
-        alarms = ((HourlyApplication) getActivity().getApplicationContext()).getAlarms();
+        alarms = HourlyApplication.loadAlarms(getActivity());
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefs.registerOnSharedPreferenceChangeListener(this);
@@ -118,6 +118,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        alarms = HourlyApplication.loadAlarms(getActivity());
         changed();
     }
 
@@ -317,7 +318,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     void save(Alarm a) {
-        ((HourlyApplication) getActivity().getApplicationContext()).saveAlarms();
+        HourlyApplication.saveAlarms(getActivity(), alarms);
     }
 
     @Override
@@ -337,12 +338,12 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     public void addAlarm() {
         alarms.add(new Alarm(getActivity(), System.currentTimeMillis()));
-        ((HourlyApplication) getActivity().getApplicationContext()).saveAlarms();
+        HourlyApplication.saveAlarms(getActivity(), alarms);
     }
 
     public void remove(Alarm a) {
         alarms.remove(a);
-        ((HourlyApplication) getActivity().getApplicationContext()).saveAlarms();
+        HourlyApplication.saveAlarms(getActivity(), alarms);
     }
 
     void changed() {

@@ -23,7 +23,6 @@ import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.layouts.SeekBarPreference;
 import com.github.axet.hourlyreminder.layouts.SeekBarPreferenceDialogFragment;
-import com.github.axet.hourlyreminder.activities.SettingsActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,10 +35,6 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
-
-            if (preference.getKey().equals("hours")) {
-                ((HourlyApplication) preference.getContext().getApplicationContext()).loadReminders();
-            }
 
             if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
@@ -112,13 +107,6 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         if (Build.VERSION.SDK_INT < 23)
             getPreferenceScreen().removePreference(findPreference("alarm"));
 
-        findPreference("enabled").setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object o) {
-                ((HourlyApplication) preference.getContext().getApplicationContext()).loadReminders();
-                return true;
-            }
-        });
         bindPreferenceSummaryToValue(findPreference("hours"));
         bindPreferenceSummaryToValue(findPreference("volume"));
     }
@@ -150,13 +138,4 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         return view;
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == android.R.id.home) {
-            startActivity(new Intent(getActivity(), SettingsActivity.class));
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 }

@@ -18,8 +18,9 @@ import com.github.axet.hourlyreminder.fragments.AlarmsFragment;
 import com.github.axet.hourlyreminder.fragments.GeneralPreferenceFragment;
 import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.services.AlarmService;
 
-public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
+public class MainActivity extends AppCompatActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -40,9 +41,6 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-        prefs.registerOnSharedPreferenceChangeListener(this);
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
@@ -67,17 +65,12 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 //            }
 //        });
 
-        ((HourlyApplication) getApplicationContext()).updateAlerts();
+        AlarmService.start(this);
 
         Intent intent = getIntent();
-        if(intent.getAction() == HourlyApplication.SHOW_ALARMS_PAGE) {
+        if (intent.getAction() == HourlyApplication.SHOW_ALARMS_PAGE) {
             mViewPager.setCurrentItem(1);
         }
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        ((HourlyApplication) getApplicationContext()).updateAlerts();
     }
 
     @Override
