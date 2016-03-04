@@ -23,7 +23,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
 import android.transition.TransitionManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,13 +38,15 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.animations.AlarmCollapseAnimation;
 import com.github.axet.hourlyreminder.animations.AlarmExpandAnimation;
 import com.github.axet.hourlyreminder.animations.MarginCollapseAnimation;
 import com.github.axet.hourlyreminder.animations.MarginExpandAnimation;
 import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.app.Sound;
+import com.github.axet.hourlyreminder.app.Storage;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -61,6 +62,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     Alarm fragmentRequestRingtone;
 
+    ListView list;
+
     ArrayList<DataSetObserver> listeners = new ArrayList<>();
     List<Alarm> alarms = new ArrayList<>();
     int selected = -1;
@@ -68,6 +71,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     Handler handler;
     // preview ringtone
     MediaPlayer preview;
+    Sound sound;
+    Storage storage;
 
     HashMap<Uri, String> titles = new HashMap<>();
 
@@ -79,6 +84,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         super.onCreate(savedInstanceState);
 
         handler = new Handler();
+
+        sound = new Sound(getActivity());
+        storage = new Storage(getActivity());
 
         alarms = HourlyApplication.loadAlarms(getActivity());
 
@@ -103,7 +111,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
-        final ListView list = (ListView) rootView.findViewById(R.id.section_label);
+        list = (ListView) rootView.findViewById(R.id.section_label);
         list.setAdapter(this);
         list.setOnScrollListener(this);
         FloatingActionButton fab = (FloatingActionButton) rootView.findViewById(R.id.fab);
@@ -152,7 +160,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         if (requestCode == 1) {
             Uri uri = data.getData();
             if (uri != null) {
-                File f = ((HourlyApplication) getActivity().getApplicationContext()).Storage().storeRingtone(uri);
+                File f = storage.storeRingtone(uri);
                 fragmentRequestRingtone.ringtoneValue = f.getAbsolutePath();
             } else {
                 fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
@@ -224,7 +232,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             view.setVisibility(checkbox.isChecked() ? View.VISIBLE : View.GONE);
             view.clearAnimation();
             ViewGroup.MarginLayoutParams lp = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
-            lp.topMargin = 0;
         }
         return animate;
     }
@@ -253,18 +260,21 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             final CheckBox alarmRingtone = (CheckBox) convertView.findViewById(R.id.alarm_ringtone);
 
             if (scrollState != SCROLL_STATE_IDLE) {
+                convertView.clearAnimation();
                 convertView.findViewById(R.id.alarm_detailed).setVisibility(View.VISIBLE);
                 convertView.findViewById(R.id.alarm_bottom).setVisibility(View.VISIBLE);
                 convertView.findViewById(R.id.alarm_compact).setVisibility(View.GONE);
 
+                weekdaysValues.clearAnimation();
                 weekdaysValues.setVisibility(weekdays.isChecked() ? View.VISIBLE : View.GONE);
+                alarmRingtoneLayout.clearAnimation();
                 alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
             } else {
                 if ((int) convertView.getTag() == TYPE_COLLAPSED) {
                     weekdaysValues.setVisibility(weekdays.isChecked() ? View.VISIBLE : View.GONE);
                     alarmRingtoneLayout.setVisibility(alarmRingtone.isChecked() ? View.VISIBLE : View.GONE);
 
-                    AlarmExpandAnimation e = new AlarmExpandAnimation(convertView);
+                    AlarmExpandAnimation e = new AlarmExpandAnimation(convertView, list);
                     convertView.startAnimation(e);
                 } else {
                     if (checkboxAnimate(weekdays, weekdaysValues)) {
@@ -341,6 +351,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     public void addAlarm() {
         alarms.add(new Alarm(getActivity(), System.currentTimeMillis()));
+        int pos = alarms.size() - 1;
+        select(pos);
+        list.smoothScrollToPosition(pos);
         HourlyApplication.saveAlarms(getActivity(), alarms);
     }
 
@@ -453,7 +466,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     return;
                 Uri uri = Uri.parse(a.ringtoneValue);
 
-                preview = ((HourlyApplication) getActivity().getApplicationContext()).Sound().playOnce(uri);
+                preview = sound.playOnce(uri);
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
                 alarmRingtonePlay.startAnimation(a);
             }
@@ -506,6 +519,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         });
 
         final TextView time = (TextView) view.findViewById(R.id.alarm_time);
+        time.setText(a.getTimeString());
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -609,6 +623,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         if (preview != null) {
             preview.release();
             preview = null;
+        }
+        if (sound != null) {
+            sound.close();
+            sound = null;
         }
     }
 }

@@ -1,7 +1,6 @@
 package com.github.axet.hourlyreminder.services;
 
 import android.app.AlarmManager;
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -16,12 +15,12 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.activities.MainActivity;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
-import com.github.axet.hourlyreminder.basics.Sound;
+import com.github.axet.hourlyreminder.app.Sound;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -32,7 +31,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * System Alarm Manager uses this service to create/stop alarms.
+ * System Alarm Manager notifes this service to create/stop alarms.
  * <p/>
  * All Alarm notifications clicks routed to this service.
  */

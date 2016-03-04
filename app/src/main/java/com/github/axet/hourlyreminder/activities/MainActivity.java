@@ -3,8 +3,6 @@ package com.github.axet.hourlyreminder.activities;
 import android.app.Fragment;
 import android.app.FragmentManager;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
@@ -16,7 +14,7 @@ import android.view.MenuItem;
 
 import com.github.axet.hourlyreminder.fragments.AlarmsFragment;
 import com.github.axet.hourlyreminder.fragments.GeneralPreferenceFragment;
-import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.services.AlarmService;
 

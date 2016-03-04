@@ -1,37 +1,18 @@
-package com.github.axet.hourlyreminder;
+package com.github.axet.hourlyreminder.app;
 
-import android.app.AlarmManager;
 import android.app.Application;
-import android.app.IntentService;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.preference.PreferenceManager;
-import android.util.Log;
-import android.widget.RemoteViews;
 
-import com.github.axet.hourlyreminder.activities.MainActivity;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
-import com.github.axet.hourlyreminder.basics.Sound;
-import com.github.axet.hourlyreminder.basics.Storage;
-import com.github.axet.hourlyreminder.services.FireAlarmService;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 
 public class HourlyApplication extends Application {
     public static final String FIRE_ALARM = HourlyApplication.class.getCanonicalName() + ".FIRE_ALARM";
@@ -42,25 +23,6 @@ public class HourlyApplication extends Application {
     public static final int NOTIFICATION_UPCOMING_ICON = 0;
     public static final int NOTIFICATION_ALARM_ICON = 1;
     public static final int NOTIFICATION_MISSED_ICON = 2;
-
-    public Sound sound;
-    public Storage storage;
-
-    @Override
-    public void onCreate() {
-        super.onCreate();
-
-        sound = new Sound(this);
-        storage = new Storage(this);
-    }
-
-    public Sound Sound() {
-        return sound;
-    }
-
-    public Storage Storage() {
-        return storage;
-    }
 
     public static List<Alarm> loadAlarms(Context context) {
         ArrayList<Alarm> alarms = new ArrayList<>();
