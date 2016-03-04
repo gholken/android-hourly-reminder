@@ -182,5 +182,6 @@ public class AlarmActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
+        moveTaskToBack(false);
     }
 }
