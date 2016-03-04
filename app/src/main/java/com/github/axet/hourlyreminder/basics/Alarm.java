@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -17,16 +18,16 @@ public class Alarm {
     public final static String DEFAULT_RING = "content://settings/system/ringtone";
 
     // keep EVERYDAY order
-    int[] DAYS = new int[]{R.string.MONDAY, R.string.TUESDAY, R.string.WEDNESDAY,
+    public final static int[] DAYS = new int[]{R.string.MONDAY, R.string.TUESDAY, R.string.WEDNESDAY,
             R.string.THURSDAY, R.string.FRIDAY, R.string.SATURDAY, R.string.SUNDAY};
 
-    Integer[] EVERYDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
+    public final static Integer[] EVERYDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
             Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY};
 
-    Integer[] WEEKDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
+    public final static Integer[] WEEKDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
             Calendar.THURSDAY, Calendar.FRIDAY};
 
-    Integer[] WEEKEND = new Integer[]{Calendar.SATURDAY, Calendar.SUNDAY};
+    public final static Integer[] WEEKEND = new Integer[]{Calendar.SATURDAY, Calendar.SUNDAY};
 
     protected Context context;
 
@@ -44,6 +45,13 @@ public class Alarm {
     public String ringtoneValue;
     public boolean beep;
     public boolean speech;
+
+    public static class CustomComparator implements Comparator<Alarm> {
+        @Override
+        public int compare(Alarm o1, Alarm o2) {
+            return new Long(o1.time).compareTo(o2.time);
+        }
+    }
 
     public Alarm(Context context) {
         this.context = context;
@@ -157,6 +165,14 @@ public class Alarm {
             set.add(w.toString());
         }
         return set;
+    }
+
+    public void setWeekDays(Integer[] set) {
+        ArrayList w = new ArrayList<>();
+        for (Integer s : set) {
+            w.add(s);
+        }
+        weekdaysValues = w;
     }
 
     public void setWeekDays(Set<String> set) {
