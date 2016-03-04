@@ -67,7 +67,32 @@ public class HourlyApplication extends Application {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         int c = shared.getInt("Alarm_Count", 0);
         if (c == 0) {
-            alarms.add(new Alarm(context));
+            Alarm a;
+            a = new Alarm(context);
+            a.setTime(9, 0);
+            a.weekdays = true;
+            a.speech = true;
+            a.beep = true;
+            a.ringtone = true;
+            a.setWeekDays(Alarm.WEEKDAY);
+            alarms.add(a);
+
+            a = new Alarm(context);
+            a.setTime(10, 0);
+            a.weekdays = true;
+            a.speech = true;
+            a.beep = true;
+            a.ringtone = true;
+            a.setWeekDays(Alarm.WEEKEND);
+            alarms.add(a);
+
+            a = new Alarm(context);
+            a.setTime(10, 30);
+            a.weekdays = false;
+            a.speech = true;
+            a.beep = true;
+            a.ringtone = true;
+            alarms.add(a);
         }
 
         for (int i = 0; i < c; i++) {
