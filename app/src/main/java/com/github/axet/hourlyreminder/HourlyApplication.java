@@ -26,6 +26,7 @@ import com.github.axet.hourlyreminder.services.FireAlarmService;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -108,6 +109,7 @@ public class HourlyApplication extends Application {
             a.speech = shared.getBoolean(prefix + "Speech", false);
             alarms.add(a);
         }
+
         return alarms;
     }
 

@@ -166,7 +166,7 @@ public class Sound {
         int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
         int min = Calendar.getInstance().get(Calendar.MINUTE);
 
-        String text = String.format("Time is %d:%d.", hour, min);
+        String text = String.format("Time is %02d:%02d", hour, min);
 
         String speak;
         if (min != 0) {

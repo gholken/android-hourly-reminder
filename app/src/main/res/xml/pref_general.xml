@@ -7,7 +7,7 @@
         android:title="Enable" />
 
     <MultiSelectListPreference
-        android:defaultValue="@array/empty"
+        android:defaultValue="@array/hour_default"
         android:entries="@array/hour_values"
         android:entryValues="@array/hour_values"
         android:key="hours"
@@ -27,7 +27,7 @@
         android:title="Speech Volume" />
 
     <SwitchPreferenceCompat
-        android:defaultValue="false"
+        android:defaultValue="true"
         android:key="beep"
         android:summary="Play beep sound before alarm text"
         android:title="Beep Sound" />

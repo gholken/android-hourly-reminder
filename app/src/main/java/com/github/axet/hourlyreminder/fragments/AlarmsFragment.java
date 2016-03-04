@@ -49,6 +49,7 @@ import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
@@ -80,6 +81,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         handler = new Handler();
 
         alarms = HourlyApplication.loadAlarms(getActivity());
+
+        Collections.sort(alarms, new Alarm.CustomComparator());
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefs.registerOnSharedPreferenceChangeListener(this);
