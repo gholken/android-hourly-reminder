@@ -1,162 +1,82 @@
 package com.github.axet.hourlyreminder.services;
 
+import android.app.AlarmManager;
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.net.Uri;
+import android.content.SharedPreferences;
 import android.os.Build;
-import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
-import com.github.axet.hourlyreminder.activities.AlarmActivity;
 import com.github.axet.hourlyreminder.activities.MainActivity;
+import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.basics.Reminder;
 import com.github.axet.hourlyreminder.basics.Sound;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 
-public class AlarmService extends Service {
-    // alarm activity action. close it.
-    public static final String CLOSE_ACTIVITY = AlarmService.class.getCanonicalName() + ".CLOSE_ACTIVITY";
+/**
+ * System Alarm Manager uses this service to create/stop alarms.
+ * <p/>
+ * All Alarm notifications clicks routed to this service.
+ */
+public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
+    public static final String TAG = AlarmService.class.getSimpleName();
 
-    // show activity broadcast
-    public static final String SHOW_ACTIVITY = AlarmService.class.getCanonicalName() + ".SHOW_ACTIVITY";
+    // upcoming noticiation alarm action. triggers notification upcoming.
+    public static final String NOTIFICATION = AlarmService.class.getCanonicalName() + ".NOTIFICATION";
+    // cancel alarm
+    public static final String CANCEL = HourlyApplication.class.getCanonicalName() + ".CANCEL";
+    // alarm broadcast, trigs sounds
+    public static final String ALARM = HourlyApplication.class.getCanonicalName() + ".ALARM";
+    // dismiss current alarm action
+    public static final String DISMISS = HourlyApplication.class.getCanonicalName() + ".DISMISS";
 
-    // minutes
-    public static final int ALARM_AUTO_OFF = 15;
-
-    public class ScreenReceiver extends BroadcastReceiver {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d(ScreenReceiver.class.getSimpleName(), "ScreenReceiver " + intent.getAction());
-
-            Intent i = new Intent(context, AlarmActivity.class);
-            long time = intent.getLongExtra("time", 0);
-            i.putExtra("time", time);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
-        }
+    public static void start(Context context) {
+        Intent intent = new Intent(context, AlarmService.class);
+        context.startService(intent);
     }
 
-    ScreenReceiver receiver = new ScreenReceiver();
-    Binder binder = new Binder();
     Sound sound;
-    Handler handle = new Handler();
-    Runnable cancel;
+    List<Alarm> alarms;
+    List<Reminder> reminders;
 
     public AlarmService() {
+        super();
+    }
+
+    public static String formatTime(long time) {
+        SimpleDateFormat s = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        return s.format(new Date(time));
     }
 
     @Override
     public void onCreate() {
         super.onCreate();
-        Log.d(AlarmService.class.getSimpleName(), "AlarmService onCreate");
+        Log.d(TAG, "onCreate");
+
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.registerOnSharedPreferenceChangeListener(this);
 
         sound = new Sound(this);
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId) {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Intent.ACTION_SCREEN_ON);
-        //filter.addAction(Intent.ACTION_SCREEN_OFF);
-        filter.addAction(SHOW_ACTIVITY);
-        registerReceiver(receiver, filter);
-
-        final long time = intent.getLongExtra("time", 0);
-        final boolean beep = intent.getBooleanExtra("beep", false);
-        final boolean speech = intent.getBooleanExtra("speech", false);
-        final boolean ringtone = intent.getBooleanExtra("ringtone", false);
-        final String ringtoneValue = intent.getStringExtra("ringtoneValue");
-
-        if (!alive(time)) {
-            stopSelf();
-            showNotificationMissed(time);
-            return START_NOT_STICKY;
-        }
-
-        showNotificationAlarm(time);
-
-        if (beep) {
-            sound.playBeep(new Runnable() {
-                               @Override
-                               public void run() {
-                                   if (speech) {
-                                       sound.playSpeech(new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               if (ringtone) {
-                                                   playRingtone(Uri.parse(ringtoneValue));
-                                               }
-                                           }
-                                       });
-                                   } else if (ringtone) {
-                                       playRingtone(Uri.parse(ringtoneValue));
-                                   }
-                               }
-                           }
-            );
-        } else if (speech) {
-            sound.playSpeech(new Runnable() {
-                @Override
-                public void run() {
-                    playRingtone(Uri.parse(ringtoneValue));
-                }
-            });
-        } else if (ringtone) {
-            playRingtone(Uri.parse(ringtoneValue));
-        }
-
-        showAlarmActivity(time);
-
-        return super.onStartCommand(intent, flags, startId);
-    }
-
-    boolean alive(final long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        cal.add(Calendar.MINUTE, ALARM_AUTO_OFF);
-        cal.set(Calendar.SECOND, 0);
-        cal.set(Calendar.MILLISECOND, 0);
-
-        Calendar cur = Calendar.getInstance();
-
-        boolean b = cal.after(cur);
-
-        if (b) {
-            cancel = new Runnable() {
-                @Override
-                public void run() {
-                    if (!alive(time)) {
-                        stopSelf();
-                        showNotificationMissed(time);
-                    }
-                }
-            };
-            handle.postDelayed(cancel, 1000 * 60);
-        }
-
-        return b;
-    }
-
-    public void showAlarmActivity(long time) {
-        Intent intent = new Intent(this, AlarmActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("time", time);
-        startActivity(intent);
-    }
-
-    void playRingtone(Uri uri) {
-        sound.playRingtone(uri);
+        alarms = HourlyApplication.loadAlarms(this);
+        reminders = HourlyApplication.loadReminders(this);
     }
 
     @Nullable
@@ -165,102 +85,241 @@ public class AlarmService extends Service {
         return null;
     }
 
-    public class Binder extends android.os.Binder {
-        public AlarmService getService() {
-            return AlarmService.this;
-        }
-    }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d(AlarmService.class.getSimpleName(), "onDestory");
+        Log.d(TAG, "onDestroy");
 
         if (sound != null) {
             sound.close();
             sound = null;
         }
-
-        showNotificationAlarm(0);
-
-        unregisterReceiver(receiver);
-
-        Intent intent = new Intent(this, AlarmActivity.class);
-        intent.setAction(CLOSE_ACTIVITY);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
-
-        if (cancel != null) {
-            handle.removeCallbacks(cancel);
-            cancel = null;
-        }
     }
 
-    // show notification about missed alarm
-    void showNotificationMissed(long time) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && intent.getAction() != null) {
+            Log.d(TAG, "onStartCommand " + intent.getAction());
+            long time = intent.getLongExtra("time", 0);
 
-        if (time == 0) {
-            notificationManager.cancel(HourlyApplication.NOTIFICATION_MISSED_ICON);
-        } else {
-            Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(time);
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int min = c.get(Calendar.MINUTE);
-
-            Intent maini = new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE);
-            maini.putExtra("time", time);
-            PendingIntent main = PendingIntent.getActivity(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            String text = String.format("Alarm %02d:%02d dismissed after %d mins", hour, min, ALARM_AUTO_OFF);
-
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_missed);
-            view.setTextViewText(R.id.notification_text, text);
-            view.setOnClickPendingIntent(R.id.notification_base, main);
-
-            Notification.Builder builder = new Notification.Builder(this)
-                    .setContentTitle("Alarm")
-                    .setContentText(text)
-                    .setSmallIcon(R.drawable.ic_notifications_black_24dp)
-                    .setContent(view);
-
-            if (Build.VERSION.SDK_INT >= 21)
-                builder.setVisibility(Notification.VISIBILITY_PUBLIC);
-
-            notificationManager.notify(HourlyApplication.NOTIFICATION_MISSED_ICON, builder.build());
+            if (intent.getAction().equals(NOTIFICATION)) {
+                showNotificationUpcoming(time);
+            } else if (intent.getAction().equals(CANCEL)) {
+                tomorrow(time);
+            } else if (intent.getAction().equals(DISMISS)) {
+                FireAlarmService.dismissActiveAlarm(this);
+            } else if (intent.getAction().equals(ALARM)) {
+                soundAlarm(time);
+            }
         }
+
+        return super.onStartCommand(intent, flags, startId);
     }
 
-    // alarm dismiss button
-    public void showNotificationAlarm(long time) {
-        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+    // create list for hour reminders. 'time' list for reminder (hronological order)
+    public TreeSet<Long> generateReminders(Calendar cur) {
+        TreeSet<Long> alarms = new TreeSet<>();
 
-        if (time == 0) {
-            notificationManager.cancel(HourlyApplication.NOTIFICATION_ALARM_ICON);
+        for (Reminder r : reminders) {
+            alarms.add(r.getAlarmTime(cur));
+        }
+
+        return alarms;
+    }
+
+    // create list for alarms. 'time' list for alarms (hronological order)
+    public TreeSet<Long> generateAlarms(Calendar cur) {
+        TreeSet<Long> alarms = new TreeSet<>();
+
+        for (Alarm a : this.alarms) {
+            if (!a.enable)
+                continue;
+            alarms.add(a.getAlarmTime(cur));
+        }
+
+        return alarms;
+    }
+
+    public Alarm getAlarm(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+
+        int ah = cal.get(Calendar.HOUR_OF_DAY);
+        int am = cal.get(Calendar.MINUTE);
+
+        for (Alarm a : alarms) {
+            if (a.getHour() == ah && a.getMin() == am)
+                return a;
+        }
+        return null;
+    }
+
+    // check if 'hour' is a enabled reminder
+    public Reminder getReminder(long time) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+
+        int rh = cal.get(Calendar.HOUR_OF_DAY);
+        int rm = cal.get(Calendar.MINUTE);
+
+        if (rm != 0)
+            return null;
+
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
+        String h = String.format("%02d", rh);
+        for (Reminder r : reminders) {
+            if (r.getHour() == rh)
+                return r;
+        }
+        return null;
+    }
+
+    // cancel alarm 'time' by set it time for day+1 (same hour:min)
+    public void tomorrow(long time) {
+        Alarm a = getAlarm(time);
+        if (a != null) {
+            if (a.weekdays) {
+                a.setTomorrow();
+            } else {
+                a.setEnable(false);
+                HourlyApplication.saveAlarms(this, alarms);
+            }
+        }
+
+        Reminder r = getReminder(time);
+        if (r != null) {
+            r.setTomorrow();
+        }
+
+        registerNextAlarm();
+    }
+
+    // register alarm event for next one.
+    //
+    // scan all alarms and hourly reminders and register net one
+    //
+    public void registerNextAlarm() {
+        AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
+        TreeSet<Long> alarms = new TreeSet<>();
+
+        Calendar cur = Calendar.getInstance();
+
+        // check hourly reminders
+        if (shared.getBoolean("enabled", false)) {
+            alarms.addAll(generateReminders(cur));
+        }
+        // check alarms
+        alarms.addAll(generateAlarms(cur));
+
+        Intent intent = new Intent(this, AlarmService.class).setAction(ALARM);
+
+        if (alarms.isEmpty()) {
+            PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            alarm.cancel(pe);
+            updateNotificationUpcomingAlarm(0);
         } else {
-            Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(time);
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int min = c.get(Calendar.MINUTE);
+            long time = alarms.first();
 
-            Intent intent = new Intent().setAction(HourlyApplication.DISMISS);
             intent.putExtra("time", time);
-            PendingIntent pe = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
-            Intent maini = new Intent().setAction(SHOW_ACTIVITY);
-            maini.putExtra("time", time);
-            PendingIntent main = PendingIntent.getBroadcast(this, 0, maini, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
 
+            Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
+
+            updateNotificationUpcomingAlarm(time);
+
+            if (shared.getBoolean("alarm", true)) {
+                if (Build.VERSION.SDK_INT >= 21) {
+                    alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(time, pe), pe);
+                } else {
+                    alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
+                }
+            } else {
+                if (Build.VERSION.SDK_INT >= 23) {
+                    alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pe);
+                } else {
+                    alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
+                }
+            }
+        }
+    }
+
+    // register notification_upcoming alarm event for 'time' - 15min.
+    //
+    // service will call showNotificationUpcoming(time)
+    //
+    void updateNotificationUpcomingAlarm(long time) {
+        AlarmManager alarm = (AlarmManager) this.getSystemService(Context.ALARM_SERVICE);
+
+        PendingIntent pe = PendingIntent.getService(this, 0,
+                new Intent(this, AlarmService.class).setAction(NOTIFICATION).putExtra("time", time),
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+        alarm.cancel(pe);
+
+        if (time == 0) {
+            showNotificationUpcoming(0);
+        } else {
+            Calendar cur = Calendar.getInstance();
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(time);
+            cal.add(Calendar.MINUTE, -15);
+
+            if (cur.after(cal)) {
+                // we already 15 before alarm, show notification_upcoming
+                showNotificationUpcoming(time);
+            } else {
+                showNotificationUpcoming(0);
+                // time to wait before show notification_upcoming
+                time = cal.getTimeInMillis();
+
+                if (Build.VERSION.SDK_INT >= 23) {
+                    alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pe);
+                } else {
+                    alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
+                }
+            }
+        }
+    }
+
+    // show notification_upcoming. (about upcoming alarm)
+    //
+    // time - 0 cancel notifcation
+    // time - upcoming alarm time, show text.
+    public void showNotificationUpcoming(long time) {
+        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (time == 0) {
+            notificationManager.cancel(HourlyApplication.NOTIFICATION_UPCOMING_ICON);
+        } else {
+            Calendar c = Calendar.getInstance();
+            c.setTimeInMillis(time);
+            int hour = c.get(Calendar.HOUR_OF_DAY);
+            int min = c.get(Calendar.MINUTE);
+
+            PendingIntent button = PendingIntent.getService(this, 0,
+                    new Intent(this, AlarmService.class).setAction(CANCEL).putExtra("time", time),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            PendingIntent main = PendingIntent.getActivity(this, 0,
+                    new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE).putExtra("time", time),
+                    PendingIntent.FLAG_UPDATE_CURRENT);
+
+            String subject = "Upcoming alarm";
             String text = String.format("%02d:%02d", hour, min);
 
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_alarm);
-            view.setOnClickPendingIntent(R.id.notification_cancel, pe);
+            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_upcoming);
+            view.setOnClickPendingIntent(R.id.notification_cancel, button);
             view.setTextViewText(R.id.notification_text, text);
             view.setOnClickPendingIntent(R.id.notification_base, main);
 
             Notification.Builder builder = new Notification.Builder(this)
                     .setOngoing(true)
-                    .setContentTitle("Alarm")
+                    .setContentTitle(subject)
                     .setContentText(text)
                     .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                     .setContent(view);
@@ -268,8 +327,66 @@ public class AlarmService extends Service {
             if (Build.VERSION.SDK_INT >= 21)
                 builder.setVisibility(Notification.VISIBILITY_PUBLIC);
 
-            notificationManager.notify(HourlyApplication.NOTIFICATION_ALARM_ICON, builder.build());
+            notificationManager.notify(HourlyApplication.NOTIFICATION_UPCOMING_ICON, builder.build());
+        }
+    }
+
+    // alarm come from service call (System Alarm Manager) for specified time
+    //
+    // we have to check what 'alarms' do we have at specified time (can be reminder + alarm)
+    // and act propertly.
+    public void soundAlarm(long time) {
+        // find hourly reminder + alarm = combine proper sound notification_upcoming (can be merge beep, speech, ringtone)
+        //
+        // then sound alarm or hourly reminder
+
+        Alarm a = getAlarm(time);
+        if (a != null && a.enable) {
+            if (!a.weekdays) {
+                // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
+                a.setEnable(false);
+                HourlyApplication.saveAlarms(this, alarms);
+            }
+            FireAlarmService.activateAlarm(this, a);
+            registerNextAlarm();
+            return;
+        }
+
+        Reminder reminder = getReminder(time);
+
+        if (reminder != null) {
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            if (shared.getBoolean("beep", false)) {
+                sound.playBeep(new Runnable() {
+                    @Override
+                    public void run() {
+                        sound.playSpeech(null);
+                    }
+                });
+            } else {
+                sound.playSpeech(null);
+            }
+            registerNextAlarm();
+            return;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        Log.d(TAG, "onSharedPreferenceChanged " + key);
+        if (key.startsWith("Alarm_")) {
+            alarms = HourlyApplication.loadAlarms(this);
+            registerNextAlarm();
+        }
+
+        // reset reminders on special events
+        if (key.equals("enabled")) {
+            reminders = HourlyApplication.loadReminders(this);
+            registerNextAlarm();
+        }
+        if (key.equals("hours")) {
+            reminders = HourlyApplication.loadReminders(this);
+            registerNextAlarm();
         }
     }
 }
-

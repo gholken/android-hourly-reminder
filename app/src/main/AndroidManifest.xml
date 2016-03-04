@@ -14,7 +14,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".services.AlarmService"
+            android:name=".services.FireAlarmService"
             android:enabled="true"
             android:exported="true" />
 
@@ -43,7 +43,11 @@
             android:label="@string/title_activity_alarm"
             android:launchMode="singleInstance"
             android:showOnLockScreen="true"
-            android:theme="@style/FullscreenTheme"></activity>
+            android:theme="@style/FullscreenTheme" />
+
+        <service
+            android:name=".services.AlarmService"
+            android:exported="false"></service>
     </application>
 
 </manifest>

@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.HourlyApplication;
@@ -31,6 +32,7 @@ public class Sound {
     TextToSpeech tts;
     ToneGenerator tone;
     MediaPlayer player;
+    AudioTrack track;
 
     public Sound(Context context) {
         this.context = context;
@@ -62,25 +64,33 @@ public class Sound {
             player.release();
             player = null;
         }
+        if (tone != null) {
+            tone.release();
+            tone = null;
+        }
+        if (track != null) {
+            track.release();
+            track = null;
+        }
     }
 
     // https://gist.github.com/slightfoot/6330866
     private AudioTrack generateTone(double freqHz, int durationMs) {
-        int count = (int) (44100.0 * (durationMs / 1000.0)) & ~1;
+        int count = (int) (44100.0 * (durationMs / 1000.0));
         int end = count;
-
-        count = count * 2;
-        short[] samples = new short[count];
-        for (int i = 0; i < count; i += 2) {
+        int stereo = count * 2;
+        short[] samples = new short[stereo];
+        for (int i = 0; i < stereo; i += 2) {
             short sample = (short) (Math.sin(2 * Math.PI * i / (44100.0 / freqHz)) * 0x7FFF);
             samples[i + 0] = sample;
             samples[i + 1] = sample;
         }
         AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
-                count * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
-        track.write(samples, 0, count);
-        track.setNotificationMarkerPosition(end);
+                stereo * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
+        track.write(samples, 0, stereo);
+        if (track.setNotificationMarkerPosition(end) != AudioTrack.SUCCESS)
+            throw new RuntimeException("unable to set marker");
         return track;
     }
 
@@ -100,7 +110,10 @@ public class Sound {
     }
 
     public void playBeep(final Runnable done) {
-        AudioTrack track = generateTone(900, BEEP);
+        if (track != null)
+            track.release();
+
+        track = generateTone(900, BEEP);
 
         if (Build.VERSION.SDK_INT < 21) {
             track.setStereoVolume(getVolume(), getVolume());
@@ -132,6 +145,9 @@ public class Sound {
             player = MediaPlayer.create(context, Uri.parse(Alarm.DEFAULT_RING));
         }
         if (player == null) {
+            if (tone != null) {
+                tone.release();
+            }
             tone = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
             tone.startTone(ToneGenerator.TONE_CDMA_CALL_SIGNAL_ISDN_NORMAL);
             return;
