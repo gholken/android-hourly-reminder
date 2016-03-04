@@ -17,7 +17,7 @@
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"
-        android:summary="Use alarm type for more precise timing"
+        android:summary="Use alarm type event for hourly reminder to be more precise on timing"
         android:title="Alarm Type" />
 
     <com.github.axet.hourlyreminder.layouts.SeekBarPreference

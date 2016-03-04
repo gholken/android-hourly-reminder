@@ -28,7 +28,7 @@ public class AlarmService extends Service {
     // alarm activity action. close it.
     public static final String CLOSE_ACTIVITY = AlarmService.class.getCanonicalName() + ".CLOSE_ACTIVITY";
 
-    // show activity broadcast
+    // notification click -> show activity broadcast
     public static final String SHOW_ACTIVITY = AlarmService.class.getCanonicalName() + ".SHOW_ACTIVITY";
 
     // minutes
@@ -39,11 +39,17 @@ public class AlarmService extends Service {
         public void onReceive(Context context, Intent intent) {
             Log.d(ScreenReceiver.class.getSimpleName(), "ScreenReceiver " + intent.getAction());
 
-            Intent i = new Intent(context, AlarmActivity.class);
-            long time = intent.getLongExtra("time", 0);
-            i.putExtra("time", time);
-            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            if(intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                long time = intent.getLongExtra("time", 0);
+                showAlarmActivity(time);
+            }
+            if(intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
+                // do nothing. do not annoy user. he will see alarm screen on next screen on event.
+            }
+            if(intent.getAction().equals(SHOW_ACTIVITY)) {
+                long time = intent.getLongExtra("time", 0);
+                showAlarmActivity(time);
+            }
         }
     }
 
@@ -68,7 +74,7 @@ public class AlarmService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_SCREEN_ON);
-        //filter.addAction(Intent.ACTION_SCREEN_OFF);
+        filter.addAction(Intent.ACTION_SCREEN_OFF);
         filter.addAction(SHOW_ACTIVITY);
         registerReceiver(receiver, filter);
 
