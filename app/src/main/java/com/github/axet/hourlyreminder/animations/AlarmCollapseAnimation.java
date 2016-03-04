@@ -1,5 +1,6 @@
 package com.github.axet.hourlyreminder.animations;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
@@ -7,8 +8,7 @@ import android.view.animation.Transformation;
 
 import com.github.axet.hourlyreminder.R;
 
-public class AlarmCollapseAnimation extends Animation {
-
+public class AlarmCollapseAnimation extends Animation implements Animation.AnimationListener {
     View detailed;
     View bottom;
     View bottom_f;
@@ -23,6 +23,8 @@ public class AlarmCollapseAnimation extends Animation {
     public AlarmCollapseAnimation(View v) {
         setDuration(500);
 
+        setAnimationListener(this);
+
         detailed = v.findViewById(R.id.alarm_detailed);
         bottom = v.findViewById(R.id.alarm_bottom);
         bottom_f = v.findViewById(R.id.alarm_bottom_first);
@@ -31,16 +33,10 @@ public class AlarmCollapseAnimation extends Animation {
         compact_f = v.findViewById(R.id.alarm_compact_first);
         compact_s = v.findViewById(R.id.alarm_compact_second);
 
-        detailed.setVisibility(View.VISIBLE);
-        bottom.setVisibility(View.VISIBLE);
-        bottom_s.setVisibility(View.VISIBLE);
         compact_s.setVisibility(View.INVISIBLE);
-        compact.setVisibility(View.VISIBLE);
-
-        compact_f.setAlpha(1);
         compact_s.setRotation(0);
-        bottom_s.setAlpha(1);
-        bottom_s.setRotation(0);
+
+        compact.setVisibility(View.VISIBLE);
 
         detailedLp = (ViewGroup.MarginLayoutParams) detailed.getLayoutParams();
         h = detailed.getMeasuredHeight();
@@ -55,19 +51,33 @@ public class AlarmCollapseAnimation extends Animation {
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         super.applyTransformation(interpolatedTime, t);
 
-        if (interpolatedTime < 1.0f) {
-            detailedLp.topMargin = - (int) (h * interpolatedTime);
-            bottom_f.setAlpha(1.0f - interpolatedTime);
-            bottom_s.setRotation(-180 * interpolatedTime);
-            compact_f.setAlpha(interpolatedTime);
-        } else {
-            detailed.setVisibility(View.GONE);
-            bottom.setVisibility(View.GONE);
-            bottom_s.setRotation(0);
-            compact.setVisibility(View.VISIBLE);
-            compact_s.setVisibility(View.VISIBLE);
-        }
+        detailedLp.topMargin = -(int) (h * interpolatedTime);
+        bottom_f.setAlpha(1.0f - interpolatedTime);
+        bottom_s.setRotation(-180 * interpolatedTime);
+        compact_f.setAlpha(interpolatedTime);
 
         detailed.requestLayout();
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        detailedLp.topMargin = 0;
+        bottom_f.setAlpha(1);
+        bottom_s.setRotation(0);
+        compact_f.setAlpha(1);
+
+        detailed.setVisibility(View.GONE);
+        bottom.setVisibility(View.GONE);
+        compact_s.setVisibility(View.VISIBLE);
+
+        detailed.requestLayout();
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
     }
 }

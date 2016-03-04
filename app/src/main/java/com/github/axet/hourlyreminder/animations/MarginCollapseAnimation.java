@@ -5,7 +5,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Transformation;
 
-public class MarginCollapseAnimation extends Animation {
+public class MarginCollapseAnimation extends Animation implements Animation.AnimationListener {
 
     View detailed;
     ViewGroup.MarginLayoutParams detailedLp;
@@ -13,6 +13,8 @@ public class MarginCollapseAnimation extends Animation {
 
     public MarginCollapseAnimation(View v) {
         setDuration(500);
+
+        setAnimationListener(this);
 
         detailed = v;
 
@@ -33,12 +35,24 @@ public class MarginCollapseAnimation extends Animation {
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         super.applyTransformation(interpolatedTime, t);
 
-        if (interpolatedTime < 1.0f) {
-            detailedLp.topMargin = - (int) (h * interpolatedTime);
-        } else {
-            detailed.setVisibility(View.GONE);
-        }
+        detailedLp.topMargin = -(int) (h * interpolatedTime);
 
         detailed.requestLayout();
+    }
+
+    @Override
+    public void onAnimationStart(Animation animation) {
+    }
+
+    @Override
+    public void onAnimationEnd(Animation animation) {
+        detailedLp.topMargin = 0;
+        detailed.setVisibility(View.GONE);
+
+        detailed.requestLayout();
+    }
+
+    @Override
+    public void onAnimationRepeat(Animation animation) {
     }
 }

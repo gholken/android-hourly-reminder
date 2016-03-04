@@ -3,7 +3,6 @@ package com.github.axet.hourlyreminder.fragments;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -14,13 +13,12 @@ import android.support.v7.preference.Preference;
 import android.support.v7.widget.ContentFrameLayout;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
-import com.github.axet.hourlyreminder.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.layouts.SeekBarPreference;
 import com.github.axet.hourlyreminder.layouts.SeekBarPreferenceDialogFragment;
 
@@ -30,6 +28,8 @@ import java.util.List;
 import java.util.Set;
 
 public class GeneralPreferenceFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback {
+
+    Sound sound;
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
@@ -103,6 +103,8 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         addPreferencesFromResource(R.xml.pref_general);
         setHasOptionsMenu(true);
 
+        sound = new Sound(getActivity());
+
         // 23 SDK requires to be Alarm to be percice on time
         if (Build.VERSION.SDK_INT < 23)
             getPreferenceScreen().removePreference(findPreference("alarm"));
@@ -130,7 +132,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    ((HourlyApplication) context.getApplicationContext()).Sound().soundAlarm();
+                    sound.soundAlarm();
                 }
             });
         }
@@ -138,4 +140,13 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         return view;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        if (sound != null) {
+            sound.close();
+            sound = null;
+        }
+    }
 }

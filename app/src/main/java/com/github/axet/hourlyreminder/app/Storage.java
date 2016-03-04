@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder.basics;
+package com.github.axet.hourlyreminder.app;
 
 import android.content.ContentResolver;
 import android.content.Context;
@@ -13,9 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-/**
- * Created by axet on 03/03/16.
- */
 public class Storage {
     Context context;
 

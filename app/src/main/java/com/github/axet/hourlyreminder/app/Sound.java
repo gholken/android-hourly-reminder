@@ -1,4 +1,4 @@
-package com.github.axet.hourlyreminder.basics;
+package com.github.axet.hourlyreminder.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -14,10 +14,9 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.util.Log;
 import android.widget.Toast;
 
-import com.github.axet.hourlyreminder.HourlyApplication;
+import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.util.Calendar;
 import java.util.HashMap;
