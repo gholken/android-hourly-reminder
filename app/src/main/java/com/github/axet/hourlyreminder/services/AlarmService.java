@@ -97,7 +97,9 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent != null && intent.getAction() != null) {
+        if (intent == null) {
+            Log.d(TAG, "onStartCommand restart");
+        } else if (intent.getAction() != null) {
             Log.d(TAG, "onStartCommand " + intent.getAction());
             long time = intent.getLongExtra("time", 0);
 
