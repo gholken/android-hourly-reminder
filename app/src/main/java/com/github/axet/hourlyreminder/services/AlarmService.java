@@ -32,12 +32,14 @@ import java.util.TreeSet;
 
 /**
  * System Alarm Manager notifes this service to create/stop alarms.
- * <p/>
+ * <p>
  * All Alarm notifications clicks routed to this service.
  */
 public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
     public static final String TAG = AlarmService.class.getSimpleName();
 
+    // upcoming noticiation alarm action. triggers notification upcoming.
+    public static final String REGISTER = AlarmService.class.getCanonicalName() + ".REGISTER";
     // upcoming noticiation alarm action. triggers notification upcoming.
     public static final String NOTIFICATION = AlarmService.class.getCanonicalName() + ".NOTIFICATION";
     // cancel alarm
@@ -49,6 +51,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
     public static void start(Context context) {
         Intent intent = new Intent(context, AlarmService.class);
+        intent.setAction(REGISTER);
         context.startService(intent);
     }
 
@@ -100,17 +103,20 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         if (intent == null) {
             Log.d(TAG, "onStartCommand restart");
         } else if (intent.getAction() != null) {
+            String action = intent.getAction();
             Log.d(TAG, "onStartCommand " + intent.getAction());
             long time = intent.getLongExtra("time", 0);
 
-            if (intent.getAction().equals(NOTIFICATION)) {
+            if (action.equals(NOTIFICATION)) {
                 showNotificationUpcoming(time);
-            } else if (intent.getAction().equals(CANCEL)) {
+            } else if (action.equals(CANCEL)) {
                 tomorrow(time);
-            } else if (intent.getAction().equals(DISMISS)) {
+            } else if (action.equals(DISMISS)) {
                 FireAlarmService.dismissActiveAlarm(this);
-            } else if (intent.getAction().equals(ALARM)) {
+            } else if (action.equals(ALARM)) {
                 soundAlarm(time);
+            } else if (action.equals(REGISTER)) {
+                registerNextAlarm();
             }
         }
 
