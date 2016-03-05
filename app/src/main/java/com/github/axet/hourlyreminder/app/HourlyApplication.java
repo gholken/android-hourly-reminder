@@ -58,9 +58,18 @@ public class HourlyApplication extends Application {
             alarms.add(a);
         }
 
+        long id = 0;
+
         for (int i = 0; i < c; i++) {
             String prefix = "Alarm_" + i + "_";
             Alarm a = new Alarm(context);
+            a.id = shared.getLong(prefix + "Id", System.currentTimeMillis());
+
+            while (a.id == id) {
+                a.id++;
+            }
+            id = a.id;
+
             a.time = shared.getLong(prefix + "Time", 0);
             a.enable = shared.getBoolean(prefix + "Enable", false);
             a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
@@ -79,9 +88,19 @@ public class HourlyApplication extends Application {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = shared.edit();
         edit.putInt("Alarm_Count", alarms.size());
+
+        long id = 0;
+
         for (int i = 0; i < alarms.size(); i++) {
             Alarm a = alarms.get(i);
             String prefix = "Alarm_" + i + "_";
+
+            while (a.id == id) {
+                a.id++;
+            }
+            id = a.id;
+
+            edit.putLong(prefix + "Id", a.id);
             edit.putLong(prefix + "Time", a.time);
             edit.putBoolean(prefix + "Enable", a.enable);
             edit.putBoolean(prefix + "WeekDays", a.weekdays);

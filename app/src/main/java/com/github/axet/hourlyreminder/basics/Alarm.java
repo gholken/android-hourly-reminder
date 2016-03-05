@@ -31,6 +31,8 @@ public class Alarm {
 
     protected Context context;
 
+    // unique id
+    public long id;
     // time when alarm start to be active. used to snooze upcoming today alarms.
     //
     // may point in past or future. if it points to the past - it is currently active.
@@ -54,6 +56,8 @@ public class Alarm {
     }
 
     public Alarm(Context context) {
+        this.id = System.currentTimeMillis();
+
         this.context = context;
 
         setTime(9, 0);

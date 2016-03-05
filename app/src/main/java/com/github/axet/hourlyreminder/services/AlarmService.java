@@ -104,7 +104,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             Log.d(TAG, "onStartCommand restart");
         } else if (intent.getAction() != null) {
             String action = intent.getAction();
-            Log.d(TAG, "onStartCommand " + intent.getAction());
+            Log.d(TAG, "onStartCommand " + action);
             long time = intent.getLongExtra("time", 0);
 
             if (action.equals(NOTIFICATION)) {
