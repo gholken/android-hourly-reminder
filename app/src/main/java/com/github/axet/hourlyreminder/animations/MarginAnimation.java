@@ -1,8 +1,11 @@
 package com.github.axet.hourlyreminder.animations;
 
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 
 public class MarginAnimation extends Animation {
@@ -16,17 +19,39 @@ public class MarginAnimation extends Animation {
     public static void apply(View v, boolean expand, boolean animate) {
         Animation a = v.getAnimation();
         if (a != null && a instanceof MarginAnimation) {
-            v.clearAnimation();
             MarginAnimation m = (MarginAnimation) a;
-            m.restore();
+
+            long cur = AnimationUtils.currentAnimationTimeMillis();
+            long past = cur - m.getStartTime() - m.getStartOffset();
+            long left = m.getDuration() - past;
+            long offset = cur - m.getStartTime() - left;
+
+            if (animate) {
+                if (m.hasEnded()) {
+                    MarginAnimation mm = new MarginAnimation(v, expand);
+                    v.startAnimation(mm);
+                } else {
+                    if (m.expand != expand) {
+                        m.expand = expand;
+                        m.setStartOffset(offset);
+                    } else {
+                        // keep rolling do nothing
+                    }
+                }
+            } else {
+                m.restore();
+                m.cancel();
+                MarginAnimation mm = new MarginAnimation(v, expand);
+                mm.end();
+            }
+        } else {
+            MarginAnimation mm = new MarginAnimation(v, expand);
+            if (animate) {
+                v.startAnimation(mm);
+            } else {
+                mm.end();
+            }
         }
-
-        MarginAnimation mm = new MarginAnimation(v, expand);
-
-        if (animate)
-            v.startAnimation(mm);
-        else
-            mm.end();
     }
 
     public MarginAnimation(View v, boolean expand) {

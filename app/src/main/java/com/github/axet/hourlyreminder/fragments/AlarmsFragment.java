@@ -218,6 +218,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     static boolean checkboxAnimate(CheckBox checkbox, View view) {
         boolean animate;
+        Animation a = view.getAnimation();
+        if (a != null && !a.hasEnded())
+            return true;
         if (checkbox.isChecked()) {
             animate = view.getVisibility() != View.VISIBLE;
         } else {
@@ -246,25 +249,18 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
             final CheckBox weekdays = (CheckBox) convertView.findViewById(R.id.alarm_week_days);
             final LinearLayout weekdaysValues = (LinearLayout) convertView.findViewById(R.id.alarm_week);
-            final View alarmRingtoneLayout = convertView.findViewById(R.id.alarm_ringtone_layout);
             final CheckBox alarmRingtone = (CheckBox) convertView.findViewById(R.id.alarm_ringtone);
+            final View alarmRingtoneLayout = convertView.findViewById(R.id.alarm_ringtone_layout);
 
-            if (scrollState != SCROLL_STATE_IDLE || (int) convertView.getTag() == -1) {
-                AlarmAnimation.apply(list, convertView, true, false);
+            AlarmAnimation.apply(list, convertView, true, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_COLLAPSED);
 
-                MarginAnimation.apply(weekdaysValues, weekdays.isChecked(), false);
-                MarginAnimation.apply(alarmRingtoneLayout, alarmRingtone.isChecked(), false);
-            } else {
-                if ((int) convertView.getTag() == TYPE_COLLAPSED) {
-                    MarginAnimation.apply(weekdaysValues, weekdays.isChecked(), false);
-                    MarginAnimation.apply(alarmRingtoneLayout, alarmRingtone.isChecked(), false);
+            MarginAnimation.apply(weekdaysValues, weekdays.isChecked(), scrollState == SCROLL_STATE_IDLE &&
+                    (int) convertView.getTag() == TYPE_EXPANDED &&
+                    checkboxAnimate(weekdays, weekdaysValues));
 
-                    AlarmAnimation.apply(list, convertView, true, true);
-                } else { // TYPE_DETAILED
-                    MarginAnimation.apply(weekdaysValues, weekdays.isChecked(), checkboxAnimate(weekdays, weekdaysValues));
-                    MarginAnimation.apply(alarmRingtoneLayout, alarmRingtone.isChecked(), checkboxAnimate(alarmRingtone, alarmRingtoneLayout));
-                }
-            }
+            MarginAnimation.apply(alarmRingtoneLayout, alarmRingtone.isChecked(), scrollState == SCROLL_STATE_IDLE &&
+                    (int) convertView.getTag() == TYPE_EXPANDED &&
+                    checkboxAnimate(alarmRingtone, alarmRingtoneLayout));
 
             convertView.setTag(TYPE_EXPANDED);
 
@@ -272,11 +268,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         } else {
             fillCompact(convertView, a, position);
 
-            if (scrollState != SCROLL_STATE_IDLE || (int) convertView.getTag() == -1) {
-                AlarmAnimation.apply(list, convertView, false, false);
-            } else if ((int) convertView.getTag() == TYPE_EXPANDED) {
-                AlarmAnimation.apply(list, convertView, false, true);
-            }
+            AlarmAnimation.apply(list, convertView, false, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_EXPANDED);
 
             convertView.setTag(TYPE_COLLAPSED);
 

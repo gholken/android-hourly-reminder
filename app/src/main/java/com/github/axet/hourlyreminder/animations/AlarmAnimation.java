@@ -2,8 +2,11 @@ package com.github.axet.hourlyreminder.animations;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.Interpolator;
 import android.widget.ListView;
 
 import com.github.axet.hourlyreminder.R;
@@ -22,17 +25,39 @@ public class AlarmAnimation extends MarginAnimation {
     public static void apply(ListView list, View v, boolean expand, boolean animate) {
         Animation a = v.getAnimation();
         if (a != null && a instanceof AlarmAnimation) {
-            v.clearAnimation();
             AlarmAnimation m = (AlarmAnimation) a;
-            m.restore();
+
+            long cur = AnimationUtils.currentAnimationTimeMillis();
+            long past = cur - m.getStartTime() - m.getStartOffset();
+            long left = m.getDuration() - past;
+            long offset = cur - m.getStartTime() - left;
+
+            if (animate) {
+                if (m.hasEnded()) {
+                    AlarmAnimation mm = new AlarmAnimation(list, v, expand);
+                    v.startAnimation(mm);
+                } else {
+                    if (m.expand != expand) {
+                        m.expand = expand;
+                        m.setStartOffset(offset);
+                    } else {
+                        // keep rolling do nothing
+                    }
+                }
+            } else {
+                m.restore();
+                m.cancel();
+                AlarmAnimation mm = new AlarmAnimation(list, v, expand);
+                mm.end();
+            }
+        } else {
+            AlarmAnimation mm = new AlarmAnimation(list, v, expand);
+            if (animate) {
+                v.startAnimation(mm);
+            } else {
+                mm.end();
+            }
         }
-
-        AlarmAnimation mm = new AlarmAnimation(list, v, expand);
-
-        if (animate)
-            v.startAnimation(mm);
-        else
-            mm.end();
     }
 
     public AlarmAnimation(ListView list, View v, boolean expand) {
