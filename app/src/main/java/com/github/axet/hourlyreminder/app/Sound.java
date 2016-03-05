@@ -33,6 +33,10 @@ public class Sound {
     MediaPlayer player;
     AudioTrack track;
 
+    // AudioSystem.STREAM_ALARM AudioManager.STREAM_ALARM;
+    final static int SOUND_CHANNEL = AudioAttributes.USAGE_ALARM;
+    final static int SOUND_TYPE = AudioAttributes.CONTENT_TYPE_SONIFICATION;
+
     public Sound(Context context) {
         this.context = context;
 
@@ -44,8 +48,8 @@ public class Sound {
 
                     if (Build.VERSION.SDK_INT >= 21) {
                         tts.setAudioAttributes(new AudioAttributes.Builder()
-                                .setUsage(AudioAttributes.USAGE_MEDIA)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                                .setUsage(SOUND_CHANNEL)
+                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                                 .build());
                     }
                 }
@@ -84,7 +88,7 @@ public class Sound {
             samples[i + 0] = sample;
             samples[i + 1] = sample;
         }
-        AudioTrack track = new AudioTrack(AudioManager.STREAM_MUSIC, 44100,
+        AudioTrack track = new AudioTrack(SOUND_CHANNEL, 44100,
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
                 stereo * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
         track.write(samples, 0, stereo);
@@ -147,9 +151,15 @@ public class Sound {
             if (tone != null) {
                 tone.release();
             }
-            tone = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+            tone = new ToneGenerator(SOUND_CHANNEL, 100);
             tone.startTone(ToneGenerator.TONE_CDMA_CALL_SIGNAL_ISDN_NORMAL);
             return;
+        }
+        if (Build.VERSION.SDK_INT >= 21) {
+            player.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(SOUND_CHANNEL)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build());
         }
         player.setLooping(true);
         player.setVolume(getVolume(), getVolume());
@@ -226,6 +236,12 @@ public class Sound {
             Toast.makeText(context, "No default ringtone", Toast.LENGTH_SHORT).show();
             return null;
         }
+        if (Build.VERSION.SDK_INT >= 21) {
+            player.setAudioAttributes(new AudioAttributes.Builder()
+                    .setUsage(SOUND_CHANNEL)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build());
+        }
         final MediaPlayer p = player;
         player.setLooping(false);
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -240,5 +256,4 @@ public class Sound {
         player.start();
         return player;
     }
-
 }

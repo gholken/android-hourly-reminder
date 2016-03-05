@@ -32,7 +32,7 @@ import java.util.TreeSet;
 
 /**
  * System Alarm Manager notifes this service to create/stop alarms.
- * <p>
+ * <p/>
  * All Alarm notifications clicks routed to this service.
  */
 public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -100,24 +100,25 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent == null) {
-            Log.d(TAG, "onStartCommand restart");
-        } else if (intent.getAction() != null) {
+        if (intent != null) {
             String action = intent.getAction();
             Log.d(TAG, "onStartCommand " + action);
-            long time = intent.getLongExtra("time", 0);
-
-            if (action.equals(NOTIFICATION)) {
-                showNotificationUpcoming(time);
-            } else if (action.equals(CANCEL)) {
-                tomorrow(time);
-            } else if (action.equals(DISMISS)) {
-                FireAlarmService.dismissActiveAlarm(this);
-            } else if (action.equals(ALARM)) {
-                soundAlarm(time);
-            } else if (action.equals(REGISTER)) {
-                registerNextAlarm();
+            if (action != null) {
+                long time = intent.getLongExtra("time", 0);
+                if (action.equals(NOTIFICATION)) {
+                    showNotificationUpcoming(time);
+                } else if (action.equals(CANCEL)) {
+                    tomorrow(time);
+                } else if (action.equals(DISMISS)) {
+                    FireAlarmService.dismissActiveAlarm(this);
+                } else if (action.equals(ALARM)) {
+                    soundAlarm(time);
+                } else if (action.equals(REGISTER)) {
+                    registerNextAlarm();
+                }
             }
+        } else {
+            Log.d(TAG, "onStartCommand restart");
         }
 
         return super.onStartCommand(intent, flags, startId);
@@ -352,17 +353,20 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             if (!a.weekdays) {
                 // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
                 a.setEnable(false);
-                HourlyApplication.saveAlarms(this, alarms);
+            } else {
+                // move alarm to the next day
+                a.setTomorrow();
             }
+            HourlyApplication.saveAlarms(this, alarms);
+
             FireAlarmService.activateAlarm(this, a);
             registerNextAlarm();
             return;
         }
 
         Reminder reminder = getReminder(time);
-
         if (reminder != null) {
-            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
             if (shared.getBoolean("beep", false)) {
                 sound.playBeep(new Runnable() {
                     @Override

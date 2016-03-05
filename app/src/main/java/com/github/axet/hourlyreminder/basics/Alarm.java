@@ -283,7 +283,9 @@ public class Alarm {
         }
     }
 
-    // move alarm to tomorrow
+    // move alarm to the next day (tomorrow)
+    //
+    // may not match for enabled weekdays, will be corrected on next getAlarmTime() call
     public void setTomorrow() {
         Calendar cal = Calendar.getInstance();
         cal.setTime(new Date(time));

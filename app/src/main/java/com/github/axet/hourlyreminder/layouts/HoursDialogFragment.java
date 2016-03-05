@@ -15,7 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment implements SeekBar.OnSeekBarChangeListener {
+public class HoursDialogFragment extends PreferenceDialogFragment {
     private static final String SAVE_STATE_VALUES = "SeekBarPreferenceDialogFragment.values";
     private static final String SAVE_STATE_CHANGED = "SeekBarPreferenceDialogFragment.changed";
     private static final String SAVE_STATE_ENTRIES = "SeekBarPreferenceDialogFragment.entries";
@@ -26,14 +26,13 @@ public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment im
 
     SeekBar seekBar = null;
     TextView valueText = null;
-
     float value;
 
-    public SeekBarPreferenceDialogFragment() {
+    public HoursDialogFragment() {
     }
 
-    public static SeekBarPreferenceDialogFragment newInstance(String key) {
-        SeekBarPreferenceDialogFragment fragment = new SeekBarPreferenceDialogFragment();
+    public static HoursDialogFragment newInstance(String key) {
+        HoursDialogFragment fragment = new HoursDialogFragment();
         Bundle b = new Bundle(1);
         b.putString("key", key);
         fragment.setArguments(b);
@@ -88,19 +87,11 @@ public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment im
         SeekBarPreference preference = (SeekBarPreference) getPreference();
         value = preference.getValue();
 
-        seekBar.setOnSeekBarChangeListener(this);
         seekBar.setKeyProgressIncrement(1);
         seekBar.setMax(100);
         seekBar.setProgress((int) (value * 100));
 
         builder.setView(layout);
-    }
-
-    public void onProgressChanged(SeekBar seek, int newValue,
-                                  boolean fromTouch) {
-        mPreferenceChanged = true;
-        value = newValue / 100f;
-        valueText.setText(String.valueOf((int) (value * 100)) + " %");
     }
 
     /**

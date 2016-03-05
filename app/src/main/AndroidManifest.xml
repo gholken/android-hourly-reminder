@@ -16,6 +16,9 @@
         <service
             android:name=".services.FireAlarmService"
             android:exported="false" />
+        <service
+            android:name=".services.AlarmService"
+            android:exported="false" />
 
         <receiver android:name=".services.BootBroadcastReceiver">
             <intent-filter>
@@ -46,10 +49,9 @@
             android:launchMode="singleInstance"
             android:showOnLockScreen="true"
             android:theme="@style/FullscreenTheme" />
-
-        <service
-            android:name=".services.AlarmService"
-            android:exported="false"></service>
+        <activity
+            android:name=".activities.SettingsActivity"
+            android:label="@string/title_activity_settings"></activity>
     </application>
 
 </manifest>
