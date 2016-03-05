@@ -4,9 +4,11 @@ import android.graphics.Rect;
 import android.os.Build;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.widget.AbsListView;
 import android.widget.ListView;
 
 import com.github.axet.hourlyreminder.R;
@@ -22,42 +24,13 @@ public class AlarmAnimation extends MarginAnimation {
     View compact_f;
     View compact_s;
 
-    public static void apply(ListView list, View v, boolean expand, boolean animate) {
-        Animation a = v.getAnimation();
-        if (a != null && a instanceof AlarmAnimation) {
-            AlarmAnimation m = (AlarmAnimation) a;
-
-            long cur = AnimationUtils.currentAnimationTimeMillis();
-            long past = cur - m.getStartTime() - m.getStartOffset();
-            long left = m.getDuration() - past;
-            long offset = cur - m.getStartTime() - left;
-
-            if (animate) {
-                if (m.hasEnded()) {
-                    AlarmAnimation mm = new AlarmAnimation(list, v, expand);
-                    v.startAnimation(mm);
-                } else {
-                    if (m.expand != expand) {
-                        m.expand = expand;
-                        m.setStartOffset(offset);
-                    } else {
-                        // keep rolling do nothing
-                    }
-                }
-            } else {
-                m.restore();
-                m.cancel();
-                AlarmAnimation mm = new AlarmAnimation(list, v, expand);
-                mm.end();
+    public static void apply(final ListView list, final View v, final boolean expand, boolean animate) {
+        apply(new LateCreator() {
+            @Override
+            public MarginAnimation create() {
+                return new AlarmAnimation(list, v, expand);
             }
-        } else {
-            AlarmAnimation mm = new AlarmAnimation(list, v, expand);
-            if (animate) {
-                v.startAnimation(mm);
-            } else {
-                mm.end();
-            }
-        }
+        }, v, expand, animate);
     }
 
     public AlarmAnimation(ListView list, View v, boolean expand) {
@@ -91,22 +64,44 @@ public class AlarmAnimation extends MarginAnimation {
     void calc(float i) {
         super.calc(i);
 
+        i = expand ? i : 1 - i;
+
         compact_f.setAlpha(1 - i);
         compact_s.setRotation(180 * i);
         bottom_f.setAlpha(i);
         bottom_s.setRotation(-180 + 180 * i);
 
-        if (expand)
-            showChild();
+        showChild(i);
     }
 
-    void showChild() {
+    void showChild(float i) {
         if (Build.VERSION.SDK_INT >= 19) {
-            final Rect r = new Rect(0, 0, convertView.getWidth(), convertView.getHeight());
-            list.getChildVisibleRect(convertView, r, null);
-            int off = convertView.getHeight() - r.height();
-            if (off > 0)
-                list.scrollListBy(off);
+//            final Rect r = new Rect(0, 0, convertView.getWidth(), convertView.getHeight());
+//            Log.d("123", "" + r);
+//            list.getChildVisibleRect(convertView, r, null);
+//            Log.d("123", "" + r);
+//            int off = convertView.getHeight() - r.height();
+//            Log.d("123", "" + off);
+//            if (off > 0)
+            ;//list.scrollListBy(off);
+
+//            final int paddedTop = list.getListPaddingTop();
+//            final int paddedBottom = list.getHeight() - list.getListPaddingTop();
+//
+//            if (convertView.getTop() < paddedTop) {
+//                int off = convertView.getTop() - paddedTop;
+//                int o = (int) (off * i) - 1;
+//                Log.d("top", "" + paddedTop + " " + convertView.getTop());
+//                list.scrollListBy(o);
+//            }
+//
+//            if (convertView.getBottom() > paddedBottom) {
+//                int off = convertView.getBottom() - paddedBottom;
+//                list.scrollListBy(off);
+//            }
+
+//            Log.d("123", paddedTop + " " + convertView.getTop());
+//            Log.d("123", paddedBottom + " " + convertView.getBottom());
         }
     }
 
@@ -114,10 +109,10 @@ public class AlarmAnimation extends MarginAnimation {
     void restore() {
         super.restore();
 
-        compact_f.setAlpha(1);
-        compact_s.setRotation(0);
         bottom_f.setAlpha(1);
         bottom_s.setRotation(0);
+        compact_f.setAlpha(1);
+        compact_s.setRotation(0);
     }
 
     @Override

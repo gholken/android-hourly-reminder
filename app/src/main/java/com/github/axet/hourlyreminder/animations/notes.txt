@@ -1,4 +1,5 @@
-Here some thing about animations issues.
+Animation Tranformation.getMatrix() has no issues. But animation properies does. Here are few issues
+about animations properties.
 
 First:
 

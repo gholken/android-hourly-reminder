@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import com.github.axet.hourlyreminder.animations.RemoveItemAnimation;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.animations.AlarmAnimation;
@@ -55,6 +56,7 @@ import java.util.List;
 public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView.OnScrollListener, SharedPreferences.OnSharedPreferenceChangeListener {
     static final int TYPE_COLLAPSED = 0;
     static final int TYPE_EXPANDED = 1;
+    static final int TYPE_DELETED = 2;
 
     final int[] ALL = {TYPE_COLLAPSED, TYPE_EXPANDED};
 
@@ -236,6 +238,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         if (convertView == null) {
             convertView = inflater.inflate(R.layout.alarm, parent, false);
+            convertView.setTag(-1);
+        }
+
+        if ((int) convertView.getTag() == TYPE_DELETED) {
             convertView.setTag(-1);
         }
 
@@ -435,11 +441,14 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
-                            // help reset animation on deleted (current) view
-                            view.setTag(-1);
-
-                            remove(a);
-                            select(-1);
+                            RemoveItemAnimation.apply(list, view, new Runnable() {
+                                @Override
+                                public void run() {
+                                    view.setTag(TYPE_DELETED);
+                                    remove(a);
+                                    select(-1);
+                                }
+                            });
                         }
                     }
                 };

@@ -75,6 +75,9 @@ public class Alarm {
         this.time = c.getTimeInMillis();
 
         this.enable = true;
+        this.beep = true;
+        this.weekdays = false;
+        this.ringtone = true;
     }
 
     // keep proper order week days. should take values from settings.

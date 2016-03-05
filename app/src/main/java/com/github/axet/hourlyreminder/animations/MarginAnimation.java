@@ -8,7 +8,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 
-public class MarginAnimation extends Animation {
+public class MarginAnimation extends StepAnimation {
 
     View view;
     ViewGroup.MarginLayoutParams viewLp;
@@ -16,42 +16,13 @@ public class MarginAnimation extends Animation {
     int marginSlide;
     boolean expand;
 
-    public static void apply(View v, boolean expand, boolean animate) {
-        Animation a = v.getAnimation();
-        if (a != null && a instanceof MarginAnimation) {
-            MarginAnimation m = (MarginAnimation) a;
-
-            long cur = AnimationUtils.currentAnimationTimeMillis();
-            long past = cur - m.getStartTime() - m.getStartOffset();
-            long left = m.getDuration() - past;
-            long offset = cur - m.getStartTime() - left;
-
-            if (animate) {
-                if (m.hasEnded()) {
-                    MarginAnimation mm = new MarginAnimation(v, expand);
-                    v.startAnimation(mm);
-                } else {
-                    if (m.expand != expand) {
-                        m.expand = expand;
-                        m.setStartOffset(offset);
-                    } else {
-                        // keep rolling do nothing
-                    }
-                }
-            } else {
-                m.restore();
-                m.cancel();
-                MarginAnimation mm = new MarginAnimation(v, expand);
-                mm.end();
+    public static void apply(final View v, final boolean expand, boolean animate) {
+        apply(new LateCreator() {
+            @Override
+            public MarginAnimation create() {
+                return new MarginAnimation(v, expand);
             }
-        } else {
-            MarginAnimation mm = new MarginAnimation(v, expand);
-            if (animate) {
-                v.startAnimation(mm);
-            } else {
-                mm.end();
-            }
-        }
+        }, v, expand, animate);
     }
 
     public MarginAnimation(View v, boolean expand) {
@@ -68,12 +39,14 @@ public class MarginAnimation extends Animation {
     public void initialize(int width, int height, int parentWidth, int parentHeight) {
         super.initialize(width, height, parentWidth, parentHeight);
         view.setVisibility(View.VISIBLE);
-        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(height, View.MeasureSpec.UNSPECIFIED));
+        view.measure(View.MeasureSpec.makeMeasureSpec(parentWidth, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(parentHeight, View.MeasureSpec.UNSPECIFIED));
         marginSlide = view.getMeasuredHeight() + viewLpOrig.bottomMargin;
     }
 
     void calc(float i) {
+        i = expand ? i : 1 - i;
+
         viewLp.topMargin = (int) (viewLpOrig.topMargin * i - marginSlide * (1 - i));
         view.requestLayout();
     }
@@ -87,16 +60,4 @@ public class MarginAnimation extends Animation {
         view.requestLayout();
     }
 
-    @Override
-    protected void applyTransformation(float interpolatedTime, Transformation t) {
-        super.applyTransformation(interpolatedTime, t);
-
-        if (interpolatedTime < 1) {
-            float i = expand ? interpolatedTime : 1 - interpolatedTime;
-            calc(i);
-        } else {
-            restore();
-            end();
-        }
-    }
 }
