@@ -17,14 +17,14 @@
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"
-        android:summary="Use alarm type event for hourly reminder to be more precise on timing"
+        android:summary="Use 'alarm' event type for hourly reminders (more precise on timing)"
         android:title="Alarm Type" />
 
     <com.github.axet.hourlyreminder.layouts.SeekBarPreference
         android:defaultValue="1"
         android:key="volume"
         android:summary="Set text speech volume"
-        android:title="Speech Volume" />
+        android:title="Volume" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
