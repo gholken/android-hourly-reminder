@@ -365,9 +365,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 child.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
+                        long time = a.time;
                         a.setWeek(a.parseTag(child.getTag()), child.isChecked());
-                        if (a.noDays()) {
-                            a.weekdays = false;
+                        if (a.time != time && a.enable) {
+                            HourlyApplication.toastAlarmSet(getActivity(), a);
                         }
                         save(a);
                     }

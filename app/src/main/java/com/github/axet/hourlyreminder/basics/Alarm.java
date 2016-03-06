@@ -201,6 +201,9 @@ public class Alarm {
         if (b) {
             weekdaysValues.add(week);
         }
+        if (noDays()) {
+            weekdays = false;
+        }
         setNext();
     }
 
