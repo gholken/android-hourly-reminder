@@ -38,9 +38,9 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference.getKey().equals("hours")) {
+            if (preference.getKey().equals(HourlyApplication.PREFERENCE_HOURS)) {
                 List sortedList = new ArrayList((Set) value);
-                preference.setSummary(HourlyApplication.getHoursString(sortedList));
+                preference.setSummary(HourlyApplication.getHoursString(preference.getContext(), sortedList));
             } else if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
                 preference.setSummary((int) (f * 100) + "%");
@@ -99,7 +99,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
             return true;
         }
 
-        if (preference.getKey().equals("hours")) {
+        if (preference.getKey().equals(HourlyApplication.PREFERENCE_HOURS)) {
             HoursDialogFragment f = HoursDialogFragment.newInstance(preference.getKey());
             ((DialogFragment) f).setTargetFragment(this, 0);
             ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
@@ -119,10 +119,10 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
 
         // 23 SDK requires to be Alarm to be percice on time
         if (Build.VERSION.SDK_INT < 23)
-            getPreferenceScreen().removePreference(findPreference("alarm"));
+            getPreferenceScreen().removePreference(findPreference(HourlyApplication.PREFERENCE_ALARM));
 
-        bindPreferenceSummaryToValue(findPreference("hours"));
-        bindPreferenceSummaryToValue(findPreference("volume"));
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_VOLUME));
     }
 
     @Override

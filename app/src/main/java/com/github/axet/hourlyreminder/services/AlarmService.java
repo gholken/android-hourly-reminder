@@ -217,7 +217,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         Calendar cur = Calendar.getInstance();
 
         // check hourly reminders
-        if (shared.getBoolean("enabled", false)) {
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_ENABLED, false)) {
             alarms.addAll(generateReminders(cur));
         }
         // check alarms
@@ -240,7 +240,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
             updateNotificationUpcomingAlarm(time);
 
-            if (shared.getBoolean("alarm", true)) {
+            if (shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, true)) {
                 if (Build.VERSION.SDK_INT >= 21) {
                     alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(time, pe), pe);
                 } else {
@@ -319,7 +319,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             String subject = "Upcoming alarm";
-            String text = String.format("%02d:%02d", hour, min);
+            String text = Alarm.format(hour, min);
 
             RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_upcoming);
             view.setOnClickPendingIntent(R.id.notification_cancel, button);
@@ -372,7 +372,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         Reminder reminder = getReminder(time);
         if (reminder != null && reminder.enabled) {
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-            if (shared.getBoolean("beep", false)) {
+            if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
                 sound.playBeep(new Runnable() {
                     @Override
                     public void run() {
@@ -397,21 +397,21 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.d(TAG, "onSharedPreferenceChanged " + key);
-        if (key.startsWith("Alarm_")) {
+        if (key.startsWith(HourlyApplication.PREFERENCE_ALARMS_PREFIX)) {
             alarms = HourlyApplication.loadAlarms(this);
             registerNextAlarm();
         }
 
         // reset reminders on special events
-        if (key.equals("enabled")) {
+        if (key.equals(HourlyApplication.PREFERENCE_ENABLED)) {
             reminders = HourlyApplication.loadReminders(this);
             registerNextAlarm();
         }
-        if (key.equals("hours")) {
+        if (key.equals(HourlyApplication.PREFERENCE_HOURS)) {
             reminders = HourlyApplication.loadReminders(this);
             registerNextAlarm();
         }
-        if (key.equals("alarm")) {
+        if (key.equals(HourlyApplication.PREFERENCE_ALARM)) {
             registerNextAlarm();
         }
     }

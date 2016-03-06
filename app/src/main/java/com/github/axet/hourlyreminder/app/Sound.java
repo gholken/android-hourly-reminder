@@ -100,7 +100,7 @@ public class Sound {
     public void soundAlarm() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
-        if (shared.getBoolean("beep", false)) {
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
             playBeep(new Runnable() {
                 @Override
                 public void run() {
@@ -168,7 +168,7 @@ public class Sound {
 
     float getVolume() {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        return (float) (Math.pow(shared.getFloat("volume", 1f), 3));
+        return (float) (Math.pow(shared.getFloat(HourlyApplication.PREFERENCE_VOLUME, 1f), 3));
     }
 
     public void playSpeech(final Runnable run) {

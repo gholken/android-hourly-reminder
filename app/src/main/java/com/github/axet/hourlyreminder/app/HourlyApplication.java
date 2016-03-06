@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.widget.Toast;
 
+import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
 
@@ -27,11 +28,18 @@ public class HourlyApplication extends Application {
     public static final int NOTIFICATION_ALARM_ICON = 1;
     public static final int NOTIFICATION_MISSED_ICON = 2;
 
+    public static final String PREFERENCE_ENABLED = "enabled";
+    public static final String PREFERENCE_HOURS = "hours";
+    public static final String PREFERENCE_ALARM = "alarm";
+    public static final String PREFERENCE_ALARMS_PREFIX = "Alarm_";
+    public static final String PREFERENCE_BEEP = "beep";
+    public static final String PREFERENCE_VOLUME = "volume";
+
     public static List<Alarm> loadAlarms(Context context) {
         ArrayList<Alarm> alarms = new ArrayList<>();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        int c = shared.getInt("Alarm_Count", 0);
+        int c = shared.getInt(PREFERENCE_ALARMS_PREFIX + "Count", 0);
         if (c == 0) {
             Alarm a;
             a = new Alarm(context);
@@ -64,7 +72,7 @@ public class HourlyApplication extends Application {
         long id = 0;
 
         for (int i = 0; i < c; i++) {
-            String prefix = "Alarm_" + i + "_";
+            String prefix = PREFERENCE_ALARMS_PREFIX + i + "_";
             Alarm a = new Alarm(context);
             a.id = shared.getLong(prefix + "Id", System.currentTimeMillis());
 
@@ -96,13 +104,13 @@ public class HourlyApplication extends Application {
     public static void saveAlarms(Context context, List<Alarm> alarms) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = shared.edit();
-        edit.putInt("Alarm_Count", alarms.size());
+        edit.putInt(PREFERENCE_ALARMS_PREFIX + "Count", alarms.size());
 
         long id = 0;
 
         for (int i = 0; i < alarms.size(); i++) {
             Alarm a = alarms.get(i);
-            String prefix = "Alarm_" + i + "_";
+            String prefix = PREFERENCE_ALARMS_PREFIX + i + "_";
 
             while (a.id == id) {
                 a.id++;
@@ -128,7 +136,7 @@ public class HourlyApplication extends Application {
         ArrayList<Reminder> list = new ArrayList<>();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
+        Set<String> hours = shared.getStringSet(PREFERENCE_HOURS, new HashSet<String>());
 
         for (int i = 0; i < 24; i++) {
             String h = Reminder.format(i);
@@ -145,7 +153,7 @@ public class HourlyApplication extends Application {
 
     public static void toastAlarmSet(Context context, Alarm a) {
         if (!a.enable) {
-            Toast.makeText(context, "Alarm is disabled", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.alarm_disabled), Toast.LENGTH_SHORT).show();
             return;
         }
 
@@ -156,28 +164,26 @@ public class HourlyApplication extends Application {
 
         long diff = cal.getTimeInMillis() - cur.getTimeInMillis();
 
-        long diffSeconds = diff / 1000 % 60;
-        long diffMinutes = diff / (60 * 1000) % 60;
-        long diffHours = diff / (60 * 60 * 1000) % 24;
-        long diffDays = diff / (24 * 60 * 60 * 1000);
+        int diffSeconds = (int) (diff / 1000 % 60);
+        int diffMinutes = (int) (diff / (60 * 1000) % 60);
+        int diffHours = (int) (diff / (60 * 60 * 1000) % 24);
+        int diffDays = (int) (diff / (24 * 60 * 60 * 1000));
 
-        String str = "Alarm set for";
+        String str = "";
 
         if (diffDays > 0)
-            str += " " + diffDays + " days";
+            str += " " + context.getResources().getQuantityString(R.plurals.days, diffDays, diffDays);
 
         if (diffHours > 0)
-            str += " " + diffHours + " hours";
+            str += " " + context.getResources().getQuantityString(R.plurals.hours, diffHours, diffHours);
 
         if (diffMinutes > 0)
-            str += " " + diffMinutes + " minutes";
+            str += " " + context.getResources().getQuantityString(R.plurals.minutes, diffMinutes, diffMinutes);
 
-        str += " from now!";
-
-        Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+        Toast.makeText(context, context.getString(R.string.alarm_set_for, str), Toast.LENGTH_SHORT).show();
     }
 
-    public static String getHoursString(List<String> hours) {
+    public static String getHoursString(Context context, List<String> hours) {
         String str = "";
 
         Collections.sort(hours);
@@ -213,7 +219,7 @@ public class HourlyApplication extends Application {
         }
 
         if (!str.isEmpty())
-            str += "h";
+            str += context.getString(R.string.hour_symbol);
 
         return str;
     }

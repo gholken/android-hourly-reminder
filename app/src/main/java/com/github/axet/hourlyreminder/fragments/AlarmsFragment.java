@@ -15,14 +15,12 @@ import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
-import android.transition.TransitionManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -503,7 +501,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         });
 
         final TextView time = (TextView) view.findViewById(R.id.alarm_time);
-        time.setText(a.getTimeString());
+        time.setText(a.format());
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -515,7 +513,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                         if (a.enable)
                             HourlyApplication.toastAlarmSet(getActivity(), a);
 
-                        time.setText(a.getTimeString());
+                        time.setText(a.format());
                         save(a);
                     }
                 }, a.getHour(), a.getMin(), true);
@@ -577,7 +575,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     void fillCompact(final View view, final Alarm a) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
-        time.setText(a.getTimeString());
+        time.setText(a.format());
         time.setClickable(false);
 
         final Switch enable = (Switch) view.findViewById(R.id.alarm_enable);
