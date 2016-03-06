@@ -28,6 +28,8 @@ import java.util.Calendar;
 public class FireAlarmService extends Service {
     public static final String TAG = FireAlarmService.class.getSimpleName();
 
+    public static final String FIRE_ALARM = FireAlarmService.class.getCanonicalName() + ".FIRE_ALARM";
+
     // alarm activity action. close it.
     public static final String CLOSE_ACTIVITY = FireAlarmService.class.getCanonicalName() + ".CLOSE_ACTIVITY";
 
@@ -64,7 +66,7 @@ public class FireAlarmService extends Service {
 
     public static void activateAlarm(Context context, Alarm a) {
         context.startService(new Intent(context, FireAlarmService.class)
-                .setAction(HourlyApplication.FIRE_ALARM)
+                .setAction(FIRE_ALARM)
                 .putExtra("time", a.time)
                 .putExtra("beep", a.beep)
                 .putExtra("speech", a.speech)
@@ -234,7 +236,7 @@ public class FireAlarmService extends Service {
             int min = c.get(Calendar.MINUTE);
 
             PendingIntent main = PendingIntent.getActivity(this, 0,
-                    new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE).putExtra("time", time),
+                    new Intent(this, MainActivity.class).setAction(MainActivity.SHOW_ALARMS_PAGE).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             String text = String.format("Alarm %02d:%02d dismissed after %d mins", hour, min, ALARM_AUTO_OFF);

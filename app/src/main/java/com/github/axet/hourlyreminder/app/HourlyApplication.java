@@ -19,11 +19,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class HourlyApplication extends Application {
-    public static final String FIRE_ALARM = HourlyApplication.class.getCanonicalName() + ".FIRE_ALARM";
-
-    // MainActivity action
-    public static final String SHOW_ALARMS_PAGE = HourlyApplication.class.getCanonicalName() + ".SHOW_ALARMS_PAGE";
-
     public static final int NOTIFICATION_UPCOMING_ICON = 0;
     public static final int NOTIFICATION_ALARM_ICON = 1;
     public static final int NOTIFICATION_MISSED_ICON = 2;

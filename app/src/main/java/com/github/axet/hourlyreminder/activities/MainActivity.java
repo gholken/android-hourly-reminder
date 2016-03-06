@@ -19,6 +19,9 @@ import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
 public class MainActivity extends AppCompatActivity {
+    // MainActivity action
+    public static final String SHOW_ALARMS_PAGE = MainActivity.class.getCanonicalName() + ".SHOW_ALARMS_PAGE";
+
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -66,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
         AlarmService.start(this);
 
         Intent intent = getIntent();
-        if (intent.getAction() == HourlyApplication.SHOW_ALARMS_PAGE) {
+        if (intent.getAction() == SHOW_ALARMS_PAGE) {
             mViewPager.setCurrentItem(1);
         }
     }

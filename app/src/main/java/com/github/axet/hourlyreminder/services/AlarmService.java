@@ -315,7 +315,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             PendingIntent main = PendingIntent.getActivity(this, 0,
-                    new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE).putExtra("time", time),
+                    new Intent(this, MainActivity.class).setAction(MainActivity.SHOW_ALARMS_PAGE).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             String subject = "Upcoming alarm";
