@@ -174,7 +174,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         if (rm != 0)
             return null;
 
-        String h = String.format("%02d", rh);
+        String h = Reminder.format(rh);
         for (Reminder r : reminders) {
             if (r.getHour() == rh)
                 return r;
