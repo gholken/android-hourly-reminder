@@ -133,16 +133,10 @@ public class HourlyApplication extends Application {
         for (int i = 0; i < 24; i++) {
             String h = String.format("%02d", i);
 
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, i);
-            cal.set(Calendar.MINUTE, 0);
-            cal.set(Calendar.SECOND, 0);
-            cal.set(Calendar.MILLISECOND, 0);
-
             Reminder r = new Reminder();
             r.hour = i;
             r.enabled = hours.contains(h);
-            r.time = cal.getTimeInMillis();
+            r.setNext();
             list.add(r);
         }
 
@@ -188,7 +182,7 @@ public class HourlyApplication extends Application {
 
         Collections.sort(hours);
 
-        int prev = -1;
+        int prev = -2;
         int count = 0;
         for (String s : hours) {
             int i = Integer.parseInt(s);
