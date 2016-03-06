@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
@@ -13,6 +14,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class HourlyApplication extends Application {
     public static final String FIRE_ALARM = HourlyApplication.class.getCanonicalName() + ".FIRE_ALARM";
@@ -71,9 +73,15 @@ public class HourlyApplication extends Application {
             id = a.id;
 
             a.time = shared.getLong(prefix + "Time", 0);
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(a.time);
+
+            a.hour = shared.getInt(prefix + "Hour", cal.get(Calendar.HOUR_OF_DAY));
+            a.min = shared.getInt(prefix + "Min", cal.get(Calendar.MINUTE));
             a.enable = shared.getBoolean(prefix + "Enable", false);
             a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
-            a.setWeekDays(shared.getStringSet(prefix + "WeekDays_Values", null));
+            a.setWeekDaysProperty(shared.getStringSet(prefix + "WeekDays_Values", null));
             a.ringtone = shared.getBoolean(prefix + "Ringtone", false);
             a.ringtoneValue = shared.getString(prefix + "Ringtone_Value", "");
             a.beep = shared.getBoolean(prefix + "Beep", false);
@@ -101,10 +109,12 @@ public class HourlyApplication extends Application {
             id = a.id;
 
             edit.putLong(prefix + "Id", a.id);
+            edit.putInt(prefix + "Hour", a.hour);
+            edit.putInt(prefix + "Min", a.min);
             edit.putLong(prefix + "Time", a.time);
             edit.putBoolean(prefix + "Enable", a.enable);
             edit.putBoolean(prefix + "WeekDays", a.weekdays);
-            edit.putStringSet(prefix + "WeekDays_Values", a.getWeekDays());
+            edit.putStringSet(prefix + "WeekDays_Values", a.getWeekDaysProperty());
             edit.putBoolean(prefix + "Ringtone", a.ringtone);
             edit.putString(prefix + "Ringtone_Value", a.ringtoneValue);
             edit.putBoolean(prefix + "Beep", a.beep);
@@ -128,14 +138,48 @@ public class HourlyApplication extends Application {
             cal.set(Calendar.SECOND, 0);
             cal.set(Calendar.MILLISECOND, 0);
 
-            if (hours.contains(h)) {
-                Reminder r = new Reminder();
-                r.time = cal.getTimeInMillis();
-                list.add(r);
-            }
+            Reminder r = new Reminder();
+            r.hour = i;
+            r.enabled = hours.contains(h);
+            r.time = cal.getTimeInMillis();
+            list.add(r);
         }
 
         return list;
+    }
+
+    public static void toastAlarmSet(Context context, Alarm a) {
+        if(!a.enable) {
+            Toast.makeText(context, "Alarm is disabled", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        Calendar cur = Calendar.getInstance();
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(a.time);
+
+        long diff = cal.getTimeInMillis() - cur.getTimeInMillis();
+
+        long diffSeconds = diff / 1000 % 60;
+        long diffMinutes = diff / (60 * 1000) % 60;
+        long diffHours = diff / (60 * 60 * 1000) % 24;
+        long diffDays = diff / (24 * 60 * 60 * 1000);
+
+        String str = "Alarm set for";
+
+        if (diffDays > 0)
+            str += " " + diffDays + " days";
+
+        if (diffHours > 0)
+            str += " " + diffHours + " hours";
+
+        if (diffMinutes > 0)
+            str += " " + diffMinutes + " minutes";
+
+        str += " from now!";
+
+        Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
     }
 
 }

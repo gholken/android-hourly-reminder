@@ -14,6 +14,7 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.util.Log;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
@@ -129,7 +130,8 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         TreeSet<Long> alarms = new TreeSet<>();
 
         for (Reminder r : reminders) {
-            alarms.add(r.getAlarmTime(cur));
+            if (r.enabled)
+                alarms.add(r.time);
         }
 
         return alarms;
@@ -140,9 +142,8 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         TreeSet<Long> alarms = new TreeSet<>();
 
         for (Alarm a : this.alarms) {
-            if (!a.enable)
-                continue;
-            alarms.add(a.getAlarmTime(cur));
+            if (a.enable)
+                alarms.add(a.time);
         }
 
         return alarms;
@@ -173,8 +174,6 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         if (rm != 0)
             return null;
 
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
         String h = String.format("%02d", rh);
         for (Reminder r : reminders) {
             if (r.getHour() == rh)
@@ -188,11 +187,13 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         Alarm a = getAlarm(time);
         if (a != null) {
             if (a.weekdays) {
+                // be safe for another timezone. if we moved we better call setNext()
                 a.setTomorrow();
             } else {
                 a.setEnable(false);
-                HourlyApplication.saveAlarms(this, alarms);
             }
+            HourlyApplication.toastAlarmSet(this, a);
+            HourlyApplication.saveAlarms(this, alarms);
         }
 
         Reminder r = getReminder(time);
@@ -354,8 +355,12 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                 // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
                 a.setEnable(false);
             } else {
-                // move alarm to the next day
-                a.setTomorrow();
+                // calling setNext is more safe. if this alarm have to fire today we will reset it
+                // to the same time. if it is already past today's time (as we expect) then it will
+                // be set for tomorrow.
+                //
+                // also safe if we moved to another timezone.
+                a.setNext();
             }
             HourlyApplication.saveAlarms(this, alarms);
 
@@ -365,7 +370,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         }
 
         Reminder reminder = getReminder(time);
-        if (reminder != null) {
+        if (reminder != null && reminder.enabled) {
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
             if (shared.getBoolean("beep", false)) {
                 sound.playBeep(new Runnable() {
@@ -377,6 +382,13 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             } else {
                 sound.playSpeech(null);
             }
+            // calling setNext is more safe. if this alarm have to fire today we will reset it
+            // to the same time. if it is already past today's time (as we expect) then it will
+            // be set for tomorrow.
+            //
+            // also safe if we moved to another timezone.
+            reminder.setNext();
+
             registerNextAlarm();
             return;
         }
