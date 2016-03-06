@@ -91,7 +91,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         storage = new Storage(getActivity());
 
         alarms = HourlyApplication.loadAlarms(getActivity());
-
         Collections.sort(alarms, new Alarm.CustomComparator());
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -137,6 +136,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         alarms = HourlyApplication.loadAlarms(getActivity());
+        Collections.sort(alarms, new Alarm.CustomComparator());
         changed();
     }
 
@@ -347,6 +347,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             @Override
             public void onClick(View v) {
                 a.setEnable(enable.isChecked());
+
+                if (enable.isChecked())
+                    HourlyApplication.toastAlarmSet(getActivity(), a);
+
                 save(a);
             }
         });
@@ -505,6 +509,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         a.setTime(hourOfDay, minute);
+
+                        if (a.enable)
+                            HourlyApplication.toastAlarmSet(getActivity(), a);
+
                         time.setText(a.getTimeString());
                         save(a);
                     }
@@ -575,6 +583,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             @Override
             public void onClick(View v) {
                 a.setEnable(enable.isChecked());
+
+                if (enable.isChecked())
+                    HourlyApplication.toastAlarmSet(getActivity(), a);
+
                 save(a);
             }
         });

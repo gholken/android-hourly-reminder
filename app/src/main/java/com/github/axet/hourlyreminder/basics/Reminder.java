@@ -4,38 +4,33 @@ import java.util.Calendar;
 import java.util.Date;
 
 public class Reminder {
-    // time when alarm start to be active. used to snooze upcoming today alarms.
-    //
-    // may point in past or future. if it points to the past - it is currently active.
-    // if it points to tomorrow or more days - do not send it to Alarm Manager until it is active.
-    //
-    // holds current hour and minute as part of active time.
+    public int hour;
+
     public long time;
+
+    public boolean enabled;
 
     // move alarm to tomorrow
     public void setTomorrow() {
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-        int rh = cal.get(Calendar.HOUR_OF_DAY);
-
-        cal.setTime(new Date());
+        cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.add(Calendar.DATE, 1);
-        cal.set(Calendar.HOUR_OF_DAY, rh);
-        this.time = cal.getTimeInMillis();
+        time = cal.getTimeInMillis();
+    }
+
+    public void setNext() {
+        Calendar cur = Calendar.getInstance();
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        time = getAlarmTime(cal, cur);
     }
 
     public int getHour() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
-        int rh = cal.get(Calendar.HOUR_OF_DAY);
-        return rh;
+        return hour;
     }
 
-    public long getAlarmTime(Calendar cur) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
+    public long getAlarmTime(Calendar cal, Calendar cur) {
         cal.set(Calendar.MINUTE, 0);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);

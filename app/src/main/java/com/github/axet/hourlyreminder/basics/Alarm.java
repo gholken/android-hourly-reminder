@@ -13,13 +13,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.concurrent.TimeUnit;
 
 public class Alarm {
     public final static String DEFAULT_RING = "content://settings/system/ringtone";
 
+    // days <-> java index converter
+    //
     // keep EVERYDAY order
-    public final static int[] DAYS = new int[]{R.string.MONDAY, R.string.TUESDAY, R.string.WEDNESDAY,
-            R.string.THURSDAY, R.string.FRIDAY, R.string.SATURDAY, R.string.SUNDAY};
+    public final static int[] DAYS = new int[]{R.string.MONDAY, R.string.TUESDAY, R.string.WEDNESDAY, R.string.THURSDAY, R.string.FRIDAY, R.string.SATURDAY, R.string.SUNDAY};
 
     public final static Integer[] EVERYDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
             Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY};
@@ -33,25 +35,36 @@ public class Alarm {
 
     // unique id
     public long id;
-    // time when alarm start to be active. used to snooze upcoming today alarms.
+    // actual alarm go time.
     //
-    // may point in past or future. if it points to the past - it is currently active.
-    // if it points to tomorrow or more days - do not send it to Alarm Manager until it is active.
-    //
-    // holds current hour and minute as part of active time.
+    // (may be incorrect if user moved from one time zone to anoter)
     public long time;
+    // hour alarm set for
+    public int hour;
+    // min alarm set for
+    public int min;
+    // enabled?
     public boolean enable;
+    // alarm on selected weekdays only
     public boolean weekdays;
+    // weekdays values
     public List<Integer> weekdaysValues;
+    // alarm with ringtone?
     public boolean ringtone;
+    // uri or file
     public String ringtoneValue;
+    // beep?
     public boolean beep;
+    // speech time?
     public boolean speech;
 
     public static class CustomComparator implements Comparator<Alarm> {
         @Override
         public int compare(Alarm o1, Alarm o2) {
-            return new Long(o1.time).compareTo(o2.time);
+            int c = new Integer(o1.hour).compareTo(o2.hour);
+            if (c != 0)
+                return c;
+            return new Integer(o1.min).compareTo(o2.min);
         }
     }
 
@@ -60,8 +73,6 @@ public class Alarm {
 
         this.context = context;
 
-        setTime(9, 0);
-
         enable = false;
         weekdays = true;
         weekdaysValues = new ArrayList<Integer>(Arrays.asList(EVERYDAY));
@@ -69,22 +80,30 @@ public class Alarm {
         beep = false;
         speech = true;
         ringtoneValue = DEFAULT_RING;
+
+        setTime(9, 0);
     }
 
     public Alarm(Context context, long time) {
         this(context);
 
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(time));
-        this.time = c.getTimeInMillis();
-
         this.enable = true;
         this.beep = true;
         this.weekdays = false;
         this.ringtone = true;
+
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+        int min = cal.get(Calendar.MINUTE);
+
+        setTime(hour, min);
     }
 
-    // keep proper order week days. should take values from settings.
+    // keep proper order week days
+    //
+    // should take ordering values from settings (sun or mon first).
     public List<Integer> order(List<Integer> list) {
         ArrayList<Integer> l = new ArrayList<>();
         for (int i = 0; i < EVERYDAY.length; i++) {
@@ -117,12 +136,6 @@ public class Alarm {
     }
 
     public String getTimeString() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(time));
-
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int min = c.get(Calendar.MINUTE);
-
         return String.format("%02d:%02d", hour, min);
     }
 
@@ -136,37 +149,30 @@ public class Alarm {
 
     // set today alarm
     public void setTime(int hour, int min) {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date());
-        c.set(Calendar.HOUR_OF_DAY, hour);
-        c.set(Calendar.MINUTE, min);
-        this.time = c.getTimeInMillis();
-    }
-
-    public int getHour() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(time));
-
-        return c.get(Calendar.HOUR_OF_DAY);
+        this.hour = hour;
+        this.min = min;
+        setNext();
     }
 
     public void setEnable(boolean e) {
         this.enable = e;
-        setToday();
+        if (e)
+            setNext();
     }
 
     public boolean getEnable() {
         return enable;
     }
 
-    public int getMin() {
-        Calendar c = Calendar.getInstance();
-        c.setTime(new Date(time));
-
-        return c.get(Calendar.MINUTE);
+    public int getHour() {
+        return hour;
     }
 
-    public Set<String> getWeekDays() {
+    public int getMin() {
+        return min;
+    }
+
+    public Set<String> getWeekDaysProperty() {
         TreeSet<String> set = new TreeSet<>();
         for (Integer w : weekdaysValues) {
             set.add(w.toString());
@@ -174,18 +180,18 @@ public class Alarm {
         return set;
     }
 
-    public void setWeekDays(Integer[] set) {
+    public void setWeekDaysProperty(Set<String> set) {
         ArrayList w = new ArrayList<>();
-        for (Integer s : set) {
-            w.add(s);
+        for (String s : set) {
+            w.add(Integer.parseInt(s));
         }
         weekdaysValues = w;
     }
 
-    public void setWeekDays(Set<String> set) {
+    public void setWeekDays(Integer[] set) {
         ArrayList w = new ArrayList<>();
-        for (String s : set) {
-            w.add(Integer.parseInt(s));
+        for (Integer s : set) {
+            w.add(s);
         }
         weekdaysValues = w;
     }
@@ -197,7 +203,7 @@ public class Alarm {
         }
     }
 
-    // check if 'week' in weekdays
+    // check if 'week' in weekdays when alarm goes off
     public boolean isWeek(int week) {
         for (Integer i : weekdaysValues) {
             if (i == week)
@@ -285,30 +291,29 @@ public class Alarm {
 
     // move alarm to the next day (tomorrow)
     //
-    // may not match for enabled weekdays, will be corrected on next getAlarmTime() call
+    // (including weekdays checks)
     public void setTomorrow() {
-        Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date(time));
-        int ah = cal.get(Calendar.HOUR_OF_DAY);
-        int am = cal.get(Calendar.MINUTE);
+        Calendar cur = Calendar.getInstance();
 
-        cal.setTime(new Date());
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
         cal.add(Calendar.DATE, 1);
-        cal.set(Calendar.HOUR_OF_DAY, ah);
-        cal.set(Calendar.MINUTE, am);
-        this.time = cal.getTimeInMillis();
+
+        time = getAlarmTime(cal, cur);
     }
 
-    public void setToday() {
+    // set alarm to go off next possible time
+    //
+    // today or tomorrow (including weekday checks)
+    public void setNext() {
         Calendar cal = Calendar.getInstance();
-        cal.setTime(new Date(time));
-        int ah = cal.get(Calendar.HOUR_OF_DAY);
-        int am = cal.get(Calendar.MINUTE);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
 
-        cal.setTime(new Date());
-        cal.set(Calendar.HOUR_OF_DAY, ah);
-        cal.set(Calendar.MINUTE, am);
-        this.time = cal.getTimeInMillis();
+        Calendar cur = Calendar.getInstance();
+
+        time = getAlarmTime(cal, cur);
     }
 
     // If alarm time > current time == tomorrow. Or compare hours.
@@ -316,7 +321,9 @@ public class Alarm {
         Calendar cur = Calendar.getInstance();
 
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(getAlarmTime(cur));
+        cal.setTimeInMillis(time);
+
+        cal.setTimeInMillis(getAlarmTime(cal, cur));
 
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         return fmt.format(cur.getTime()).equals(fmt.format(cal.getTime()));
@@ -327,7 +334,9 @@ public class Alarm {
         cur.add(Calendar.DATE, 1);
 
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(getAlarmTime(cur));
+        cal.setTimeInMillis(time);
+
+        cal.setTimeInMillis(getAlarmTime(cal, cur));
 
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         return fmt.format(cur.getTime()).equals(fmt.format(cal.getTime()));
@@ -355,10 +364,7 @@ public class Alarm {
     }
 
     // get time for Alarm Manager
-    public long getAlarmTime(Calendar cur) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
+    public long getAlarmTime(Calendar cal, Calendar cur) {
         if (weekdays) {
             cal = rollWeek(cal);
         }
