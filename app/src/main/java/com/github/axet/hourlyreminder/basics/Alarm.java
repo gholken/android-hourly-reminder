@@ -135,8 +135,12 @@ public class Alarm {
         throw new RuntimeException("bad week");
     }
 
-    public String getTimeString() {
+    public static String format(int hour, int min) {
         return String.format("%02d:%02d", hour, min);
+    }
+
+    public String format() {
+        return format(hour, min);
     }
 
     public long getTime() {
