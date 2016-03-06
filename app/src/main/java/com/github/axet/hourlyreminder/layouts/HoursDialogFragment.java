@@ -17,6 +17,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.basics.Reminder;
 
 import java.util.List;
 import java.util.Set;
@@ -96,7 +97,7 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
 
         for (int i = 0; i < 24; i++) {
             CheckBox c = (CheckBox) view.findViewById(ids[i]);
-            String h = String.format("%02d", i);
+            String h = Reminder.format(i);
             boolean b = values.contains(h);
             c.setChecked(b);
 
@@ -117,7 +118,7 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
         Set<String> s = new TreeSet<>();
         for (int i = 0; i < 24; i++) {
             CheckBox c = (CheckBox) view.findViewById(ids[i]);
-            String h = String.format("%02d", i);
+            String h = Reminder.format(i);
             if(c.isChecked()) {
                 s.add(h);
             }

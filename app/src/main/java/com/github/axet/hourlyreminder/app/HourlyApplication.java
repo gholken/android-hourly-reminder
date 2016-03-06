@@ -131,7 +131,7 @@ public class HourlyApplication extends Application {
         Set<String> hours = shared.getStringSet("hours", new HashSet<String>());
 
         for (int i = 0; i < 24; i++) {
-            String h = String.format("%02d", i);
+            String h = Reminder.format(i);
 
             Reminder r = new Reminder();
             r.hour = i;
@@ -194,7 +194,7 @@ public class HourlyApplication extends Application {
                         str += ",";
                     else
                         str += "-";
-                    str += String.format("%02d", prev + count);
+                    str += Reminder.format(prev + count);
                     str += "," + s;
                 } else {
                     if (!str.isEmpty())
@@ -209,7 +209,7 @@ public class HourlyApplication extends Application {
 
         if (count != 0) {
             str += "-";
-            str += String.format("%02d", prev + count);
+            str += Reminder.format(prev + count);
         }
 
         if (!str.isEmpty())

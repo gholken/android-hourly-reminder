@@ -10,6 +10,10 @@ public class Reminder {
 
     public boolean enabled;
 
+    public static String format(int hour) {
+        return String.format("%02d", hour);
+    }
+
     // move alarm to tomorrow
     public void setTomorrow() {
         Calendar cal = Calendar.getInstance();
