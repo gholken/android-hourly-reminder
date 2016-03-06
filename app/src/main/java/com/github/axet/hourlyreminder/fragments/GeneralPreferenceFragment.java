@@ -18,7 +18,9 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
+import com.github.axet.hourlyreminder.layouts.HoursDialogFragment;
 import com.github.axet.hourlyreminder.layouts.SeekBarPreference;
 import com.github.axet.hourlyreminder.layouts.SeekBarPreferenceDialogFragment;
 
@@ -36,7 +38,10 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
-            if (preference instanceof SeekBarPreference) {
+            if (preference.getKey().equals("hours")) {
+                List sortedList = new ArrayList((Set) value);
+                preference.setSummary(HourlyApplication.getHoursString(sortedList));
+            } else if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
                 preference.setSummary((int) (f * 100) + "%");
             } else if (preference instanceof android.support.v14.preference.MultiSelectListPreference) {
@@ -89,6 +94,13 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
     public boolean onPreferenceDisplayDialog(PreferenceFragment preferenceFragment, Preference preference) {
         if (preference instanceof SeekBarPreference) {
             SeekBarPreferenceDialogFragment f = SeekBarPreferenceDialogFragment.newInstance(preference.getKey());
+            ((DialogFragment) f).setTargetFragment(this, 0);
+            ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
+            return true;
+        }
+
+        if (preference.getKey().equals("hours")) {
+            HoursDialogFragment f = HoursDialogFragment.newInstance(preference.getKey());
             ((DialogFragment) f).setTargetFragment(this, 0);
             ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
             return true;

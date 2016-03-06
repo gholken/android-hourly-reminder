@@ -237,7 +237,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Speech Volume" />
+            android:text="Volume" />
 
         <SeekBar
             android:layout_width="match_parent"

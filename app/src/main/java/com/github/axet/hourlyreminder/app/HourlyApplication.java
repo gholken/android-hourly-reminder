@@ -11,6 +11,7 @@ import com.github.axet.hourlyreminder.basics.Reminder;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -149,7 +150,7 @@ public class HourlyApplication extends Application {
     }
 
     public static void toastAlarmSet(Context context, Alarm a) {
-        if(!a.enable) {
+        if (!a.enable) {
             Toast.makeText(context, "Alarm is disabled", Toast.LENGTH_SHORT).show();
             return;
         }
@@ -180,6 +181,47 @@ public class HourlyApplication extends Application {
         str += " from now!";
 
         Toast.makeText(context, str, Toast.LENGTH_SHORT).show();
+    }
+
+    public static String getHoursString(List<String> hours) {
+        String str = "";
+
+        Collections.sort(hours);
+
+        int prev = -1;
+        int count = 0;
+        for (String s : hours) {
+            int i = Integer.parseInt(s);
+            if (i == prev + count + 1) {
+                count++;
+            } else {
+                if (count != 0) {
+                    if (count == 1)
+                        str += ",";
+                    else
+                        str += "-";
+                    str += String.format("%02d", prev + count);
+                    str += "," + s;
+                } else {
+                    if (!str.isEmpty())
+                        str += ",";
+                    str += s;
+                }
+
+                prev = i;
+                count = 0;
+            }
+        }
+
+        if (count != 0) {
+            str += "-";
+            str += String.format("%02d", prev + count);
+        }
+
+        if (!str.isEmpty())
+            str += "h";
+
+        return str;
     }
 
 }
