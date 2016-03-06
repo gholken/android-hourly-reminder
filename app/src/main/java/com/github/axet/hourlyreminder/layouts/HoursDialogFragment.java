@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceDialogFragment;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Reminder;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,9 +31,6 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
     private static final String SAVE_STATE_ENTRIES = "SeekBarPreferenceDialogFragment.entries";
     private static final String SAVE_STATE_ENTRY_VALUES = "SeekBarPreferenceDialogFragment.entryValues";
     private boolean mPreferenceChanged;
-    private CharSequence[] mEntries;
-    private CharSequence[] mEntryValues;
-
 
     int[] ids = new int[]{
             R.id.hours_00,
@@ -76,11 +75,22 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        if (savedInstanceState != null) {
+            values = new TreeSet<String>(Arrays.asList(savedInstanceState.getStringArray("values")));
+            mPreferenceChanged = savedInstanceState.getBoolean("changed");
+        } else {
+            MultiSelectListPreference preference = (MultiSelectListPreference) getPreference();
+            values = new TreeSet<>(preference.getValues());
+        }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putStringArray("values", values.toArray(new String[]{}));
+        outState.putBoolean("changed", mPreferenceChanged);
     }
 
     @Override
@@ -92,15 +102,11 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final View view = inflater.inflate(R.layout.hours, null, false);
 
-        MultiSelectListPreference preference = (MultiSelectListPreference) getPreference();
-        Set<String> values = preference.getValues();
-
-        for (int i = 0; i < 24; i++) {
+        for (int i = 0; i < ids.length; i++) {
             CheckBox c = (CheckBox) view.findViewById(ids[i]);
             String h = Reminder.format(i);
             boolean b = values.contains(h);
             c.setChecked(b);
-
             c.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -116,10 +122,10 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
         mPreferenceChanged = true;
 
         Set<String> s = new TreeSet<>();
-        for (int i = 0; i < 24; i++) {
+        for (int i = 0; i < ids.length; i++) {
             CheckBox c = (CheckBox) view.findViewById(ids[i]);
             String h = Reminder.format(i);
-            if(c.isChecked()) {
+            if (c.isChecked()) {
                 s.add(h);
             }
         }
