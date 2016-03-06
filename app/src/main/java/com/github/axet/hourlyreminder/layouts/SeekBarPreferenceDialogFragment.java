@@ -6,6 +6,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.MultiSelectListPreference;
 import android.support.annotation.NonNull;
 import android.support.v14.preference.PreferenceDialogFragment;
 import android.util.TypedValue;
@@ -15,17 +16,12 @@ import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
-public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment implements SeekBar.OnSeekBarChangeListener {
+public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment {
     private static final String SAVE_STATE_VALUES = "SeekBarPreferenceDialogFragment.values";
     private static final String SAVE_STATE_CHANGED = "SeekBarPreferenceDialogFragment.changed";
     private static final String SAVE_STATE_ENTRIES = "SeekBarPreferenceDialogFragment.entries";
     private static final String SAVE_STATE_ENTRY_VALUES = "SeekBarPreferenceDialogFragment.entryValues";
     private boolean mPreferenceChanged;
-    private CharSequence[] mEntries;
-    private CharSequence[] mEntryValues;
-
-    SeekBar seekBar = null;
-    TextView valueText = null;
 
     float value;
 
@@ -43,11 +39,21 @@ public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment im
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            value = savedInstanceState.getFloat("value");
+            mPreferenceChanged = savedInstanceState.getBoolean("changed");
+        } else {
+            SeekBarPreference preference = (SeekBarPreference) getPreference();
+            value = preference.getValue();
+        }
     }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+
+        outState.putFloat("value", value);
+        outState.putBoolean("changed", mPreferenceChanged);
     }
 
     int getThemeColor(int id) {
@@ -68,12 +74,14 @@ public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment im
     protected void onPrepareDialogBuilder(AlertDialog.Builder builder) {
         super.onPrepareDialogBuilder(builder);
 
-        Context context = getActivity();
+        Context context = builder.getContext();
 
         LinearLayout layout = new LinearLayout(context);
         layout.setOrientation(LinearLayout.VERTICAL);
 
         LinearLayout.LayoutParams lp;
+
+        SeekBar seekBar = null;
 
         lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         seekBar = new SeekBar(context);
@@ -81,38 +89,32 @@ public class SeekBarPreferenceDialogFragment extends PreferenceDialogFragment im
 
         lp = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         lp.gravity = Gravity.CENTER;
-        valueText = new TextView(context);
+        final TextView valueText = new TextView(context);
+        valueText.setText("" + value);
         valueText.setTextColor(getThemeColor(android.R.attr.textColorSecondary));
         layout.addView(valueText, lp);
 
-        SeekBarPreference preference = (SeekBarPreference) getPreference();
-        value = preference.getValue();
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int newValue, boolean fromUser) {
+                mPreferenceChanged = true;
+                value = newValue / 100f;
+                valueText.setText(String.valueOf((int) (value * 100)) + " %");
+            }
 
-        seekBar.setOnSeekBarChangeListener(this);
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
         seekBar.setKeyProgressIncrement(1);
         seekBar.setMax(100);
         seekBar.setProgress((int) (value * 100));
 
         builder.setView(layout);
-    }
-
-    public void onProgressChanged(SeekBar seek, int newValue,
-                                  boolean fromTouch) {
-        mPreferenceChanged = true;
-        value = newValue / 100f;
-        valueText.setText(String.valueOf((int) (value * 100)) + " %");
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void onStartTrackingTouch(SeekBar seek) {
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void onStopTrackingTouch(SeekBar seek) {
     }
 
     @Override

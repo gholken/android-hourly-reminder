@@ -93,6 +93,17 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefs.registerOnSharedPreferenceChangeListener(this);
+
+        if (savedInstanceState != null) {
+            selected = savedInstanceState.getLong("selected");
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putLong("selected", selected);
     }
 
     String getTitle(Uri uri) {
@@ -137,7 +148,19 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             }
         });
 
+        if (selected > 0)
+            list.smoothScrollToPosition(getPosition(selected));
+
         return rootView;
+    }
+
+    int getPosition(long id) {
+        for (int i = 0; i < alarms.size(); i++) {
+            if (alarms.get(i).id == id) {
+                return i;
+            }
+        }
+        return -1;
     }
 
     @Override
