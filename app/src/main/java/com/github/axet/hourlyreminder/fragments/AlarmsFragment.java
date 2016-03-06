@@ -67,7 +67,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     ArrayList<DataSetObserver> listeners = new ArrayList<>();
     List<Alarm> alarms = new ArrayList<>();
-    int selected = -1;
+    long selected = -1;
     int scrollState;
     Handler handler;
     // preview ringtone
@@ -261,7 +261,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         final View alarmRingtonePlay = convertView.findViewById(R.id.alarm_ringtone_play);
         alarmRingtonePlay.clearAnimation();
 
-        if (selected == position) {
+        if (selected == a.id) {
             fillDetailed(convertView, a);
 
             final CheckBox weekdays = (CheckBox) convertView.findViewById(R.id.alarm_week_days);
@@ -283,7 +283,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
             return convertView;
         } else {
-            fillCompact(convertView, a, position);
+            fillCompact(convertView, a);
 
             AlarmAnimation.apply(list, convertView, false, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_EXPANDED);
 
@@ -293,13 +293,13 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
     }
 
-    void select(int pos) {
+    void select(long id) {
         // stop sound preview when detailed view closed.
         if (preview != null) {
             preview.release();
             preview = null;
         }
-        selected = pos;
+        selected = id;
         changed();
     }
 
@@ -323,9 +323,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     public void addAlarm() {
-        alarms.add(new Alarm(getActivity(), System.currentTimeMillis()));
+        Alarm a = new Alarm(getActivity(), System.currentTimeMillis());
+        alarms.add(a);
         int pos = alarms.size() - 1;
-        select(pos);
+        select(a.id);
         list.smoothScrollToPosition(pos);
         HourlyApplication.saveAlarms(getActivity(), alarms);
     }
@@ -573,7 +574,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         return true;
     }
 
-    void fillCompact(final View view, final Alarm a, final int position) {
+    void fillCompact(final View view, final Alarm a) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
         time.setText(a.getTimeString());
         time.setClickable(false);
@@ -598,7 +599,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                select(position);
+                select(a.id);
             }
         });
     }
