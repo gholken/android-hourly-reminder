@@ -124,7 +124,16 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                addAlarm();
+                final Alarm a = new Alarm(getActivity(), System.currentTimeMillis());
+                TimePickerDialog d = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        a.setTime(hourOfDay, minute);
+                        addAlarm(a);
+                        HourlyApplication.toastAlarmSet(getActivity(), a);
+                    }
+                }, a.getHour(), a.getMin(), true);
+                d.show();
             }
         });
 
@@ -320,8 +329,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         return getCount() == 0;
     }
 
-    public void addAlarm() {
-        Alarm a = new Alarm(getActivity(), System.currentTimeMillis());
+    public void addAlarm(Alarm a) {
         alarms.add(a);
         int pos = alarms.size() - 1;
         select(a.id);
@@ -444,7 +452,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
                 preview = sound.playOnce(uri);
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
-                alarmRingtonePlay.startAnimation(a);
+                if (preview != null)
+                    alarmRingtonePlay.startAnimation(a);
             }
         });
 
