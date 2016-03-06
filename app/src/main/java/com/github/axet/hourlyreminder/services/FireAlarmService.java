@@ -28,6 +28,8 @@ import java.util.Calendar;
 public class FireAlarmService extends Service {
     public static final String TAG = FireAlarmService.class.getSimpleName();
 
+    public static final String FIRE_ALARM = FireAlarmService.class.getCanonicalName() + ".FIRE_ALARM";
+
     // alarm activity action. close it.
     public static final String CLOSE_ACTIVITY = FireAlarmService.class.getCanonicalName() + ".CLOSE_ACTIVITY";
 
@@ -41,7 +43,8 @@ public class FireAlarmService extends Service {
     Binder binder = new Binder();
     Sound sound;
     Handler handle = new Handler();
-    Runnable cancel;
+    Runnable alive;
+    boolean alarmActivity = false;
 
     public class FireAlarmReceiver extends BroadcastReceiver {
         @Override
@@ -64,7 +67,7 @@ public class FireAlarmService extends Service {
 
     public static void activateAlarm(Context context, Alarm a) {
         context.startService(new Intent(context, FireAlarmService.class)
-                .setAction(HourlyApplication.FIRE_ALARM)
+                .setAction(FIRE_ALARM)
                 .putExtra("time", a.time)
                 .putExtra("beep", a.beep)
                 .putExtra("speech", a.speech)
@@ -102,6 +105,8 @@ public class FireAlarmService extends Service {
         final boolean speech = intent.getBooleanExtra("speech", false);
         final boolean ringtone = intent.getBooleanExtra("ringtone", false);
         final String ringtoneValue = intent.getStringExtra("ringtoneValue");
+
+        Log.d(TAG, "time=" + Alarm.format(time));
 
         if (!alive(time)) {
             stopSelf();
@@ -147,18 +152,18 @@ public class FireAlarmService extends Service {
     }
 
     boolean alive(final long time) {
+        Calendar cur = Calendar.getInstance();
+
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
         cal.add(Calendar.MINUTE, ALARM_AUTO_OFF);
         cal.set(Calendar.SECOND, 0);
         cal.set(Calendar.MILLISECOND, 0);
 
-        Calendar cur = Calendar.getInstance();
-
         boolean b = cal.after(cur);
 
         if (b) {
-            cancel = new Runnable() {
+            alive = new Runnable() {
                 @Override
                 public void run() {
                     if (!alive(time)) {
@@ -167,13 +172,14 @@ public class FireAlarmService extends Service {
                     }
                 }
             };
-            handle.postDelayed(cancel, 1000 * 60);
+            handle.postDelayed(alive, 1000 * 60);
         }
 
         return b;
     }
 
     public void showAlarmActivity(long time) {
+        alarmActivity = true;
         Intent intent = new Intent(this, AlarmActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("time", time);
@@ -210,14 +216,17 @@ public class FireAlarmService extends Service {
 
         unregisterReceiver(receiver);
 
-        Intent intent = new Intent(this, AlarmActivity.class);
-        intent.setAction(CLOSE_ACTIVITY);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        if (alarmActivity) {
+            alarmActivity = false;
+            Intent intent = new Intent(this, AlarmActivity.class);
+            intent.setAction(CLOSE_ACTIVITY);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
 
-        if (cancel != null) {
-            handle.removeCallbacks(cancel);
-            cancel = null;
+        if (alive != null) {
+            handle.removeCallbacks(alive);
+            alive = null;
         }
     }
 
@@ -234,7 +243,7 @@ public class FireAlarmService extends Service {
             int min = c.get(Calendar.MINUTE);
 
             PendingIntent main = PendingIntent.getActivity(this, 0,
-                    new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE).putExtra("time", time),
+                    new Intent(this, MainActivity.class).setAction(MainActivity.SHOW_ALARMS_PAGE).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             String text = String.format("Alarm %02d:%02d dismissed after %d mins", hour, min, ALARM_AUTO_OFF);

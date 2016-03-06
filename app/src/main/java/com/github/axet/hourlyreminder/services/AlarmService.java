@@ -315,7 +315,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             PendingIntent main = PendingIntent.getActivity(this, 0,
-                    new Intent(this, MainActivity.class).setAction(HourlyApplication.SHOW_ALARMS_PAGE).putExtra("time", time),
+                    new Intent(this, MainActivity.class).setAction(MainActivity.SHOW_ALARMS_PAGE).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             String subject = "Upcoming alarm";
@@ -351,6 +351,8 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
         Alarm a = getAlarm(time);
         if (a != null && a.enable) {
+            Log.d(TAG, "Sound Alarm " + a.format());
+            Alarm old = new Alarm(a);
             if (!a.weekdays) {
                 // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
                 a.setEnable(false);
@@ -364,7 +366,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             }
             HourlyApplication.saveAlarms(this, alarms);
 
-            FireAlarmService.activateAlarm(this, a);
+            FireAlarmService.activateAlarm(this, old);
             registerNextAlarm();
             return;
         }
