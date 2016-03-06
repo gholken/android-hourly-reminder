@@ -144,7 +144,7 @@ public class GeneralPreferenceFragment extends PreferenceFragment implements Pre
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sound.soundAlarm();
+                    sound.soundAlarm(System.currentTimeMillis());
                 }
             });
         }

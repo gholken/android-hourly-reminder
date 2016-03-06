@@ -121,7 +121,7 @@ public class FireAlarmService extends Service {
                                @Override
                                public void run() {
                                    if (speech) {
-                                       sound.playSpeech(new Runnable() {
+                                       sound.playSpeech(time, new Runnable() {
                                            @Override
                                            public void run() {
                                                if (ringtone) {
@@ -136,7 +136,7 @@ public class FireAlarmService extends Service {
                            }
             );
         } else if (speech) {
-            sound.playSpeech(new Runnable() {
+            sound.playSpeech(time, new Runnable() {
                 @Override
                 public void run() {
                     playRingtone(Uri.parse(ringtoneValue));
