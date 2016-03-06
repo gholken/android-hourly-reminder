@@ -11,6 +11,7 @@ import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -35,6 +36,8 @@ public class Sound {
     ToneGenerator tone;
     MediaPlayer player;
     AudioTrack track;
+    Runnable delayed;
+    Handler handler;
 
     // AudioSystem.STREAM_ALARM AudioManager.STREAM_ALARM;
     final static int SOUND_CHANNEL = AudioAttributes.USAGE_ALARM;
@@ -42,6 +45,8 @@ public class Sound {
 
     public Sound(Context context) {
         this.context = context;
+
+        handler = new Handler();
 
         tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
@@ -54,6 +59,10 @@ public class Sound {
                                 .setUsage(SOUND_CHANNEL)
                                 .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
                                 .build());
+                    }
+
+                    if (delayed != null) {
+                        delayed.run();
                     }
                 }
             }
@@ -78,6 +87,10 @@ public class Sound {
             track.release();
             track = null;
         }
+        if (delayed != null) {
+            handler.removeCallbacks(delayed);
+            delayed = null;
+        }
     }
 
     // https://gist.github.com/slightfoot/6330866
@@ -100,18 +113,18 @@ public class Sound {
         return track;
     }
 
-    public void soundAlarm() {
+    public void soundAlarm(final long time) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
         if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
             playBeep(new Runnable() {
                 @Override
                 public void run() {
-                    playSpeech(null);
+                    playSpeech(time, null);
                 }
             });
         } else {
-            playSpeech(null);
+            playSpeech(time, null);
         }
     }
 
@@ -174,9 +187,59 @@ public class Sound {
         return (float) (Math.pow(shared.getFloat(HourlyApplication.PREFERENCE_VOLUME, 1f), 3));
     }
 
-    public void playSpeech(final Runnable run) {
-        int hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY);
-        int min = Calendar.getInstance().get(Calendar.MINUTE);
+    public void playSpeech(final long time, final Runnable run) {
+        final Runnable clear = new Runnable() {
+            @Override
+            public void run() {
+                if (delayed != null) {
+                    handler.removeCallbacks(delayed);
+                    delayed = null;
+                }
+                if (run != null)
+                    run.run();
+            }
+        };
+        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
+            @Override
+            public void onStart(String utteranceId) {
+            }
+
+            @Override
+            public void onDone(String utteranceId) {
+                clear.run();
+            }
+
+            @Override
+            public void onError(String utteranceId) {
+                clear.run();
+            }
+        });
+
+        // TTS may say failed, but play sounds successfuly. we need regardless or failed do not
+        // play speech twice if clear.run() was called.
+        if (!playSpeech(time)) {
+            Toast.makeText(context, "Waiting for TTS", Toast.LENGTH_SHORT).show();
+            if (delayed != null) {
+                handler.removeCallbacks(delayed);
+            }
+            delayed = new Runnable() {
+                @Override
+                public void run() {
+                    if (!playSpeech(time)) {
+                        Toast.makeText(context, "Failed TTS again, skiping", Toast.LENGTH_SHORT).show();
+                        clear.run();
+                    }
+                }
+            };
+            handler.postDelayed(delayed, 5000);
+        }
+    }
+
+    boolean playSpeech(long time) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(time);
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int min = c.get(Calendar.MINUTE);
 
         String text = String.format("Time is %02d:%02d", hour, min);
 
@@ -187,48 +250,28 @@ public class Sound {
             } else {
                 speak = String.format("Time is %d %02d.", hour, min);
             }
-        } else
+        } else {
             speak = String.format("%d o'clock", hour);
+        }
 
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-
-        tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
-            @Override
-            public void onStart(String utteranceId) {
-            }
-
-            @Override
-            public void onDone(String utteranceId) {
-                if (run != null)
-                    run.run();
-            }
-
-            @Override
-            public void onError(String utteranceId) {
-                if (run != null)
-                    run.run();
-            }
-        });
 
         if (Build.VERSION.SDK_INT >= 21) {
             Bundle params = new Bundle();
             params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, getVolume());
             params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
             if (tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString()) != TextToSpeech.SUCCESS) {
-                Log.d(TAG, "Failed to speach!");
-                if (run != null)
-                    run.run();
+                return false;
             }
         } else {
             HashMap<String, String> params = new HashMap<>();
             params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(getVolume()));
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
             if (tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params) != TextToSpeech.SUCCESS) {
-                Log.d(TAG, "Failed to speach!");
-                if (run != null)
-                    run.run();
+                return false;
             }
         }
+        return true;
     }
 
     public MediaPlayer playOnce(Uri uri) {

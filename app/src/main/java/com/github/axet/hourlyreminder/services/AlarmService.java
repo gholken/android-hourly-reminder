@@ -344,7 +344,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     //
     // we have to check what 'alarms' do we have at specified time (can be reminder + alarm)
     // and act propertly.
-    public void soundAlarm(long time) {
+    public void soundAlarm(final long time) {
         // find hourly reminder + alarm = combine proper sound notification_upcoming (can be merge beep, speech, ringtone)
         //
         // then sound alarm or hourly reminder
@@ -378,11 +378,11 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                 sound.playBeep(new Runnable() {
                     @Override
                     public void run() {
-                        sound.playSpeech(null);
+                        sound.playSpeech(time, null);
                     }
                 });
             } else {
-                sound.playSpeech(null);
+                sound.playSpeech(time, null);
             }
             // calling setNext is more safe. if this alarm have to fire today we will reset it
             // to the same time. if it is already past today's time (as we expect) then it will
