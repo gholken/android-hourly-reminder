@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.basics.Alarm;
@@ -24,6 +25,8 @@ import java.util.Locale;
 import java.util.UUID;
 
 public class Sound {
+    public static final String TAG = Sound.class.getSimpleName();
+
     // beep ms
     public static final int BEEP = 100;
 
@@ -212,6 +215,7 @@ public class Sound {
             params.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, getVolume());
             params.putString(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
             if (tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params, UUID.randomUUID().toString()) != TextToSpeech.SUCCESS) {
+                Log.d(TAG, "Failed to speach!");
                 if (run != null)
                     run.run();
             }
@@ -220,6 +224,7 @@ public class Sound {
             params.put(TextToSpeech.Engine.KEY_PARAM_VOLUME, Float.toString(getVolume()));
             params.put(TextToSpeech.Engine.KEY_PARAM_UTTERANCE_ID, "DONE");
             if (tts.speak(speak, TextToSpeech.QUEUE_FLUSH, params) != TextToSpeech.SUCCESS) {
+                Log.d(TAG, "Failed to speach!");
                 if (run != null)
                     run.run();
             }

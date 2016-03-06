@@ -68,6 +68,21 @@ public class Alarm {
         }
     }
 
+    public Alarm(Alarm copy) {
+        context = copy.context;
+        id = copy.id;
+        time = copy.time;
+        hour = copy.hour;
+        min = copy.min;
+        enable = copy.enable;
+        weekdays = copy.weekdays;
+        weekdaysValues = new ArrayList<Integer>(copy.weekdaysValues);
+        ringtone = copy.ringtone;
+        ringtoneValue = copy.ringtoneValue;
+        beep = copy.beep;
+        speech = copy.speech;
+    }
+
     public Alarm(Context context) {
         this.id = System.currentTimeMillis();
 
@@ -133,6 +148,14 @@ public class Alarm {
         }
 
         throw new RuntimeException("bad week");
+    }
+
+    public static String format(long time) {
+        Calendar c = Calendar.getInstance();
+        c.setTimeInMillis(time);
+        int hour = c.get(Calendar.HOUR_OF_DAY);
+        int min = c.get(Calendar.MINUTE);
+        return format(hour, min);
     }
 
     public static String format(int hour, int min) {

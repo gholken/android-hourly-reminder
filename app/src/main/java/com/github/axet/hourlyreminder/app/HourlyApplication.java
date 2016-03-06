@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 public class HourlyApplication extends Application {
@@ -36,6 +37,8 @@ public class HourlyApplication extends Application {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         int c = shared.getInt(PREFERENCE_ALARMS_PREFIX + "Count", 0);
         if (c == 0) {
+            Set<Long> ids = new TreeSet<>();
+
             Alarm a;
             a = new Alarm(context);
             a.setTime(9, 0);
@@ -45,6 +48,10 @@ public class HourlyApplication extends Application {
             a.ringtone = true;
             a.setWeekDays(Alarm.WEEKDAY);
             alarms.add(a);
+            while (ids.contains(a.id)) {
+                a.id++;
+            }
+            ids.add(a.id);
 
             a = new Alarm(context);
             a.setTime(10, 0);
@@ -54,6 +61,10 @@ public class HourlyApplication extends Application {
             a.ringtone = true;
             a.setWeekDays(Alarm.WEEKEND);
             alarms.add(a);
+            while (ids.contains(a.id)) {
+                a.id++;
+            }
+            ids.add(a.id);
 
             a = new Alarm(context);
             a.setTime(10, 30);
@@ -62,19 +73,23 @@ public class HourlyApplication extends Application {
             a.beep = true;
             a.ringtone = true;
             alarms.add(a);
+            while (ids.contains(a.id)) {
+                a.id++;
+            }
+            ids.add(a.id);
         }
 
-        long id = 0;
+        Set<Long> ids = new TreeSet<>();
 
         for (int i = 0; i < c; i++) {
             String prefix = PREFERENCE_ALARMS_PREFIX + i + "_";
             Alarm a = new Alarm(context);
             a.id = shared.getLong(prefix + "Id", System.currentTimeMillis());
 
-            while (a.id == id) {
+            while (ids.contains(a.id)) {
                 a.id++;
             }
-            id = a.id;
+            ids.add(a.id);
 
             a.time = shared.getLong(prefix + "Time", 0);
 
@@ -101,16 +116,16 @@ public class HourlyApplication extends Application {
         SharedPreferences.Editor edit = shared.edit();
         edit.putInt(PREFERENCE_ALARMS_PREFIX + "Count", alarms.size());
 
-        long id = 0;
+        Set<Long> ids = new TreeSet<>();
 
         for (int i = 0; i < alarms.size(); i++) {
             Alarm a = alarms.get(i);
             String prefix = PREFERENCE_ALARMS_PREFIX + i + "_";
 
-            while (a.id == id) {
+            while (ids.contains(a.id)) {
                 a.id++;
             }
-            id = a.id;
+            ids.add(a.id);
 
             edit.putLong(prefix + "Id", a.id);
             edit.putInt(prefix + "Hour", a.hour);

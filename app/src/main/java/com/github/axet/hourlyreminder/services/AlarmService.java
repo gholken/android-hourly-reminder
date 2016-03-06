@@ -351,6 +351,8 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
         Alarm a = getAlarm(time);
         if (a != null && a.enable) {
+            Log.d(TAG, "Sound Alarm " + a.format());
+            Alarm old = new Alarm(a);
             if (!a.weekdays) {
                 // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
                 a.setEnable(false);
@@ -364,7 +366,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             }
             HourlyApplication.saveAlarms(this, alarms);
 
-            FireAlarmService.activateAlarm(this, a);
+            FireAlarmService.activateAlarm(this, old);
             registerNextAlarm();
             return;
         }
