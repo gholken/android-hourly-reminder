@@ -201,6 +201,7 @@ public class Alarm {
         if (b) {
             weekdaysValues.add(week);
         }
+        setNext();
     }
 
     // check if 'week' in weekdays when alarm goes off
