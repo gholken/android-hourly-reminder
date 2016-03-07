@@ -86,7 +86,7 @@ public class AlarmAnimation extends MarginAnimation {
     void showChild(float i) {
         if (Build.VERSION.SDK_INT >= 19) {
             final int paddedTop = list.getListPaddingTop();
-            final int paddedBottom = list.getHeight() - list.getListPaddingTop();
+            final int paddedBottom = list.getHeight() - list.getListPaddingTop() - list.getListPaddingBottom();
 
             if (convertView.getTop() < paddedTop) {
                 int off = convertView.getTop() - paddedTop;
