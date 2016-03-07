@@ -39,8 +39,8 @@ public class MarginAnimation extends StepAnimation {
     public void initialize(int width, int height, int parentWidth, int parentHeight) {
         super.initialize(width, height, parentWidth, parentHeight);
         view.setVisibility(View.VISIBLE);
-        view.measure(View.MeasureSpec.makeMeasureSpec(parentWidth, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(parentHeight, View.MeasureSpec.UNSPECIFIED));
+        view.measure(View.MeasureSpec.makeMeasureSpec(width, View.MeasureSpec.AT_MOST),
+                View.MeasureSpec.makeMeasureSpec(Math.max(height, parentHeight), View.MeasureSpec.AT_MOST));
         marginSlide = view.getMeasuredHeight() + viewLpOrig.bottomMargin;
     }
 
