@@ -145,8 +145,10 @@ public class Sound {
             public void onMarkerReached(AudioTrack track) {
                 if (done != null)
                     done.run();
-                track.release();
-                track = null;
+                if (track != null) {
+                    track.release();
+                    track = null;
+                }
             }
 
             @Override
