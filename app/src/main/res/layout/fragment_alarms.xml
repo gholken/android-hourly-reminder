@@ -4,6 +4,18 @@
     android:layout_height="match_parent"
     tools:context=".activities.MainActivity$AlarmsFragment">
 
+    <!--fab button padding
+
+        android:paddingBottom="56dp + 16dp + 5dp"
+
+        where:
+         56dp - fab size
+         16dp - fab margin
+         5dp - ListView padding
+
+        android:clipToPadding="false"
+
+    -->
     <ListView
         android:id="@+id/section_label"
         android:layout_width="match_parent"
