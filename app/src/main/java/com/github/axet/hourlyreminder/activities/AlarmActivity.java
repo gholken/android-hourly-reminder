@@ -2,15 +2,21 @@ package com.github.axet.hourlyreminder.activities;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.services.FireAlarmService;
 
 import java.util.Calendar;
@@ -23,47 +29,14 @@ import java.util.TimerTask;
  */
 public class AlarmActivity extends AppCompatActivity {
 
-    /**
-     * Some older devices needs a small delay between UI widget updates
-     * and a change of the status and navigation bar.
-     */
-    private static final int UI_ANIMATION_DELAY = 300;
-    private final Handler handler = new Handler();
-    private View mContentView;
-    Timer timer;
-    private final Runnable mHidePart2Runnable = new Runnable() {
-        @SuppressLint("InlinedApi")
-        @Override
-        public void run() {
-            // Delayed removal of status and navigation bar
-
-            // Note that some of these constants are new as of API 16 (Jelly Bean)
-            // and API 19 (KitKat). It is safe to use them, as they are inlined
-            // at compile-time and do nothing on earlier devices.
-            mContentView.setSystemUiVisibility(
-                    View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                            | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
-        }
-    };
-
-    private final Runnable mShowPart2Runnable = new Runnable() {
-        @Override
-        public void run() {
-            // Delayed display of UI elements
-            ActionBar actionBar = getSupportActionBar();
-            if (actionBar != null) {
-                actionBar.show();
-            }
-        }
-    };
+    Handler handler = new Handler();
+    Runnable updateClock;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_alarm);
-
-        mContentView = findViewById(android.R.id.content);
+        layoutInit();
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON |
                 WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD |
@@ -75,10 +48,36 @@ public class AlarmActivity extends AppCompatActivity {
         String action = intent.getAction();
         if (action != null && action.equals(FireAlarmService.CLOSE_ACTIVITY)) {
             finish();
-            return;
         }
+    }
 
-        findViewById(R.id.alarm_activity_button).setOnClickListener(new View.OnClickListener() {
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+
+        // bug? it haven't been called
+        getResources().updateConfiguration(newConfig, null);
+
+        layoutInit();
+    }
+
+    void layoutInit() {
+        ViewGroup contentParent = (ViewGroup) findViewById(android.R.id.content);
+        contentParent.removeAllViews();
+        LayoutInflater.from(this).inflate(R.layout.activity_alarm, contentParent);
+
+        //setContentView(R.layout.activity_alarm);
+
+        Intent intent = getIntent();
+
+        long time = intent.getLongExtra("time", 0);
+        TextView text = (TextView) findViewById(R.id.alarm_text);
+        text.setText(Alarm.format(time));
+
+        updateClock();
+
+        View dismiss = findViewById(R.id.alarm_activity_button);
+        dismiss.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
@@ -99,45 +98,31 @@ public class AlarmActivity extends AppCompatActivity {
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-
-        hide();
-
-        updateClock();
     }
 
     void updateClock() {
-        Calendar cal = Calendar.getInstance();
-
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        int min = cal.get(Calendar.MINUTE);
-
         TextView text = (TextView) findViewById(R.id.time);
-        text.setText(String.format("%02d:%02d", hour, min));
+        text.setText(Alarm.format(System.currentTimeMillis()));
 
-        if (timer != null)
-            timer.cancel();
-
-        timer = new Timer();
-        timer.schedule(new TimerTask() {
+        if (updateClock == null) {
+            handler.removeCallbacks(updateClock);
+        }
+        updateClock = new Runnable() {
             @Override
             public void run() {
-                handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        updateClock();
-                    }
-                });
+                updateClock();
             }
-        }, 1000);
+        };
+        handler.postDelayed(updateClock, 1000);
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+        if (updateClock != null) {
+            handler.removeCallbacks(updateClock);
+            updateClock = null;
         }
     }
 
@@ -154,29 +139,10 @@ public class AlarmActivity extends AppCompatActivity {
 
         FireAlarmService.dismissActiveAlarm(this);
 
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
+        if (updateClock != null) {
+            handler.removeCallbacks(updateClock);
+            updateClock = null;
         }
-    }
-
-    private void hide() {
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.hide();
-        }
-        handler.postDelayed(mHidePart2Runnable, UI_ANIMATION_DELAY);
-    }
-
-    @SuppressLint("InlinedApi")
-    private void show() {
-        // Show the system bar
-        mContentView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION);
-
-        // Schedule a runnable to display UI elements after a delay
-        handler.removeCallbacks(mHidePart2Runnable);
-        handler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
     @Override

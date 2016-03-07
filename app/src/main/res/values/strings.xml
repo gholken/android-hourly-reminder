@@ -32,6 +32,11 @@
         <item quantity="other">%d minutes</item>
     </plurals>
 
+    <plurals name="seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
+    </plurals>
+
     <string name="alarm_set_for">Alarm set for%s from now!</string>
     <string name="alarm_disabled">Alarm is disabled</string>
     <string name="hour_symbol">h</string>

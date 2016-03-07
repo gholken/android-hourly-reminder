@@ -24,9 +24,7 @@
         <Switch
             android:id="@+id/alarm_enable"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:gravity="center" />
+            android:layout_height="wrap_content" />
     </com.github.axet.hourlyreminder.layouts.EqualLinearLayout>
 
     <LinearLayout
