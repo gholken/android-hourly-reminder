@@ -190,6 +190,9 @@ public class HourlyApplication extends Application {
         if (diffMinutes > 0)
             str += " " + context.getResources().getQuantityString(R.plurals.minutes, diffMinutes, diffMinutes);
 
+        if (diffDays == 0 && diffHours == 0 && diffMinutes == 0 && diffSeconds > 0 )
+            str += " " + context.getResources().getQuantityString(R.plurals.seconds, diffSeconds, diffSeconds);
+
         Toast.makeText(context, context.getString(R.string.alarm_set_for, str), Toast.LENGTH_SHORT).show();
     }
 
