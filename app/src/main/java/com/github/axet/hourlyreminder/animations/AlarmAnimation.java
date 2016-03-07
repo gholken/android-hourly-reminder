@@ -2,6 +2,7 @@ package com.github.axet.hourlyreminder.animations;
 
 import android.graphics.Rect;
 import android.os.Build;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,47 +62,42 @@ public class AlarmAnimation extends MarginAnimation {
     }
 
     @Override
-    void calc(float i) {
+    void calc(final float i) {
         super.calc(i);
 
-        i = expand ? i : 1 - i;
+        float ii = expand ? i : 1 - i;
 
-        compact_f.setAlpha(1 - i);
-        compact_s.setRotation(180 * i);
-        bottom_f.setAlpha(i);
-        bottom_s.setRotation(-180 + 180 * i);
+        compact_f.setAlpha(1 - ii);
+        compact_s.setRotation(180 * ii);
+        bottom_f.setAlpha(ii);
+        bottom_s.setRotation(-180 + 180 * ii);
 
-        showChild(i);
+        // ViewGroup will crash on null pointer without this post pone.
+        // seems like some views are removed by RecyvingView when they
+        // gone off screen.
+        new Handler().post(new Runnable() {
+            @Override
+            public void run() {
+                showChild(i);
+            }
+        });
     }
 
     void showChild(float i) {
         if (Build.VERSION.SDK_INT >= 19) {
-//            final Rect r = new Rect(0, 0, convertView.getWidth(), convertView.getHeight());
-//            Log.d("123", "" + r);
-//            list.getChildVisibleRect(convertView, r, null);
-//            Log.d("123", "" + r);
-//            int off = convertView.getHeight() - r.height();
-//            Log.d("123", "" + off);
-//            if (off > 0)
-            ;//list.scrollListBy(off);
+            final int paddedTop = list.getListPaddingTop();
+            final int paddedBottom = list.getHeight() - list.getListPaddingTop();
 
-//            final int paddedTop = list.getListPaddingTop();
-//            final int paddedBottom = list.getHeight() - list.getListPaddingTop();
-//
-//            if (convertView.getTop() < paddedTop) {
-//                int off = convertView.getTop() - paddedTop;
-//                int o = (int) (off * i) - 1;
-//                Log.d("top", "" + paddedTop + " " + convertView.getTop());
-//                list.scrollListBy(o);
-//            }
-//
-//            if (convertView.getBottom() > paddedBottom) {
-//                int off = convertView.getBottom() - paddedBottom;
-//                list.scrollListBy(off);
-//            }
+            if (convertView.getTop() < paddedTop) {
+                int off = convertView.getTop() - paddedTop;
+                int o = (int) (off * i) - 1;
+                list.scrollListBy(o);
+            }
 
-//            Log.d("123", paddedTop + " " + convertView.getTop());
-//            Log.d("123", paddedBottom + " " + convertView.getBottom());
+            if (convertView.getBottom() > paddedBottom) {
+                int off = convertView.getBottom() - paddedBottom;
+                list.scrollListBy((int) (off * i));
+            }
         }
     }
 
