@@ -8,9 +8,12 @@
         android:id="@+id/section_label"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:clipToPadding="false"
         android:divider="@color/colorAccent"
         android:dividerHeight="1dp"
-        android:padding="5dp" />
+        android:paddingBottom="77dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/fab"
