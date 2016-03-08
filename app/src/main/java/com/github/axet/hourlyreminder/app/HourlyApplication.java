@@ -92,12 +92,8 @@ public class HourlyApplication extends Application {
             ids.add(a.id);
 
             a.time = shared.getLong(prefix + "Time", 0);
-
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(a.time);
-
-            a.hour = shared.getInt(prefix + "Hour", cal.get(Calendar.HOUR_OF_DAY));
-            a.min = shared.getInt(prefix + "Min", cal.get(Calendar.MINUTE));
+            a.hour = shared.getInt(prefix + "Hour", 0);
+            a.min = shared.getInt(prefix + "Min", 0);
             a.enable = shared.getBoolean(prefix + "Enable", false);
             a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
             a.setWeekDaysProperty(shared.getStringSet(prefix + "WeekDays_Values", null));
