@@ -57,7 +57,7 @@ public class Sound {
                     if (Build.VERSION.SDK_INT >= 21) {
                         tts.setAudioAttributes(new AudioAttributes.Builder()
                                 .setUsage(SOUND_CHANNEL)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .setContentType(SOUND_TYPE)
                                 .build());
                     }
 
@@ -174,7 +174,7 @@ public class Sound {
         if (Build.VERSION.SDK_INT >= 21) {
             player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(SOUND_CHANNEL)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setContentType(SOUND_TYPE)
                     .build());
         }
         player.setLooping(true);
@@ -287,7 +287,7 @@ public class Sound {
         if (Build.VERSION.SDK_INT >= 21) {
             player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(SOUND_CHANNEL)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setContentType(SOUND_TYPE)
                     .build());
         }
         final MediaPlayer p = player;
