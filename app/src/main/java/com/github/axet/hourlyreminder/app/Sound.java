@@ -142,7 +142,13 @@ public class Sound {
 
         track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override
-            public void onMarkerReached(AudioTrack track) {
+            public void onMarkerReached(AudioTrack t) {
+                // prevent strange android bug, with second beep when connecting android to external usb audio source.
+                // seems like this beep pushed to external audio source from sound cache.
+                if (track != null) {
+                    track.release();
+                    track = null;
+                }
                 if (done != null)
                     done.run();
             }
