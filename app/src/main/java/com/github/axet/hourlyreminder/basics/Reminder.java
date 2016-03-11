@@ -16,10 +16,13 @@ public class Reminder {
 
     // move alarm to tomorrow
     public void setTomorrow() {
+        Calendar cur = Calendar.getInstance();
+
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.add(Calendar.DATE, 1);
-        time = cal.getTimeInMillis();
+
+        time = getAlarmTime(cal, cur);
     }
 
     public void setNext() {
