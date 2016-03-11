@@ -57,7 +57,7 @@ public class Sound {
                     if (Build.VERSION.SDK_INT >= 21) {
                         tts.setAudioAttributes(new AudioAttributes.Builder()
                                 .setUsage(SOUND_CHANNEL)
-                                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                                .setContentType(SOUND_TYPE)
                                 .build());
                     }
 
@@ -142,13 +142,15 @@ public class Sound {
 
         track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override
-            public void onMarkerReached(AudioTrack track) {
-                if (done != null)
-                    done.run();
+            public void onMarkerReached(AudioTrack t) {
+                // prevent strange android bug, with second beep when connecting android to external usb audio source.
+                // seems like this beep pushed to external audio source from sound cache.
                 if (track != null) {
                     track.release();
                     track = null;
                 }
+                if (done != null)
+                    done.run();
             }
 
             @Override
@@ -178,7 +180,7 @@ public class Sound {
         if (Build.VERSION.SDK_INT >= 21) {
             player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(SOUND_CHANNEL)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setContentType(SOUND_TYPE)
                     .build());
         }
         player.setLooping(true);
@@ -291,7 +293,7 @@ public class Sound {
         if (Build.VERSION.SDK_INT >= 21) {
             player.setAudioAttributes(new AudioAttributes.Builder()
                     .setUsage(SOUND_CHANNEL)
-                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .setContentType(SOUND_TYPE)
                     .build());
         }
         final MediaPlayer p = player;
