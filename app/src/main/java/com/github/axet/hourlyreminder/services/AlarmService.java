@@ -185,7 +185,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     // cancel alarm 'time' by set it time for day+1 (same hour:min)
     public void tomorrow(long time) {
         Alarm a = getAlarm(time);
-        if (a != null) {
+        if (a != null && a.enable && a.isToday()) {
             if (a.weekdays) {
                 // be safe for another timezone. if we moved we better call setNext()
                 a.setTomorrow();
@@ -197,7 +197,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         }
 
         Reminder r = getReminder(time);
-        if (r != null) {
+        if (r != null  && r.enabled && r.isToday()) {
             r.setTomorrow();
         }
 
