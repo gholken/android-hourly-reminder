@@ -1,5 +1,6 @@
 package com.github.axet.hourlyreminder.basics;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -24,6 +25,19 @@ public class Reminder {
 
         time = getAlarmTime(cal, cur);
     }
+
+    public boolean isToday() {
+        Calendar cur = Calendar.getInstance();
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
+
+        cal.setTimeInMillis(getAlarmTime(cal, cur));
+
+        SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
+        return fmt.format(cur.getTime()).equals(fmt.format(cal.getTime()));
+    }
+
 
     public void setNext() {
         Calendar cur = Calendar.getInstance();
