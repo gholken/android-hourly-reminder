@@ -74,7 +74,12 @@ public class RemoveItemAnimation extends Animation {
 
     float intTime(int off, int dur) {
         long cur = AnimationUtils.currentAnimationTimeMillis();
-        long past = cur - getStartTime();
+        long start = getStartTime();
+
+        if (start == -1)
+            start = cur;
+
+        long past = cur - start;
         long wait = off - past;
         long left = dur + wait;
         if (wait <= 0) {
