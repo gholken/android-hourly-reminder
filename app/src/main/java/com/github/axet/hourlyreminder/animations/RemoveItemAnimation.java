@@ -74,7 +74,12 @@ public class RemoveItemAnimation extends Animation {
 
     float intTime(int off, int dur) {
         long cur = AnimationUtils.currentAnimationTimeMillis();
-        long past = cur - getStartTime();
+        long start = getStartTime();
+
+        if (start == -1)
+            start = cur;
+
+        long past = cur - start;
         long wait = off - past;
         long left = dur + wait;
         if (wait <= 0) {
@@ -90,9 +95,7 @@ public class RemoveItemAnimation extends Animation {
     protected void applyTransformation(float interpolatedTime, Transformation t) {
         super.applyTransformation(interpolatedTime, t);
 
-        if (interpolatedTime < 1) {
-            float i = 1 - interpolatedTime;
-
+        {
             float ia = intTime(alphaOffset, alphaDuration);
             if (ia >= 0) {
                 t.setAlpha(1 - ia);
@@ -105,14 +108,11 @@ public class RemoveItemAnimation extends Animation {
                 lp.height = (int) (h * is);
                 convertView.requestLayout();
             }
+        }
 
-            calc(i);
-        } else {
+        if (interpolatedTime >= 1) {
             end();
         }
-    }
-
-    void calc(float i) {
     }
 
     void restore() {

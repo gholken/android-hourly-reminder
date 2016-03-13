@@ -95,18 +95,23 @@ public class Sound {
 
     // https://gist.github.com/slightfoot/6330866
     private AudioTrack generateTone(double freqHz, int durationMs) {
-        int count = (int) (44100.0 * (durationMs / 1000.0));
+        int sampleRate = 44100;
+        int count = sampleRate * durationMs / 1000;
         int end = count;
         int stereo = count * 2;
         short[] samples = new short[stereo];
         for (int i = 0; i < stereo; i += 2) {
-            short sample = (short) (Math.sin(2 * Math.PI * i / (44100.0 / freqHz)) * 0x7FFF);
+            short sample = (short) (Math.sin(2 * Math.PI * i / (sampleRate / freqHz)) * 0x7FFF);
             samples[i + 0] = sample;
             samples[i + 1] = sample;
         }
-        AudioTrack track = new AudioTrack(SOUND_CHANNEL, 44100,
+        // old phones bug.
+        // http://stackoverflow.com/questions/27602492
+        //
+        // with MODE_STATIC setNotificationMarkerPosition not called
+        AudioTrack track = new AudioTrack(SOUND_CHANNEL, sampleRate,
                 AudioFormat.CHANNEL_OUT_STEREO, AudioFormat.ENCODING_PCM_16BIT,
-                stereo * (Short.SIZE / 8), AudioTrack.MODE_STATIC);
+                stereo * (Short.SIZE / 8), AudioTrack.MODE_STREAM);
         track.write(samples, 0, stereo);
         if (track.setNotificationMarkerPosition(end) != AudioTrack.SUCCESS)
             throw new RuntimeException("unable to set marker");

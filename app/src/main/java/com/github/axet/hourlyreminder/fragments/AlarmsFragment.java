@@ -21,6 +21,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -137,11 +138,24 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             public void onClick(View v) {
                 final Alarm a = new Alarm(getActivity(), System.currentTimeMillis());
                 TimePickerDialog d = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                    // onTimeSet called twice on old phones
+                    //
+                    // http://stackoverflow.com/questions/19452993
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            addAlarm(a);
+                            HourlyApplication.toastAlarmSet(getActivity(), a);
+                        }
+                    };
+
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         a.setTime(hourOfDay, minute);
-                        addAlarm(a);
-                        HourlyApplication.toastAlarmSet(getActivity(), a);
+                        if (r != null) {
+                            r.run();
+                            r = null;
+                        }
                     }
                 }, a.getHour(), a.getMin(), true);
                 d.show();
@@ -354,9 +368,11 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     public void addAlarm(Alarm a) {
         alarms.add(a);
-        int pos = alarms.size() - 1;
+        Collections.sort(alarms, new Alarm.CustomComparator());
         select(a.id);
+        int pos = alarms.indexOf(a);
         list.smoothScrollToPosition(pos);
+
         HourlyApplication.saveAlarms(getActivity(), alarms);
     }
 
@@ -538,15 +554,25 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             @Override
             public void onClick(View v) {
                 TimePickerDialog d = new TimePickerDialog(getActivity(), new TimePickerDialog.OnTimeSetListener() {
+                    // onTimeSet called twice on old phones
+                    //
+                    // http://stackoverflow.com/questions/19452993
+                    Runnable r = new Runnable() {
+                        @Override
+                        public void run() {
+                            if (a.enable)
+                                HourlyApplication.toastAlarmSet(getActivity(), a);
+                            time.setText(a.format());
+                            save(a);
+                        }
+                    };
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         a.setTime(hourOfDay, minute);
-
-                        if (a.enable)
-                            HourlyApplication.toastAlarmSet(getActivity(), a);
-
-                        time.setText(a.format());
-                        save(a);
+                        if (r != null) {
+                            r.run();
+                            r = null;
+                        }
                     }
                 }, a.getHour(), a.getMin(), true);
                 d.show();
