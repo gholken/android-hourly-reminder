@@ -354,8 +354,6 @@ public class Alarm {
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
 
-        cal.setTimeInMillis(getAlarmTime(cal, cur));
-
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         return fmt.format(cur.getTime()).equals(fmt.format(cal.getTime()));
     }
@@ -366,8 +364,6 @@ public class Alarm {
 
         Calendar cal = Calendar.getInstance();
         cal.setTimeInMillis(time);
-
-        cal.setTimeInMillis(getAlarmTime(cal, cur));
 
         SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMdd");
         return fmt.format(cur.getTime()).equals(fmt.format(cal.getTime()));

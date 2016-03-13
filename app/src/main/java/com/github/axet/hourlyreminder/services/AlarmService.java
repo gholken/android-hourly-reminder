@@ -197,7 +197,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         }
 
         Reminder r = getReminder(time);
-        if (r != null  && r.enabled && r.isToday()) {
+        if (r != null && r.enabled && r.isToday()) {
             r.setTomorrow();
         }
 
@@ -243,12 +243,16 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             if (shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, true)) {
                 if (Build.VERSION.SDK_INT >= 21) {
                     alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(time, pe), pe);
+                } else if (Build.VERSION.SDK_INT >= 19) {
+                    alarm.setExact(AlarmManager.RTC_WAKEUP, time, pe);
                 } else {
                     alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
                 }
             } else {
                 if (Build.VERSION.SDK_INT >= 23) {
                     alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pe);
+                } else if (Build.VERSION.SDK_INT >= 19) {
+                    alarm.setExact(AlarmManager.RTC_WAKEUP, time, pe);
                 } else {
                     alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
                 }
@@ -288,6 +292,8 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
                 if (Build.VERSION.SDK_INT >= 23) {
                     alarm.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, time, pe);
+                } else if (Build.VERSION.SDK_INT >= 19) {
+                    alarm.setExact(AlarmManager.RTC_WAKEUP, time, pe);
                 } else {
                     alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
                 }
