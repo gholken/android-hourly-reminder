@@ -1,7 +1,6 @@
 package com.github.axet.hourlyreminder.services;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -12,23 +11,21 @@ import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
-import android.widget.Toast;
 
-import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.activities.MainActivity;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
+import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
-import com.github.axet.hourlyreminder.app.Sound;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -332,7 +329,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             view.setTextViewText(R.id.notification_text, text);
             view.setOnClickPendingIntent(R.id.notification_base, main);
 
-            Notification.Builder builder = new Notification.Builder(this)
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)
                     .setContentTitle(subject)
                     .setContentText(text)
@@ -340,7 +337,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     .setContent(view);
 
             if (Build.VERSION.SDK_INT >= 21)
-                builder.setVisibility(Notification.VISIBILITY_PUBLIC);
+                builder.setVisibility(NotificationCompat.VISIBILITY_PUBLIC);
 
             notificationManager.notify(HourlyApplication.NOTIFICATION_UPCOMING_ICON, builder.build());
         }
