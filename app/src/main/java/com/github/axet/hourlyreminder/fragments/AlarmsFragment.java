@@ -118,14 +118,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         return title;
     }
 
-    public int getViewId(long id) {
-        Integer i = viewids.get(id);
-        if (i == null)
-            i = View.generateViewId();
-        viewids.put(id, i);
-        return i;
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_alarms, container, false);
@@ -299,8 +291,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
 
         final Alarm a = alarms.get(position);
-
-        convertView.setId(getViewId(a.id));
 
         final View alarmRingtonePlay = convertView.findViewById(R.id.alarm_ringtone_play);
         alarmRingtonePlay.clearAnimation();
