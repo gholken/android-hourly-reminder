@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.Interpolator;
+import android.view.animation.Transformation;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
@@ -64,11 +65,8 @@ public class AlarmAnimation extends MarginAnimation {
         compact_s = v.findViewById(R.id.alarm_compact_second);
     }
 
-    @Override
-    public void initialize(int width, int height, int parentWidth, int parentHeight) {
-        super.initialize(width, height, parentWidth, parentHeight);
-
-        view.setVisibility(View.VISIBLE);
+    public void init() {
+        super.init();
 
         bottom.setVisibility(View.VISIBLE);
         bottom_s.setVisibility(expand ? View.INVISIBLE : View.VISIBLE);
@@ -88,8 +86,8 @@ public class AlarmAnimation extends MarginAnimation {
     }
 
     @Override
-    void calc(final float i) {
-        super.calc(i);
+    public void calc(final float i, Transformation t) {
+        super.calc(i, t);
 
         float ii = expand ? i : 1 - i;
 
@@ -136,7 +134,7 @@ public class AlarmAnimation extends MarginAnimation {
     }
 
     @Override
-    void restore() {
+    public void restore() {
         super.restore();
 
         bottom_f.setAlpha(1);
@@ -146,7 +144,7 @@ public class AlarmAnimation extends MarginAnimation {
     }
 
     @Override
-    void end() {
+    public void end() {
         super.end();
 
         bottom_s.setVisibility(View.VISIBLE);

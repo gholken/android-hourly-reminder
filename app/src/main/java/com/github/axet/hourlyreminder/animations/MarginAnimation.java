@@ -3,9 +3,6 @@ package com.github.axet.hourlyreminder.animations;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.Transformation;
 
 /**
@@ -41,7 +38,6 @@ import android.view.animation.Transformation;
  */
 public class MarginAnimation extends StepAnimation {
 
-    View view;
     ViewGroup.MarginLayoutParams viewLp;
     ViewGroup.MarginLayoutParams viewLpOrig;
     int marginSlide;
@@ -57,19 +53,25 @@ public class MarginAnimation extends StepAnimation {
     }
 
     public MarginAnimation(View v, boolean expand) {
+        super(v);
         this.expand = expand;
 
         setDuration(500);
 
-        view = v;
         viewLp = (ViewGroup.MarginLayoutParams) view.getLayoutParams();
         viewLpOrig = new ViewGroup.MarginLayoutParams(viewLp);
     }
 
     @Override
-    public void initialize(int width, int height, int parentWidth, int parentHeight) {
-        super.initialize(width, height, parentWidth, parentHeight);
-        view.setVisibility(View.VISIBLE);
+    public void init() {
+        super.init();
+
+        ViewGroup parent = (ViewGroup)view.getParent();
+        int parentWidth = parent.getWidth();
+        int parentHeight = parent.getHeight();
+
+        int width = view.getWidth();
+        int height = view.getHeight();
 
         int h;
         int w;
@@ -83,20 +85,29 @@ public class MarginAnimation extends StepAnimation {
 
         view.measure(w, h);
         marginSlide = view.getMeasuredHeight() + viewLpOrig.bottomMargin;
-    }
+   }
 
-    void calc(float i) {
+    @Override
+    public void calc(float i, Transformation t) {
+        super.calc(i, t);
+
         i = expand ? i : 1 - i;
 
         viewLp.topMargin = (int) (viewLpOrig.topMargin * i - marginSlide * (1 - i));
         view.requestLayout();
     }
 
-    void restore() {
+    @Override
+    public void restore() {
+        super.restore();
+
         viewLp.topMargin = viewLpOrig.topMargin;
     }
 
-    void end() {
+    @Override
+    public void end() {
+        super.end();
+
         view.setVisibility(expand ? View.VISIBLE : View.GONE);
         view.requestLayout();
     }
