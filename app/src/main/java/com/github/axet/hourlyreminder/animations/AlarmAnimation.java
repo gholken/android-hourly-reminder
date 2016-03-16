@@ -33,6 +33,9 @@ public class AlarmAnimation extends MarginAnimation {
     boolean partial;
     Handler handler;
 
+    // true if this animation was started simultaneously with expand animation.
+    boolean collapse_multi = false;
+
     // if we have two concurrent animations on the same listview
     // the only one 'expand' should have control of showChild function.
     static AlarmAnimation atomicExpander;
@@ -100,7 +103,8 @@ public class AlarmAnimation extends MarginAnimation {
         // seems like some views are removed by RecyvingView when they
         // gone off screen.
         if (Build.VERSION.SDK_INT >= 19) {
-            if (!expand && atomicExpander != null && !atomicExpander.hasEnded()) {
+            collapse_multi |= !expand && atomicExpander != null && !atomicExpander.hasEnded();
+            if (collapse_multi) {
                 // do not showChild;
             } else {
                 handler.post(new Runnable() {
