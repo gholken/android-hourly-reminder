@@ -7,7 +7,7 @@
     android:padding="@dimen/appbar_padding_top"
     tools:context=".activities.MainActivity$AlarmsFragment">
 
-    <com.github.axet.hourlyreminder.layouts.EqualLinearLayout
+    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -25,7 +25,7 @@
             android:id="@+id/reminder_enable"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </com.github.axet.hourlyreminder.layouts.EqualLinearLayout>
+    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
 
     <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
@@ -44,7 +44,7 @@
                 android:layout_height="wrap_content"
                 android:text="Hours" />
 
-            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+            <com.github.axet.androidlibrary.widgets.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -87,9 +87,9 @@
                     android:layout_height="wrap_content"
                     android:text="05" />
                 />
-            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+            </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
-            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+            <com.github.axet.androidlibrary.widgets.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -132,9 +132,9 @@
                     android:layout_height="wrap_content"
                     android:text="11" />
                 />
-            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+            </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
-            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+            <com.github.axet.androidlibrary.widgets.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -177,9 +177,9 @@
                     android:layout_height="wrap_content"
                     android:text="17" />
                 />
-            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+            </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
-            <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+            <com.github.axet.androidlibrary.widgets.SquareLinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center"
@@ -222,7 +222,7 @@
                     android:layout_height="wrap_content"
                     android:text="23" />
                 />
-            </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+            </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
         </LinearLayout>
     </FrameLayout>
@@ -250,7 +250,7 @@
 
     </LinearLayout>
 
-    <com.github.axet.hourlyreminder.layouts.EqualLinearLayout
+    <com.github.axet.androidlibrary.widgets.EqualLinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal">
@@ -264,6 +264,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Beep" />
-    </com.github.axet.hourlyreminder.layouts.EqualLinearLayout>
+    </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
 
 </LinearLayout>

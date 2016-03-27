@@ -21,7 +21,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,14 +36,14 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.github.axet.hourlyreminder.animations.RemoveItemAnimation;
-import com.github.axet.hourlyreminder.app.HourlyApplication;
+import com.github.axet.androidlibrary.animations.MarginAnimation;
+import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.animations.AlarmAnimation;
-import com.github.axet.hourlyreminder.animations.MarginAnimation;
-import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.app.Storage;
+import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -556,6 +555,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                             save(a);
                         }
                     };
+
                     @Override
                     public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
                         a.setTime(hourOfDay, minute);

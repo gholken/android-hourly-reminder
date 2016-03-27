@@ -20,7 +20,7 @@
         android:summary="Use 'alarm' event type for hourly reminders (more precise on timing)"
         android:title="Alarm Type" />
 
-    <com.github.axet.hourlyreminder.layouts.SeekBarPreference
+    <com.github.axet.androidlibrary.widgets.SeekBarPreference
         android:defaultValue="1"
         android:key="volume"
         android:summary="Set text speech volume"
