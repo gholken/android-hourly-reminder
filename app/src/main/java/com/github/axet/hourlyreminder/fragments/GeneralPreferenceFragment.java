@@ -21,8 +21,8 @@ import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.layouts.HoursDialogFragment;
-import com.github.axet.hourlyreminder.layouts.SeekBarPreference;
-import com.github.axet.hourlyreminder.layouts.SeekBarPreferenceDialogFragment;
+import com.github.axet.androidlibrary.widgets.SeekBarPreference;
+import com.github.axet.androidlibrary.widgets.SeekBarPreferenceDialogFragment;
 
 import java.util.ArrayList;
 import java.util.Collections;
