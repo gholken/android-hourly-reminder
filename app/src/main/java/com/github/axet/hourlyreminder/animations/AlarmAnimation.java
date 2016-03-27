@@ -14,6 +14,7 @@ import android.view.animation.Transformation;
 import android.widget.AbsListView;
 import android.widget.ListView;
 
+import com.github.axet.androidlibrary.animations.MarginAnimation;
 import com.github.axet.hourlyreminder.R;
 
 import java.util.concurrent.atomic.AtomicBoolean;

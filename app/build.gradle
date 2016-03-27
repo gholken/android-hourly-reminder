@@ -36,4 +36,5 @@ dependencies {
     compile 'com.android.support:support-v13:23.2.0'
     compile 'com.android.support:preference-v14:23.2.0'
     compile 'com.android.support:support-v4:23.2.0'
+    compile project(':android-library')
 }

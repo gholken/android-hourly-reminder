@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+        <com.github.axet.androidlibrary.widgets.SquareLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -60,9 +60,9 @@
                 android:layout_height="wrap_content"
                 android:text="05" />
             />
-        </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+        </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
-        <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+        <com.github.axet.androidlibrary.widgets.SquareLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -111,9 +111,9 @@
                 android:layout_height="wrap_content"
                 android:text="11" />
             />
-        </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+        </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
-        <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+        <com.github.axet.androidlibrary.widgets.SquareLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -162,9 +162,9 @@
                 android:layout_height="wrap_content"
                 android:text="17" />
             />
-        </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+        </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
-        <com.github.axet.hourlyreminder.layouts.SquareLinearLayout
+        <com.github.axet.androidlibrary.widgets.SquareLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -213,7 +213,7 @@
                 android:layout_height="wrap_content"
                 android:text="23" />
             />
-        </com.github.axet.hourlyreminder.layouts.SquareLinearLayout>
+        </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 
     </LinearLayout>
 </ScrollView>
