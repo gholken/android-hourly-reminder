@@ -1,4 +1,4 @@
-<com.github.axet.hourlyreminder.layouts.EqualLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.github.axet.androidlibrary.widgets.EqualLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@android:id/content"
     android:layout_width="match_parent"
@@ -47,4 +47,4 @@
             android:textColor="@android:color/white" />
     </LinearLayout>
 
-</com.github.axet.hourlyreminder.layouts.EqualLinearLayout>
+</com.github.axet.androidlibrary.widgets.EqualLinearLayout>
