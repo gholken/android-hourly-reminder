@@ -41,7 +41,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
-        android:background="@drawable/button_bg"
+        android:background="@drawable/notification_button_bg"
         android:text="Dismiss"
         android:textColor="@android:color/white" />
 </LinearLayout>
