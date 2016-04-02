@@ -12,7 +12,7 @@
         android:label="@string/app_name"
         android:persistent="true"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppThemeLight">
         <service
             android:name=".services.FireAlarmService"
             android:exported="false" />
@@ -40,7 +40,7 @@
         <activity
             android:name=".activities.MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppThemeLight.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -53,10 +53,7 @@
             android:label="@string/title_activity_alarm"
             android:launchMode="singleInstance"
             android:showOnLockScreen="true"
-            android:theme="@style/FullscreenTheme" />
-        <activity
-            android:name=".activities.SettingsActivity"
-            android:label="@string/title_activity_settings"></activity>
+            android:theme="@style/FullscreenLightTheme" />
     </application>
 
 </manifest>

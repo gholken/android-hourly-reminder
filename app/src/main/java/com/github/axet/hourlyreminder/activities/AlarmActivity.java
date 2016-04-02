@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.services.FireAlarmService;
 
@@ -35,6 +36,8 @@ public class AlarmActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(HourlyApplication.getTheme(this, R.style.FullscreenLightTheme, R.style.FullscreenDarkTheme));
 
         layoutInit();
 

@@ -1,0 +1,26 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <ListPreference
+        android:defaultValue="Theme_White"
+        android:entries="@array/themes"
+        android:entryValues="@array/themes_values"
+        android:key="theme"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="Set application theme (dark / light)"
+        android:title="Application Theme" />
+
+    <com.github.axet.androidlibrary.widgets.SeekBarPreference
+        android:defaultValue="1"
+        android:key="volume"
+        android:summary="Set text speech volume"
+        android:title="Volume" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="alarm"
+        android:summary="Use 'alarm' event type for hourly reminders (more precise on timing)"
+        android:title="Alarm Type" />
+
+</PreferenceScreen>

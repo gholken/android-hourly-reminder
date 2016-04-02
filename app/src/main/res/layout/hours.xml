@@ -18,46 +18,46 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_00"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="00" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_01"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="01" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_02"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="02" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_03"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="03" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_04"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="04" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_05"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="05" />
             />
         </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
@@ -69,46 +69,46 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_06"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="06" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_07"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="07" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_08"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="08" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_09"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="09" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_10"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="10" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_11"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="11" />
             />
         </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
@@ -120,46 +120,46 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_12"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="12" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_13"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="13" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_14"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="14" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_15"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="15" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_16"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="16" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_17"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="17" />
             />
         </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
@@ -171,46 +171,46 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_18"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="18" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_19"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="19" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_20"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="20" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_21"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="21" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_22"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="22" />
 
-            <CheckBox
+            <com.github.axet.androidlibrary.widgets.RoundCheckbox
                 android:id="@+id/hours_23"
-                style="@style/RoundCheckBox"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:text="23" />
             />
         </com.github.axet.androidlibrary.widgets.SquareLinearLayout>

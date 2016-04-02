@@ -16,19 +16,8 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
-        android:key="alarm"
-        android:summary="Use 'alarm' event type for hourly reminders (more precise on timing)"
-        android:title="Alarm Type" />
-
-    <com.github.axet.androidlibrary.widgets.SeekBarPreference
-        android:defaultValue="1"
-        android:key="volume"
-        android:summary="Set text speech volume"
-        android:title="Volume" />
-
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
         android:key="beep"
         android:summary="Play beep sound before alarm text"
         android:title="Beep Sound" />
+
 </PreferenceScreen>
