@@ -11,11 +11,10 @@
     <string name="SATURDAY">Sat</string>
     <string name="SUNDAY">Sun</string>
 
-    <string name="title_activity_alarm">AlarmActivity</string>
+    <string name="title_activity_alarm">Alarm</string>
     <string name="dummy_button">Dummy Button</string>
     <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_settings">Settings</string>
-
 
     <plurals name="days">
         <item quantity="one">%d day</item>
@@ -41,4 +40,13 @@
     <string name="alarm_disabled">Alarm is disabled</string>
     <string name="hour_symbol">h</string>
 
+    <string-array name="themes">
+        <item>Theme White (default)</item>
+        <item>Theme Dark</item>
+    </string-array>
+
+    <string-array name="themes_values">
+        <item>Theme_White</item>
+        <item>Theme_Dark</item>
+    </string-array>
 </resources>

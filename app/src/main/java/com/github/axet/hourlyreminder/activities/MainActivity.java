@@ -2,26 +2,42 @@ package com.github.axet.hourlyreminder.activities;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
+import android.content.res.Resources;
+import android.graphics.drawable.Drawable;
+import android.os.Build;
+import android.preference.PreferenceManager;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.fragments.AlarmsFragment;
-import com.github.axet.hourlyreminder.fragments.GeneralPreferenceFragment;
+import com.github.axet.hourlyreminder.fragments.RemindersFragment;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.fragments.SettingsFragment;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SharedPreferences.OnSharedPreferenceChangeListener {
     // MainActivity action
     public static final String SHOW_ALARMS_PAGE = MainActivity.class.getCanonicalName() + ".SHOW_ALARMS_PAGE";
-
+    public static final String SHOW_SETTINGS_PAGE = MainActivity.class.getCanonicalName() + ".SHOW_SETTINGS_PAGE";
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -38,16 +54,65 @@ public class MainActivity extends AppCompatActivity {
      */
     private ViewPager mViewPager;
 
+    public static class SettingsTabView extends ImageView {
+        public SettingsTabView(Context context, TabLayout.Tab tab, ColorStateList colors) {
+            super(context);
+
+            Drawable d;
+
+            if (Build.VERSION.SDK_INT >= 21)
+                d = getResources().getDrawable(R.drawable.ic_more_vert_24dp, getContext().getTheme());
+            else
+                d = getResources().getDrawable(R.drawable.ic_more_vert_24dp);
+
+            setImageDrawable(d);
+
+            setColorFilter(colors.getDefaultColor());
+        }
+
+        @Override
+        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+            ViewParent p = getParent();
+            if (p != null) {
+                // TabView extends LinearLayout
+                LinearLayout l = (LinearLayout) p;
+                LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) l.getLayoutParams();
+                if (lp != null) {
+                    lp.weight = 0;
+                    lp.width = LinearLayout.LayoutParams.WRAP_CONTENT;
+                    int pad = l.getMeasuredHeight() / 2 - getMeasuredWidth() / 2;
+
+                    if (pad < 0)
+                        pad = 0;
+
+                    l.setPadding(pad, 0, pad, 0);
+                }
+            }
+        }
+
+        @Override
+        public void requestLayout() {
+            super.requestLayout();
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        setTheme(HourlyApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar));
+
         setContentView(R.layout.activity_main);
 
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+
+        AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appbar);
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
@@ -55,6 +120,8 @@ public class MainActivity extends AppCompatActivity {
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+        TabLayout.Tab tab = tabLayout.getTabAt(2);
+        tab.setCustomView(new SettingsTabView(this, tab, tabLayout.getTabTextColors()));
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
@@ -69,15 +136,23 @@ public class MainActivity extends AppCompatActivity {
         AlarmService.start(this);
 
         Intent intent = getIntent();
-        if (intent.getAction() == SHOW_ALARMS_PAGE) {
+        if (intent.getAction().equals(SHOW_ALARMS_PAGE)) {
             mViewPager.setCurrentItem(1);
         }
+        if (intent.getAction().equals(SHOW_SETTINGS_PAGE)) {
+            mViewPager.setCurrentItem(2);
+        }
+
+        HourlyApplication h = (HourlyApplication)getApplication();
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        shared.registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
         return false;
     }
 
@@ -90,10 +165,28 @@ public class MainActivity extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+//            startActivity(new Intent(this, SettingsActivity.class));
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        shared.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if (key.equals(HourlyApplication.PREFERENCE_THEME)) {
+            finish();
+            startActivity(new Intent(this, MainActivity.class).setAction(SHOW_SETTINGS_PAGE));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
     }
 
     /**
@@ -109,9 +202,11 @@ public class MainActivity extends AppCompatActivity {
         public Fragment getItem(int position) {
             switch (position) {
                 case 0:
-                    return new GeneralPreferenceFragment();
+                    return new RemindersFragment();
                 case 1:
                     return new AlarmsFragment();
+                case 2:
+                    return new SettingsFragment();
                 default:
                     throw new RuntimeException("bad page");
             }
@@ -119,7 +214,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
 
         @Override
@@ -129,6 +224,8 @@ public class MainActivity extends AppCompatActivity {
                     return "Hourly Reminders";
                 case 1:
                     return "Custom Alarms";
+                case 2:
+                    return "⋮";
             }
             return null;
         }

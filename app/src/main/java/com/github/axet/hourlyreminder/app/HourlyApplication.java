@@ -3,7 +3,8 @@ package com.github.axet.hourlyreminder.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
+import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
@@ -30,6 +31,19 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_ALARMS_PREFIX = "Alarm_";
     public static final String PREFERENCE_BEEP = "beep";
     public static final String PREFERENCE_VOLUME = "volume";
+
+    public static final String PREFERENCE_THEME = "theme";
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        SharedPreferences defaultValueSp = getSharedPreferences("_has_set_default_values", 0);
+        if (!defaultValueSp.getBoolean("_has_set_default_values", false)) {
+            PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, true);
+            PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
+        }
+    }
 
     public static List<Alarm> loadAlarms(Context context) {
         ArrayList<Alarm> alarms = new ArrayList<>();
@@ -186,7 +200,7 @@ public class HourlyApplication extends Application {
         if (diffMinutes > 0)
             str += " " + context.getResources().getQuantityString(R.plurals.minutes, diffMinutes, diffMinutes);
 
-        if (diffDays == 0 && diffHours == 0 && diffMinutes == 0 && diffSeconds > 0 )
+        if (diffDays == 0 && diffHours == 0 && diffMinutes == 0 && diffSeconds > 0)
             str += " " + context.getResources().getQuantityString(R.plurals.seconds, diffSeconds, diffSeconds);
 
         Toast.makeText(context, context.getString(R.string.alarm_set_for, str), Toast.LENGTH_SHORT).show();
@@ -233,4 +247,17 @@ public class HourlyApplication extends Application {
         return str;
     }
 
+    public int getUserTheme() {
+        return getTheme(this, R.style.AppThemeLight, R.style.AppThemeDark);
+    }
+
+    public static int getTheme(Context context, int light, int dark) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        String theme = shared.getString(HourlyApplication.PREFERENCE_THEME, "");
+        if (theme.equals("Theme_Dark")) {
+            return dark;
+        } else {
+            return light;
+        }
+    }
 }

@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipToPadding="false"
-        android:divider="@color/colorAccent"
+        android:divider="?attr/colorAccent"
         android:dividerHeight="1dp"
         android:paddingBottom="77dp"
         android:paddingLeft="5dp"
