@@ -19,7 +19,7 @@
         android:id="@+id/alarm_activity_button"
         android:layout_width="170dp"
         android:layout_height="170dp"
-        android:background="@drawable/round_circle"
+        android:background="?attr/alarmRing"
         android:padding="5dp"
         android:text="Dismiss Alarm"
         android:textColor="@android:color/white"

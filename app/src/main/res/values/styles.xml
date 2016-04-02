@@ -5,6 +5,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">#FF4081</item>
         <item name="alarmBackground">#0099cc</item>
+        <item name="alarmRing">@drawable/round_circle_light</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
@@ -22,6 +23,7 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">#a4a4a4</item>
         <item name="alarmBackground">#585858</item>
+        <item name="alarmRing">@drawable/round_circle_dark</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
     </style>
 
