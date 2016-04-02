@@ -4,6 +4,7 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
@@ -37,8 +38,11 @@ public class HourlyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
-        PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, false);
-        PreferenceManager.setDefaultValues(this, R.xml.pref_settings, false);
+        SharedPreferences defaultValueSp = getSharedPreferences("_has_set_default_values", 0);
+        if (!defaultValueSp.getBoolean("_has_set_default_values", false)) {
+            PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, true);
+            PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
+        }
     }
 
     public static List<Alarm> loadAlarms(Context context) {

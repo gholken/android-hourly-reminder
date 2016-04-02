@@ -143,6 +143,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             mViewPager.setCurrentItem(2);
         }
 
+        HourlyApplication h = (HourlyApplication)getApplication();
+
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         shared.registerOnSharedPreferenceChangeListener(this);
     }
