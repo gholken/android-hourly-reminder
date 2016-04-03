@@ -401,6 +401,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
         // here can be two alarms with same time
         for (Alarm a : alarms) {
+            // TODO we have to check exact time, in case if we have two alarms at the same time they maybe for different weeks days
             if (a.getHour() == ah && a.getMin() == am) {
                 if (a.enable) {
                     Log.d(TAG, "Sound Alarm " + a.format());
