@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 import com.github.axet.hourlyreminder.app.HourlyApplication;
@@ -248,9 +249,11 @@ public class FireAlarmService extends Service {
 
             String text = String.format("Alarm %02d:%02d dismissed after %d mins", hour, min, ALARM_AUTO_OFF);
 
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_missed);
-            view.setTextViewText(R.id.notification_text, text);
+            RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
             view.setOnClickPendingIntent(R.id.notification_base, main);
+            view.setTextViewText(R.id.notification_subject, "Alarm missed");
+            view.setTextViewText(R.id.notification_text, text);
+            view.setViewVisibility(R.id.notification_button, View.GONE);
 
             Notification.Builder builder = new Notification.Builder(this)
                     .setContentTitle("Alarm")
@@ -287,10 +290,10 @@ public class FireAlarmService extends Service {
 
             String text = String.format("%02d:%02d", hour, min);
 
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_alarm);
-            view.setOnClickPendingIntent(R.id.notification_cancel, button);
-            view.setTextViewText(R.id.notification_text, text);
+            RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
             view.setOnClickPendingIntent(R.id.notification_base, main);
+            view.setOnClickPendingIntent(R.id.notification_button, button);
+            view.setTextViewText(R.id.notification_text, text);
 
             Notification.Builder builder = new Notification.Builder(this)
                     .setOngoing(true)

@@ -7,12 +7,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 
 import android.support.v4.view.ViewPager;
@@ -113,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
         AppBarLayout appbar = (AppBarLayout) findViewById(R.id.appbar);
+        appbar.setBackground(new ColorDrawable(HourlyApplication.getActionbarColor(this)));
 
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);

@@ -7,6 +7,7 @@ import android.support.v7.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
@@ -38,11 +39,19 @@ public class HourlyApplication extends Application {
     public void onCreate() {
         super.onCreate();
 
+        setTheme(getUserTheme());
+
         SharedPreferences defaultValueSp = getSharedPreferences("_has_set_default_values", 0);
         if (!defaultValueSp.getBoolean("_has_set_default_values", false)) {
             PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, true);
             PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
         }
+    }
+
+    public static int getActionbarColor(Context context) {
+        int colorId = getTheme(context,  R.attr.colorPrimary, R.color.secondBackground);
+        int color = ThemeUtils.getThemeColor(context,colorId);
+        return color;
     }
 
     public static List<Alarm> loadAlarms(Context context) {

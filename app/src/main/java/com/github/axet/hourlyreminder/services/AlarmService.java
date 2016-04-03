@@ -324,10 +324,12 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             String subject = "Upcoming alarm";
             String text = Alarm.format(hour, min);
 
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_upcoming);
-            view.setOnClickPendingIntent(R.id.notification_cancel, button);
-            view.setTextViewText(R.id.notification_text, text);
+            RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
+            view.setOnClickPendingIntent(R.id.notification_button, button);
             view.setOnClickPendingIntent(R.id.notification_base, main);
+            view.setTextViewText(R.id.notification_subject, subject);
+            view.setTextViewText(R.id.notification_text, text);
+            view.setTextViewText(R.id.notification_button, "Cancel");
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)
@@ -352,26 +354,36 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         //
         // then sound alarm or hourly reminder
 
-        Alarm a = getAlarm(time);
-        if (a != null && a.enable) {
-            Log.d(TAG, "Sound Alarm " + a.format());
-            Alarm old = new Alarm(a);
-            if (!a.weekdays) {
-                // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
-                a.setEnable(false);
-            } else {
-                // calling setNext is more safe. if this alarm have to fire today we will reset it
-                // to the same time. if it is already past today's time (as we expect) then it will
-                // be set for tomorrow.
-                //
-                // also safe if we moved to another timezone.
-                a.setNext();
-            }
-            HourlyApplication.saveAlarms(this, alarms);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
 
-            FireAlarmService.activateAlarm(this, old);
-            registerNextAlarm();
-            return;
+        int ah = cal.get(Calendar.HOUR_OF_DAY);
+        int am = cal.get(Calendar.MINUTE);
+
+        // here can be two alarms with same time
+        for (Alarm a : alarms) {
+            if (a.getHour() == ah && a.getMin() == am) {
+                if (a.enable) {
+                    Log.d(TAG, "Sound Alarm " + a.format());
+                    Alarm old = new Alarm(a);
+                    if (!a.weekdays) {
+                        // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
+                        a.setEnable(false);
+                    } else {
+                        // calling setNext is more safe. if this alarm have to fire today we will reset it
+                        // to the same time. if it is already past today's time (as we expect) then it will
+                        // be set for tomorrow.
+                        //
+                        // also safe if we moved to another timezone.
+                        a.setNext();
+                    }
+                    HourlyApplication.saveAlarms(this, alarms);
+
+                    FireAlarmService.activateAlarm(this, old);
+                    registerNextAlarm();
+                    return;
+                }
+            }
         }
 
         Reminder reminder = getReminder(time);

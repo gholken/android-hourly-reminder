@@ -22,6 +22,7 @@
         android:orientation="vertical">
 
         <TextView
+            android:id="@+id/notification_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Active Alarm!"
@@ -33,11 +34,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Text"
-            android:textColor="@android:color/secondary_text_light" />
+            android:textColor="@android:color/secondary_text_dark" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/notification_cancel"
+        android:id="@+id/notification_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
