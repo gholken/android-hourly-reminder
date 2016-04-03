@@ -11,6 +11,7 @@ import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
+import com.github.axet.hourlyreminder.services.AlarmService;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -159,6 +160,8 @@ public class HourlyApplication extends Application {
             edit.putBoolean(prefix + "Speech", a.speech);
         }
         edit.commit();
+
+        AlarmService.start(context);
     }
 
     public static List<Reminder> loadReminders(Context context) {

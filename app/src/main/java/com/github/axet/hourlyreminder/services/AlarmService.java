@@ -42,8 +42,10 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     public static final String NOTIFICATION = AlarmService.class.getCanonicalName() + ".NOTIFICATION";
     // cancel alarm
     public static final String CANCEL = HourlyApplication.class.getCanonicalName() + ".CANCEL";
-    // alarm broadcast, trigs sounds
+    // alarm broadcast, triggs sound
     public static final String ALARM = HourlyApplication.class.getCanonicalName() + ".ALARM";
+    // reminder broadcast triggs sound
+    public static final String REMINDER = HourlyApplication.class.getCanonicalName() + ".REMINDER";
     // dismiss current alarm action
     public static final String DISMISS = HourlyApplication.class.getCanonicalName() + ".DISMISS";
 
@@ -90,6 +92,9 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         super.onDestroy();
         Log.d(TAG, "onDestroy");
 
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        prefs.unregisterOnSharedPreferenceChangeListener(this);
+
         if (sound != null) {
             sound.close();
             sound = null;
@@ -111,7 +116,10 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     FireAlarmService.dismissActiveAlarm(this);
                 } else if (action.equals(ALARM)) {
                     soundAlarm(time);
+                } else if (action.equals(REMINDER)) {
+                    soundAlarm(time);
                 } else if (action.equals(REGISTER)) {
+                    alarms = HourlyApplication.loadAlarms(this);
                     registerNextAlarm();
                 }
             }
@@ -209,33 +217,43 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         AlarmManager alarm = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
 
-        TreeSet<Long> alarms = new TreeSet<>();
+        TreeSet<Long> all = new TreeSet<>();
+        TreeSet<Long> reminders = new TreeSet<>();
+        TreeSet<Long> alarms;
 
         Calendar cur = Calendar.getInstance();
 
         // check hourly reminders
         if (shared.getBoolean(HourlyApplication.PREFERENCE_ENABLED, false)) {
-            alarms.addAll(generateReminders(cur));
+            reminders = generateReminders(cur);
+            all.addAll(reminders);
         }
         // check alarms
-        alarms.addAll(generateAlarms(cur));
+        alarms = generateAlarms(cur);
+        all.addAll(alarms);
 
-        Intent intent = new Intent(this, AlarmService.class).setAction(ALARM);
+        Intent alarmIntent = new Intent(this, AlarmService.class).setAction(ALARM);
+        Intent reminderIntent = new Intent(this, AlarmService.class).setAction(REMINDER);
 
-        if (alarms.isEmpty()) {
-            PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
-            alarm.cancel(pe);
+        if (all.isEmpty()) {
             updateNotificationUpcomingAlarm(0);
         } else {
-            long time = alarms.first();
-
-            intent.putExtra("time", time);
-
-            PendingIntent pe = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
-
-            Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
+            long time = all.first();
 
             updateNotificationUpcomingAlarm(time);
+        }
+
+        if (reminders.isEmpty()) {
+            PendingIntent pe = PendingIntent.getService(this, 0, reminderIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            alarm.cancel(pe);
+        } else {
+            long time = reminders.first();
+
+            reminderIntent.putExtra("time", time);
+
+            PendingIntent pe = PendingIntent.getService(this, 0, reminderIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+            Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetReminder: " + formatTime(time));
 
             if (shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, true)) {
                 if (Build.VERSION.SDK_INT >= 21) {
@@ -253,6 +271,27 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                 } else {
                     alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
                 }
+            }
+        }
+
+        if (alarms.isEmpty()) {
+            PendingIntent pe = PendingIntent.getService(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+            alarm.cancel(pe);
+        } else {
+            long time = alarms.first();
+
+            alarmIntent.putExtra("time", time);
+
+            PendingIntent pe = PendingIntent.getService(this, 0, alarmIntent, PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_ONE_SHOT);
+
+            Log.d(HourlyApplication.class.getSimpleName(), "Current: " + formatTime(cur.getTimeInMillis()) + "; SetAlarm: " + formatTime(time));
+
+            if (Build.VERSION.SDK_INT >= 21) {
+                alarm.setAlarmClock(new AlarmManager.AlarmClockInfo(time, pe), pe);
+            } else if (Build.VERSION.SDK_INT >= 19) {
+                alarm.setExact(AlarmManager.RTC_WAKEUP, time, pe);
+            } else {
+                alarm.set(AlarmManager.RTC_WAKEUP, time, pe);
             }
         }
     }
@@ -362,6 +401,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
         // here can be two alarms with same time
         for (Alarm a : alarms) {
+            // TODO we have to check exact time, in case if we have two alarms at the same time they maybe for different weeks days
             if (a.getHour() == ah && a.getMin() == am) {
                 if (a.enable) {
                     Log.d(TAG, "Sound Alarm " + a.format());
@@ -414,10 +454,12 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
         Log.d(TAG, "onSharedPreferenceChanged " + key);
-        if (key.startsWith(HourlyApplication.PREFERENCE_ALARMS_PREFIX)) {
-            alarms = HourlyApplication.loadAlarms(this);
-            registerNextAlarm();
-        }
+
+        // do not update on pref change for alarms, too slow. use direct call from AlarmFragment
+//        if (key.startsWith(HourlyApplication.PREFERENCE_ALARMS_PREFIX)) {
+//            alarms = HourlyApplication.loadAlarms(this);
+//            registerNextAlarm();
+//        }
 
         // reset reminders on special events
         if (key.equals(HourlyApplication.PREFERENCE_ENABLED)) {
