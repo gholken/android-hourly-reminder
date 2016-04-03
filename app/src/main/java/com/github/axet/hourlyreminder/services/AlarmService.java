@@ -324,10 +324,12 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             String subject = "Upcoming alarm";
             String text = Alarm.format(hour, min);
 
-            RemoteViews view = new RemoteViews(getPackageName(), R.layout.notification_upcoming);
-            view.setOnClickPendingIntent(R.id.notification_cancel, button);
-            view.setTextViewText(R.id.notification_text, text);
+            RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
+            view.setOnClickPendingIntent(R.id.notification_button, button);
             view.setOnClickPendingIntent(R.id.notification_base, main);
+            view.setTextViewText(R.id.notification_subject, subject);
+            view.setTextViewText(R.id.notification_text, text);
+            view.setTextViewText(R.id.notification_button, "Cancel");
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)

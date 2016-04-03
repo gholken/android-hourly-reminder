@@ -21,6 +21,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -286,6 +287,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
 
         if ((int) convertView.getTag() == TYPE_DELETED) {
+            RemoveItemAnimation.restore(convertView.findViewById(R.id.alarm_base));
             convertView.setTag(-1);
         }
 
@@ -493,10 +495,10 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
-                            RemoveItemAnimation.apply(list, view, new Runnable() {
+                            view.setTag(TYPE_DELETED);
+                            RemoveItemAnimation.apply(list, view.findViewById(R.id.alarm_base), new Runnable() {
                                 @Override
                                 public void run() {
-                                    view.setTag(TYPE_DELETED);
                                     remove(a);
                                     select(-1);
                                 }
