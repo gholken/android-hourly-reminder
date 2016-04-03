@@ -354,26 +354,36 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         //
         // then sound alarm or hourly reminder
 
-        Alarm a = getAlarm(time);
-        if (a != null && a.enable) {
-            Log.d(TAG, "Sound Alarm " + a.format());
-            Alarm old = new Alarm(a);
-            if (!a.weekdays) {
-                // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
-                a.setEnable(false);
-            } else {
-                // calling setNext is more safe. if this alarm have to fire today we will reset it
-                // to the same time. if it is already past today's time (as we expect) then it will
-                // be set for tomorrow.
-                //
-                // also safe if we moved to another timezone.
-                a.setNext();
-            }
-            HourlyApplication.saveAlarms(this, alarms);
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(time);
 
-            FireAlarmService.activateAlarm(this, old);
-            registerNextAlarm();
-            return;
+        int ah = cal.get(Calendar.HOUR_OF_DAY);
+        int am = cal.get(Calendar.MINUTE);
+
+        // here can be two alarms with same time
+        for (Alarm a : alarms) {
+            if (a.getHour() == ah && a.getMin() == am) {
+                if (a.enable) {
+                    Log.d(TAG, "Sound Alarm " + a.format());
+                    Alarm old = new Alarm(a);
+                    if (!a.weekdays) {
+                        // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
+                        a.setEnable(false);
+                    } else {
+                        // calling setNext is more safe. if this alarm have to fire today we will reset it
+                        // to the same time. if it is already past today's time (as we expect) then it will
+                        // be set for tomorrow.
+                        //
+                        // also safe if we moved to another timezone.
+                        a.setNext();
+                    }
+                    HourlyApplication.saveAlarms(this, alarms);
+
+                    FireAlarmService.activateAlarm(this, old);
+                    registerNextAlarm();
+                    return;
+                }
+            }
         }
 
         Reminder reminder = getReminder(time);
