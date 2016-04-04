@@ -1,6 +1,7 @@
 package com.github.axet.hourlyreminder.services;
 
 import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -15,6 +16,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.activities.MainActivity;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
