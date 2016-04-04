@@ -1,8 +1,10 @@
 package com.github.axet.hourlyreminder.activities;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -15,6 +17,7 @@ import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.basics.Alarm;
@@ -37,7 +40,7 @@ public class AlarmActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setTheme(HourlyApplication.getTheme(this, R.style.FullscreenLightTheme, R.style.FullscreenDarkTheme));
+        setTheme(HourlyApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar));
 
         layoutInit();
 
@@ -65,11 +68,7 @@ public class AlarmActivity extends AppCompatActivity {
     }
 
     void layoutInit() {
-        ViewGroup contentParent = (ViewGroup) findViewById(android.R.id.content);
-        contentParent.removeAllViews();
-        LayoutInflater.from(this).inflate(R.layout.activity_alarm, contentParent);
-
-        //setContentView(R.layout.activity_alarm);
+        setContentView(R.layout.activity_alarm);
 
         Intent intent = getIntent();
 

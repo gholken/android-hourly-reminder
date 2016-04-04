@@ -53,7 +53,7 @@
             android:label="@string/title_activity_alarm"
             android:launchMode="singleInstance"
             android:showOnLockScreen="true"
-            android:theme="@style/FullscreenLightTheme" />
+            android:theme="@style/AppThemeLight.NoActionBar" />
     </application>
 
 </manifest>
