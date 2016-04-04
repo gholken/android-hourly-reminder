@@ -4,7 +4,6 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.v7.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
@@ -20,7 +19,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 
 public class HourlyApplication extends Application {
     public static final int NOTIFICATION_UPCOMING_ICON = 0;
@@ -50,7 +48,7 @@ public class HourlyApplication extends Application {
     }
 
     public static int getActionbarColor(Context context) {
-        int colorId = getTheme(context,  R.attr.colorPrimary, R.color.secondBackground);
+        int colorId = getTheme(context,  R.attr.colorPrimary, R.color.actionBarBackgroundDark);
         int color = ThemeUtils.getThemeColor(context,colorId);
         return color;
     }

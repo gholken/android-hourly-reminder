@@ -2,7 +2,7 @@
 <resources>
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
-    <color name="white_overlay">#ffffff</color>
-    <color name="black_overlay">#66000000</color>
-    <color name="secondBackground">#151515</color>
+    <color name="actionBarBackgroundDark">#151515</color>
+    <color name="alarmBackgroundLight">@android:color/holo_blue_dark</color>
+    <color name="alarmBackgroundDark">#585858</color>
 </resources>
