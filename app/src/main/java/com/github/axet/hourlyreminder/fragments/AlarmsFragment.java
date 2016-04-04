@@ -68,6 +68,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     List<Alarm> alarms = new ArrayList<>();
     long selected = -1;
     int scrollState;
+    boolean boxAnimate;
     Handler handler;
     // preview ringtone
     MediaPlayer preview;
@@ -171,6 +172,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     @Override
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        boxAnimate = true;
         alarms = HourlyApplication.loadAlarms(getActivity());
         Collections.sort(alarms, new Alarm.CustomComparator());
         changed();
@@ -221,6 +223,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     @Override
     public void onScrollStateChanged(AbsListView view, int scrollState) {
         this.scrollState = scrollState;
+        boxAnimate = true;
     }
 
     @Override
@@ -287,6 +290,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
 
         if ((int) convertView.getTag() == TYPE_DELETED) {
+            Log.d("123", "deleted restore");
             RemoveItemAnimation.restore(convertView.findViewById(R.id.alarm_base));
             convertView.setTag(-1);
         }
@@ -297,7 +301,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         alarmRingtonePlay.clearAnimation();
 
         if (selected == a.id) {
-            fillDetailed(convertView, a);
+            fillDetailed(convertView, a, boxAnimate);
 
             final CheckBox weekdays = (CheckBox) convertView.findViewById(R.id.alarm_week_days);
             final LinearLayout weekdaysValues = (LinearLayout) convertView.findViewById(R.id.alarm_week);
@@ -318,7 +322,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
             return convertView;
         } else {
-            fillCompact(convertView, a);
+            fillCompact(convertView, a, boxAnimate);
 
             AlarmAnimation.apply(list, convertView, false, scrollState == SCROLL_STATE_IDLE && (int) convertView.getTag() == TYPE_EXPANDED);
 
@@ -365,11 +369,15 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         list.smoothScrollToPosition(pos);
 
         HourlyApplication.saveAlarms(getActivity(), alarms);
+
+        boxAnimate = false;
     }
 
     public void remove(Alarm a) {
         alarms.remove(a);
         HourlyApplication.saveAlarms(getActivity(), alarms);
+
+        boxAnimate = false;
     }
 
     void changed() {
@@ -378,7 +386,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
     }
 
-    void fillDetailed(final View view, final Alarm a) {
+    void fillDetailed(final View view, final Alarm a, boolean animate) {
         final Switch enable = (Switch) view.findViewById(R.id.alarm_enable);
         enable.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -392,6 +400,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             }
         });
         enable.setChecked(a.getEnable());
+        if (!animate)
+            enable.jumpDrawablesToCurrentState();
 
         final CheckBox weekdays = (CheckBox) view.findViewById(R.id.alarm_week_days);
         LinearLayout weekdaysValues = (LinearLayout) view.findViewById(R.id.alarm_week);
@@ -496,6 +506,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     public void onClick(DialogInterface dialog, int which) {
                         if (which == DialogInterface.BUTTON_POSITIVE) {
                             view.setTag(TYPE_DELETED);
+                            // mark scroll as animating. because we about to remove item.
                             RemoveItemAnimation.apply(list, view.findViewById(R.id.alarm_base), new Runnable() {
                                 @Override
                                 public void run() {
@@ -574,6 +585,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boxAnimate = true;
+
                 select(-1);
             }
         });
@@ -623,7 +636,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         return true;
     }
 
-    void fillCompact(final View view, final Alarm a) {
+    void fillCompact(final View view, final Alarm a, boolean animate) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
         time.setText(a.format());
         time.setClickable(false);
@@ -641,6 +654,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             }
         });
         enable.setChecked(a.getEnable());
+        if (!animate)
+            enable.jumpDrawablesToCurrentState();
 
         TextView days = (TextView) view.findViewById(R.id.alarm_compact_first);
         days.setText(a.getDays());
@@ -648,6 +663,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                boxAnimate = true;
                 select(a.id);
             }
         });
