@@ -79,6 +79,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     Sound sound;
     Storage storage;
 
+    int startweek = 0;
+
     HashMap<Uri, String> titles = new HashMap<>();
     TreeMap<Long, Integer> viewids = new TreeMap<>();
 
@@ -93,6 +95,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         sound = new Sound(getActivity());
         storage = new Storage(getActivity());
+
+        updateStartWeek();
 
         alarms = HourlyApplication.loadAlarms(getActivity());
         Collections.sort(alarms, new Alarm.CustomComparator());
@@ -180,6 +184,21 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         alarms = HourlyApplication.loadAlarms(getActivity());
         Collections.sort(alarms, new Alarm.CustomComparator());
         changed();
+
+        if (key.equals(HourlyApplication.PREFERENCE_WEEKSTART))
+            updateStartWeek();
+    }
+
+    void updateStartWeek() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+        String s = prefs.getString(HourlyApplication.PREFERENCE_WEEKSTART, "");
+        for (int i = 0; i < Alarm.DAYS.length; i++) {
+            if (s.equals(getString(Alarm.DAYS[i]))) {
+                startweek = i;
+                break;
+            }
+        }
     }
 
     @Override
@@ -294,7 +313,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         }
 
         if ((int) convertView.getTag() == TYPE_DELETED) {
-            Log.d("123", "deleted restore");
             RemoveItemAnimation.restore(convertView.findViewById(R.id.alarm_base));
             convertView.setTag(-1);
         }
@@ -409,21 +427,28 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         final CheckBox weekdays = (CheckBox) view.findViewById(R.id.alarm_week_days);
         LinearLayout weekdaysValues = (LinearLayout) view.findViewById(R.id.alarm_week);
+
         for (int i = 0; i < weekdaysValues.getChildCount(); i++) {
             final CheckBox child = (CheckBox) weekdaysValues.getChildAt(i);
             if (child instanceof CheckBox) {
+                child.setText(getString(Alarm.DAYS[startweek]).substring(0, 1));
+                final int week = Alarm.EVERYDAY[startweek];
+
                 child.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
                         long time = a.time;
-                        a.setWeek(a.parseTag(child.getTag()), child.isChecked());
+                        a.setWeek(week, child.isChecked());
                         if (a.time != time && a.enable) {
                             HourlyApplication.toastAlarmSet(getActivity(), a);
                         }
                         save(a);
                     }
                 });
-                child.setChecked(a.isWeek(a.parseTag(child.getTag())));
+                child.setChecked(a.isWeek(week));
+                startweek++;
+                if (startweek >= Alarm.DAYS.length)
+                    startweek = 0;
             }
         }
         weekdays.setChecked(a.weekdays);

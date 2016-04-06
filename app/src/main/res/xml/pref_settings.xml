@@ -33,4 +33,14 @@
         android:summary="Do not play alarm sounds during calls"
         android:title="Silence during calls" />
 
+    <ListPreference
+        android:defaultValue="Mon"
+        android:entries="@array/weekstart"
+        android:entryValues="@array/weekstart_values"
+        android:key="weekstart"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="Start week on specified day"
+        android:title="Start week on" />
+
 </PreferenceScreen>

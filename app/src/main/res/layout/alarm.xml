@@ -99,49 +99,42 @@
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:checked="true"
-                                    android:tag="@string/WEEK_MON"
                                     android:text="M" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEEK_TUE"
                                     android:text="T" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEEK_WED"
                                     android:text="W" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEEK_THU"
                                     android:text="T" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEEK_FRI"
                                     android:text="F" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEEK_SAT"
                                     android:text="S" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEEK_SUN"
                                     android:text="S" />
                             </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
                         </FrameLayout>

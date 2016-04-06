@@ -50,4 +50,16 @@
         <item>Theme_White</item>
         <item>Theme_Dark</item>
     </string-array>
+
+    <string-array name="weekstart">
+        <item>Saturday</item>
+        <item>Sunday</item>
+        <item>Monday</item>
+    </string-array>
+
+    <string-array name="weekstart_values">
+        <item>Sat</item>
+        <item>Sun</item>
+        <item>Mon</item>
+    </string-array>
 </resources>
