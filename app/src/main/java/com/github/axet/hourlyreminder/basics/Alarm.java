@@ -144,11 +144,9 @@ public class Alarm {
     }
 
     public int parseTag(Object o) {
-        String s = (String) o;
-
+        Integer s = (Integer) o;
         for (int i = 0; i < DAYS.length; i++) {
-            String c = context.getResources().getString(DAYS[i]);
-            if (s.compareTo(c) == 0)
+            if (s == DAYS[i])
                 return EVERYDAY[i];
         }
 
@@ -164,7 +162,7 @@ public class Alarm {
         if (DateFormat.is24HourFormat(context)) {
             SimpleDateFormat f = new SimpleDateFormat("HH:mm");
             return f.format(new Date(time));
-        }else {
+        } else {
             SimpleDateFormat f = new SimpleDateFormat("h:mm a");
             return f.format(new Date(time));
         }
