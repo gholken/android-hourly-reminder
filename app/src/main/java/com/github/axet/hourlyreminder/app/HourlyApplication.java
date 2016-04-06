@@ -246,8 +246,10 @@ public class HourlyApplication extends Application {
                 count++;
             } else {
                 if (count != 0) {
-                    if (prev < 12 && next >= 12)
-                        str += AM;
+                    if (!h24) {
+                        if (prev < 12 && next >= 12)
+                            str += AM;
+                    }
 
                     if (count == 1)
                         str += ",";
@@ -259,16 +261,20 @@ public class HourlyApplication extends Application {
                     else
                         str += AMPM[next];
 
-                    if (next < 12 && i >= 12)
-                        str += AM;
+                    if (!h24) {
+                        if (next < 12 && i >= 12)
+                            str += AM;
+                    }
 
                     if (h24)
                         str += "," + Reminder.format(i);
                     else
                         str += "," + AMPM[i];
                 } else {
-                    if (prev < 12 && i >= 12)
-                        str += AM;
+                    if (!h24) {
+                        if (prev < 12 && i >= 12)
+                            str += AM;
+                    }
                     if (!str.isEmpty())
                         str += ",";
                     if (h24)
@@ -285,8 +291,10 @@ public class HourlyApplication extends Application {
         if (count != 0) {
             int next = prev + count;
 
-            if (prev < 12 && next >= 12)
-                str += AM;
+            if (!h24) {
+                if (prev < 12 && next >= 12)
+                    str += AM;
+            }
 
             str += "-";
 
