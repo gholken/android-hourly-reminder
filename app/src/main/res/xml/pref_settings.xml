@@ -20,4 +20,11 @@
         android:positiveButtonText="@null"
         android:summary="Set application theme (dark / light)"
         android:title="Application Theme" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="speak_ampm"
+        android:summary="Will speak time including AM/PM suffix"
+        android:title="Speak AM/PM" />
+
 </PreferenceScreen>

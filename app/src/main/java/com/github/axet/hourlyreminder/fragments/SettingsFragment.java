@@ -9,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.Preference;
 import android.support.v7.widget.ContentFrameLayout;
+import android.text.format.DateFormat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,10 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
             getPreferenceScreen().removePreference(findPreference(HourlyApplication.PREFERENCE_ALARM));
 
         RemindersFragment.bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_VOLUME));
+
+        if (DateFormat.is24HourFormat(getActivity())) {
+            getPreferenceScreen().removePreference(findPreference(HourlyApplication.PREFERENCE_SPEAK_AMPM));
+        }
 
         RemindersFragment.bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_THEME));
     }
