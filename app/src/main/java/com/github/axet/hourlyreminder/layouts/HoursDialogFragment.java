@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceDialogFragment;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -57,6 +58,33 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
             R.id.hours_21,
             R.id.hours_22,
             R.id.hours_23,
+    };
+
+    String[] AMPM = new String[]{
+            "12",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
+            "12",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "6",
+            "7",
+            "8",
+            "9",
+            "10",
+            "11",
     };
 
     Set<String> values;
@@ -113,6 +141,20 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
                     changed(view);
                 }
             });
+            if (!DateFormat.is24HourFormat(context)) {
+                c.setText(AMPM[i]);
+            }
+        }
+
+        View am = view.findViewById(R.id.hours_am);
+        View pm = view.findViewById(R.id.hours_pm);
+
+        if (DateFormat.is24HourFormat(context)) {
+            am.setVisibility(View.GONE);
+            pm.setVisibility(View.GONE);
+        }else {
+            am.setVisibility(View.VISIBLE);
+            pm.setVisibility(View.VISIBLE);
         }
 
         builder.setView(view);

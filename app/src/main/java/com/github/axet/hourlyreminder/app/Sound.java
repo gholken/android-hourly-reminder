@@ -252,7 +252,7 @@ public class Sound {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int min = c.get(Calendar.MINUTE);
 
-        String text = String.format("Time is %02d:%02d", hour, min);
+        String text = String.format("Time is %s", Alarm.format(context, time));
 
         String speak;
         if (min != 0) {

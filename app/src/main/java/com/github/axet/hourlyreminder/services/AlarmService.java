@@ -337,11 +337,6 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         if (time == 0) {
             notificationManager.cancel(HourlyApplication.NOTIFICATION_UPCOMING_ICON);
         } else {
-            Calendar c = Calendar.getInstance();
-            c.setTimeInMillis(time);
-            int hour = c.get(Calendar.HOUR_OF_DAY);
-            int min = c.get(Calendar.MINUTE);
-
             PendingIntent button = PendingIntent.getService(this, 0,
                     new Intent(this, AlarmService.class).setAction(CANCEL).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
@@ -351,7 +346,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
             String subject = "Upcoming alarm";
-            String text = Alarm.format(hour, min);
+            String text = Alarm.format(this, time);
 
             RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
             view.setOnClickPendingIntent(R.id.notification_button, button);
@@ -388,7 +383,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         // here can be two alarms with same time
         for (Alarm a : alarms) {
             if (a.time == time && a.enable) {
-                Log.d(TAG, "Sound Alarm " + a.format());
+                Log.d(TAG, "Sound Alarm " + Alarm.format(a.time));
                 Alarm old = new Alarm(a);
                 if (!a.weekdays) {
                     // disable alarm after it goes off for non rcuring alarms (!a.weekdays)

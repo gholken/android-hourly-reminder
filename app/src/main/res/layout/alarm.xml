@@ -18,12 +18,37 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
-            <TextView
-                android:id="@+id/alarm_time"
+            <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="09:00"
-                android:textSize="60dp" />
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/alarm_time"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="09:00"
+                    android:textSize="60dp" />
+
+                <TextView
+                    android:id="@+id/alarm_am"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/alarm_time"
+                    android:layout_toRightOf="@id/alarm_time"
+                    android:text="AM"
+                    android:textSize="25dp" />
+
+                <TextView
+                    android:id="@+id/alarm_pm"
+                    android:visibility="gone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBaseline="@id/alarm_time"
+                    android:layout_toRightOf="@id/alarm_time"
+                    android:text="PM"
+                    android:textSize="25dp" />
+            </RelativeLayout>
 
             <Switch
                 android:id="@+id/alarm_enable"
@@ -74,49 +99,49 @@
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:checked="true"
-                                    android:tag="@string/MONDAY"
+                                    android:tag="@string/WEEK_MON"
                                     android:text="M" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/TUESDAY"
+                                    android:tag="@string/WEEK_TUE"
                                     android:text="T" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/WEDNESDAY"
+                                    android:tag="@string/WEEK_WED"
                                     android:text="W" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/THURSDAY"
+                                    android:tag="@string/WEEK_THU"
                                     android:text="T" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/FRIDAY"
+                                    android:tag="@string/WEEK_FRI"
                                     android:text="F" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/SATURDAY"
+                                    android:tag="@string/WEEK_SAT"
                                     android:text="S" />
 
                                 <com.github.axet.androidlibrary.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:tag="@string/SUNDAY"
+                                    android:tag="@string/WEEK_SUN"
                                     android:text="S" />
                             </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
                         </FrameLayout>
