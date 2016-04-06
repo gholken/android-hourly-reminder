@@ -105,6 +105,12 @@
                 android:textSize="8dp"
                 android:visibility="gone" />
         </RelativeLayout>
+        <TextView
+            android:id="@+id/alarm_silenced"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="\n(Sound Silenced - Call)"
+            android:textColor="@android:color/white" />
     </LinearLayout>
 
 </com.github.axet.androidlibrary.widgets.EqualLinearLayout>

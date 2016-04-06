@@ -407,7 +407,6 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
 
         Reminder reminder = getReminder(time);
         if (reminder != null && reminder.enabled) {
-            final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
             sound.soundReminder(time);
             // calling setNext is more safe. if this alarm have to fire today we will reset it
             // to the same time. if it is already past today's time (as we expect) then it will

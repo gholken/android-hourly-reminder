@@ -15,6 +15,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
+import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.widget.Toast;
@@ -119,8 +120,28 @@ public class Sound {
         return track;
     }
 
+    public boolean silenced(long time) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_CALLSILENCE, false)) {
+            TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            if (tm.getCallState() == TelephonyManager.CALL_STATE_OFFHOOK) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public void soundReminder(final long time) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if (silenced(time)) {
+            String text = String.format("Time is %s", Alarm.format(context, time));
+            text += "\n" +
+                    "(Sound Silenced - Call)";
+            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            return;
+        }
 
         if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
             playBeep(new Runnable() {

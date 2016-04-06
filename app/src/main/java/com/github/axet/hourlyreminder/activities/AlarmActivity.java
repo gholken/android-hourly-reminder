@@ -1,5 +1,6 @@
 package com.github.axet.hourlyreminder.activities;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -26,6 +27,14 @@ public class AlarmActivity extends AppCompatActivity {
 
     Handler handler = new Handler();
     Runnable updateClock;
+
+    public static void showAlarmActivity(Context context, long time, boolean silenced) {
+        Intent intent = new Intent(context, AlarmActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra("time", time);
+        intent.putExtra("silenced", silenced);
+        context.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +85,11 @@ public class AlarmActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        boolean silenced = intent.getBooleanExtra("silenced", false);
+        View sil = findViewById(R.id.alarm_silenced);
+        sil.setVisibility(silenced ? View.VISIBLE : View.GONE);
+
     }
 
     @Override
