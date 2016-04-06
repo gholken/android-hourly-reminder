@@ -3,7 +3,6 @@ package com.github.axet.hourlyreminder.fragments;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -139,7 +138,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sound.soundAlarm(System.currentTimeMillis());
+                    sound.soundReminder(System.currentTimeMillis());
                 }
             });
         }

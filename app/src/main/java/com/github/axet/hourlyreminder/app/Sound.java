@@ -119,18 +119,23 @@ public class Sound {
         return track;
     }
 
-    public void soundAlarm(final long time) {
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+    public void soundReminder(final long time) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
         if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
             playBeep(new Runnable() {
                 @Override
                 public void run() {
-                    playSpeech(time, null);
+                    if (shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false)) {
+                        playSpeech(time, null);
+                    }
                 }
             });
-        } else {
+        } else if (shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false)) {
             playSpeech(time, null);
+        } else {
+            String text = String.format("Time is %s", Alarm.format(context, time));
+            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
         }
     }
 

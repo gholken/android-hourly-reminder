@@ -94,7 +94,7 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    sound.soundAlarm(System.currentTimeMillis());
+                    sound.soundReminder(System.currentTimeMillis());
                 }
             });
         }
