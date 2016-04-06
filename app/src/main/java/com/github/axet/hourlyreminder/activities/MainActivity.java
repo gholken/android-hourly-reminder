@@ -8,34 +8,28 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
-import android.content.res.Resources;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-
 import android.support.v4.view.ViewPager;
-import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
 import android.view.ViewParent;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import com.github.axet.androidlibrary.widgets.ThemeUtils;
+import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.fragments.AlarmsFragment;
 import com.github.axet.hourlyreminder.fragments.RemindersFragment;
-import com.github.axet.hourlyreminder.app.HourlyApplication;
-import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.fragments.SettingsFragment;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
@@ -61,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
     TimeSetReceiver reciver = new TimeSetReceiver();
 
+    boolean is24Hours = false;
     boolean timeChanged = false;
 
     public class TimeSetReceiver extends BroadcastReceiver {
@@ -69,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
             Log.d(TimeSetReceiver.class.getSimpleName(), "TimeSetReceiver " + intent.getAction());
 
             if (intent.getAction().equals(Intent.ACTION_TIME_CHANGED)) {
-                timeChanged = true;
+                timeChanged = is24Hours != DateFormat.is24HourFormat(MainActivity.this);
             }
         }
     }
@@ -124,6 +119,8 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         setTheme(HourlyApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar));
 
         setContentView(R.layout.activity_main);
+
+        is24Hours = DateFormat.is24HourFormat(this);
 
         IntentFilter filter = new IntentFilter();
         filter.addAction(Intent.ACTION_TIME_CHANGED);
