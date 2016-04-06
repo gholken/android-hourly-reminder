@@ -2,8 +2,10 @@ package com.github.axet.hourlyreminder.activities;
 
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.content.res.Resources;
@@ -57,6 +59,21 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
      */
     private ViewPager mViewPager;
 
+    TimeSetReceiver reciver = new TimeSetReceiver();
+
+    boolean timeChanged = false;
+
+    public class TimeSetReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d(TimeSetReceiver.class.getSimpleName(), "TimeSetReceiver " + intent.getAction());
+
+            if (intent.getAction().equals(Intent.ACTION_TIME_CHANGED)) {
+                timeChanged = true;
+            }
+        }
+    }
+
     public static class SettingsTabView extends ImageView {
         public SettingsTabView(Context context, TabLayout.Tab tab, ColorStateList colors) {
             super(context);
@@ -108,6 +125,10 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 
         setContentView(R.layout.activity_main);
 
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_TIME_CHANGED);
+        registerReceiver(reciver, filter);
+
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
 
@@ -140,14 +161,15 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         AlarmService.start(this);
 
         Intent intent = getIntent();
-        if (intent.getAction().equals(SHOW_ALARMS_PAGE)) {
+        String a = intent.getAction();
+        if (a != null && a.equals(SHOW_ALARMS_PAGE)) {
             mViewPager.setCurrentItem(1);
         }
-        if (intent.getAction().equals(SHOW_SETTINGS_PAGE)) {
+        if (a != null && a.equals(SHOW_SETTINGS_PAGE)) {
             mViewPager.setCurrentItem(2);
         }
 
-        HourlyApplication h = (HourlyApplication)getApplication();
+        HourlyApplication h = (HourlyApplication) getApplication();
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         shared.registerOnSharedPreferenceChangeListener(this);
@@ -179,6 +201,11 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        if (reciver != null) {
+            unregisterReceiver(reciver);
+            reciver = null;
+        }
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
         shared.unregisterOnSharedPreferenceChangeListener(this);
@@ -235,4 +262,14 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (timeChanged) {
+            finish();
+            startActivity(new Intent(MainActivity.this, MainActivity.class));
+            overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+        }
+    }
 }

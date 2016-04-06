@@ -7,6 +7,7 @@ import android.content.Intent;
 public class TimeZoneChangedReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
-        AlarmService.start(context);
+        if (intent.getAction().equals(Intent.ACTION_TIMEZONE_CHANGED))
+            AlarmService.start(context);
     }
 }
