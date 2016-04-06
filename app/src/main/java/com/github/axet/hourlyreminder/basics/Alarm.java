@@ -1,8 +1,14 @@
 package com.github.axet.hourlyreminder.basics;
 
 import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.format.DateFormat;
 
 import com.github.axet.hourlyreminder.R;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -13,7 +19,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.concurrent.TimeUnit;
 
 public class Alarm {
     public final static String DEFAULT_RING = "content://settings/system/ringtone";
@@ -21,7 +26,7 @@ public class Alarm {
     // days <-> java index converter
     //
     // keep EVERYDAY order
-    public final static int[] DAYS = new int[]{R.string.MONDAY, R.string.TUESDAY, R.string.WEDNESDAY, R.string.THURSDAY, R.string.FRIDAY, R.string.SATURDAY, R.string.SUNDAY};
+    public final static int[] DAYS = new int[]{R.string.WEEK_MON, R.string.WEEK_TUE, R.string.WEEK_WED, R.string.WEEK_THU, R.string.WEEK_FRI, R.string.WEEK_SAT, R.string.WEEK_SUN};
 
     public final static Integer[] EVERYDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
             Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY};
@@ -151,19 +156,22 @@ public class Alarm {
     }
 
     public static String format(long time) {
-        Calendar c = Calendar.getInstance();
-        c.setTimeInMillis(time);
-        int hour = c.get(Calendar.HOUR_OF_DAY);
-        int min = c.get(Calendar.MINUTE);
-        return format(hour, min);
+        SimpleDateFormat f = new SimpleDateFormat("HH:mm");
+        return f.format(new Date(time));
     }
 
-    public static String format(int hour, int min) {
-        return String.format("%02d:%02d", hour, min);
+    public static String format(Context context, long time) {
+        if (DateFormat.is24HourFormat(context)) {
+            SimpleDateFormat f = new SimpleDateFormat("HH:mm");
+            return f.format(new Date(time));
+        }else {
+            SimpleDateFormat f = new SimpleDateFormat("h:mm a");
+            return f.format(new Date(time));
+        }
     }
 
     public String format() {
-        return format(hour, min);
+        return format(context, time);
     }
 
     public long getTime() {

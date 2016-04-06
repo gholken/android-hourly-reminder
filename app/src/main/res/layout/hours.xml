@@ -11,6 +11,14 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/hours_am"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="AM"
+            android:textSize="20dp" />
+
         <com.github.axet.androidlibrary.widgets.SquareLinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -112,6 +120,14 @@
                 android:text="11" />
             />
         </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
+
+        <TextView
+            android:id="@+id/hours_pm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="PM"
+            android:textSize="20dp" />
 
         <com.github.axet.androidlibrary.widgets.SquareLinearLayout
             android:layout_width="match_parent"

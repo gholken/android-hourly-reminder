@@ -7,14 +7,42 @@
     android:orientation="horizontal"
     tools:context=".activities.AlarmActivity">
 
-    <TextView
+    <RelativeLayout
         android:id="@+id/time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:padding="5dp"
-        android:text="09:00"
-        android:textColor="@android:color/secondary_text_dark"
-        android:textSize="80dp" />
+        android:layout_gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/alarm_time"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="09:07"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="80dp" />
+
+        <TextView
+            android:id="@+id/alarm_am"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/alarm_time"
+            android:layout_centerHorizontal="true"
+            android:text="AM"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="25dp" />
+
+        <TextView
+            android:id="@+id/alarm_pm"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/alarm_time"
+            android:layout_centerHorizontal="true"
+            android:text="PM"
+            android:textColor="@android:color/secondary_text_dark"
+            android:textSize="25dp"
+            android:visibility="gone" />
+    </RelativeLayout>
 
     <Button
         android:id="@+id/alarm_activity_button"
@@ -42,12 +70,41 @@
             android:text="Alarm"
             android:textColor="@android:color/white" />
 
-        <TextView
-            android:id="@+id/alarm_text"
+        <RelativeLayout
+            android:id="@+id/alarm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="09:00"
-            android:textColor="@android:color/white" />
+            android:layout_gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@id/alarm_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="09:00"
+                android:textColor="@android:color/white" />
+
+            <TextView
+                android:id="@id/alarm_am"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/alarm_time"
+                android:layout_centerHorizontal="true"
+                android:text="AM"
+                android:textColor="@android:color/white"
+                android:textSize="8dp" />
+
+            <TextView
+                android:id="@id/alarm_pm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/alarm_time"
+                android:layout_centerHorizontal="true"
+                android:text="PM"
+                android:textColor="@android:color/white"
+                android:textSize="8dp"
+                android:visibility="gone" />
+        </RelativeLayout>
     </LinearLayout>
 
 </com.github.axet.androidlibrary.widgets.EqualLinearLayout>

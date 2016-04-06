@@ -3,13 +3,14 @@
     <string name="title_activity_main">Hourly Reminder</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
-    <string name="MONDAY">Mon</string>
-    <string name="TUESDAY">Tue</string>
-    <string name="WEDNESDAY">Wed</string>
-    <string name="THURSDAY">Thu</string>
-    <string name="FRIDAY">Fri</string>
-    <string name="SATURDAY">Sat</string>
-    <string name="SUNDAY">Sun</string>
+
+    <string name="WEEK_MON">Mon</string>
+    <string name="WEEK_TUE">Tue</string>
+    <string name="WEEK_WED">Wed</string>
+    <string name="WEEK_THU">Thu</string>
+    <string name="WEEK_FRI">Fri</string>
+    <string name="WEEK_SAT">Sat</string>
+    <string name="WEEK_SUN">Sun</string>
 
     <string name="title_activity_alarm">Alarm</string>
     <string name="dummy_button">Dummy Button</string>

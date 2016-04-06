@@ -3,7 +3,9 @@ package com.github.axet.hourlyreminder.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
@@ -44,12 +46,14 @@ public class HourlyApplication extends Application {
         if (!defaultValueSp.getBoolean("_has_set_default_values", false)) {
             PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, true);
             PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
+            SharedPreferences.Editor editor = defaultValueSp.edit().putBoolean("_has_set_default_values", true);
+            SharedPreferencesCompat.EditorCompat.getInstance().apply(editor);
         }
     }
 
     public static int getActionbarColor(Context context) {
-        int colorId = getTheme(context,  R.attr.colorPrimary, R.color.actionBarBackgroundDark);
-        int color = ThemeUtils.getThemeColor(context,colorId);
+        int colorId = getTheme(context, R.attr.colorPrimary, R.color.actionBarBackgroundDark);
+        int color = ThemeUtils.getThemeColor(context, colorId);
         return color;
     }
 
@@ -217,6 +221,18 @@ public class HourlyApplication extends Application {
     }
 
     public static String getHoursString(Context context, List<String> hours) {
+        boolean h24 = DateFormat.is24HourFormat(context);
+
+        String[] AMPM = new String[]{
+                "12", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
+                "12", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
+        };
+
+        String AM = "am";
+        String PM = "pm";
+
+        String H = context.getString(R.string.hour_symbol);
+
         String str = "";
 
         Collections.sort(hours);
@@ -225,20 +241,40 @@ public class HourlyApplication extends Application {
         int count = 0;
         for (String s : hours) {
             int i = Integer.parseInt(s);
-            if (i == prev + count + 1) {
+            int next = prev + count;
+            if (i == next + 1) {
                 count++;
             } else {
                 if (count != 0) {
+                    if (prev < 12 && next >= 12)
+                        str += AM;
+
                     if (count == 1)
                         str += ",";
                     else
                         str += "-";
-                    str += Reminder.format(prev + count);
-                    str += "," + s;
+
+                    if (h24)
+                        str += Reminder.format(next);
+                    else
+                        str += AMPM[next];
+
+                    if (next < 12 && i >= 12)
+                        str += AM;
+
+                    if (h24)
+                        str += "," + Reminder.format(i);
+                    else
+                        str += "," + AMPM[i];
                 } else {
+                    if (prev < 12 && i >= 12)
+                        str += AM;
                     if (!str.isEmpty())
                         str += ",";
-                    str += s;
+                    if (h24)
+                        str += Reminder.format(i);
+                    else
+                        str += AMPM[i];
                 }
 
                 prev = i;
@@ -247,12 +283,23 @@ public class HourlyApplication extends Application {
         }
 
         if (count != 0) {
-            str += "-";
-            str += Reminder.format(prev + count);
-        }
+            int next = prev + count;
 
-        if (!str.isEmpty())
-            str += context.getString(R.string.hour_symbol);
+            if (prev < 12 && next >= 12)
+                str += AM;
+
+            str += "-";
+
+            if (h24)
+                str += Reminder.format(next) + H;
+            else
+                str += AMPM[next] + (next >= 12 ? PM : AM);
+        } else if (prev != -2) {
+            if (h24)
+                str += H;
+            else
+                str += (prev >= 12 ? PM : AM);
+        }
 
         return str;
     }

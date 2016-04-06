@@ -21,6 +21,8 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Html;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -47,8 +49,10 @@ import com.github.axet.hourlyreminder.app.Storage;
 import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -150,7 +154,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                             r = null;
                         }
                     }
-                }, a.getHour(), a.getMin(), true);
+                }, a.getHour(), a.getMin(), DateFormat.is24HourFormat(getActivity()));
                 d.show();
             }
         });
@@ -551,7 +555,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         });
 
         final TextView time = (TextView) view.findViewById(R.id.alarm_time);
-        time.setText(a.format());
+        updateTime(view, a);
         time.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -564,7 +568,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                         public void run() {
                             if (a.enable)
                                 HourlyApplication.toastAlarmSet(getActivity(), a);
-                            time.setText(a.format());
+                            updateTime(view, a);
                             save(a);
                         }
                     };
@@ -577,7 +581,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                             r = null;
                         }
                     }
-                }, a.getHour(), a.getMin(), true);
+                }, a.getHour(), a.getMin(), DateFormat.is24HourFormat(getActivity()));
                 d.show();
             }
         });
@@ -638,7 +642,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     void fillCompact(final View view, final Alarm a, boolean animate) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
-        time.setText(a.format());
+        updateTime(view, a);
         time.setClickable(false);
 
         final Switch enable = (Switch) view.findViewById(R.id.alarm_enable);
@@ -683,6 +687,26 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         if (sound != null) {
             sound.close();
             sound = null;
+        }
+    }
+
+    void updateTime(View view, Alarm a) {
+        TextView time = (TextView) view.findViewById(R.id.alarm_time);
+        View am = view.findViewById(R.id.alarm_am);
+        View pm = view.findViewById(R.id.alarm_pm);
+
+        if (DateFormat.is24HourFormat(getActivity())) {
+            SimpleDateFormat f = new SimpleDateFormat("HH:mm");
+            time.setText(f.format(new Date(a.time)));
+
+            am.setVisibility(View.GONE);
+            pm.setVisibility(View.GONE);
+        } else {
+            SimpleDateFormat f = new SimpleDateFormat("h:mm");
+            time.setText(f.format(new Date(a.time)));
+
+            am.setVisibility(a.getHour() >= 12 ? View.GONE : View.VISIBLE);
+            pm.setVisibility(a.getHour() >= 12 ? View.VISIBLE : View.GONE);
         }
     }
 }

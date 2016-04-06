@@ -1,31 +1,22 @@
 package com.github.axet.hourlyreminder.activities;
 
-import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
-import android.view.LayoutInflater;
+import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateFormat;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
-import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.services.FireAlarmService;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.Date;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -73,8 +64,8 @@ public class AlarmActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         long time = intent.getLongExtra("time", 0);
-        TextView text = (TextView) findViewById(R.id.alarm_text);
-        text.setText(Alarm.format(time));
+        View alarm = findViewById(R.id.alarm);
+        updateTime(alarm, time);
 
         updateClock();
 
@@ -103,8 +94,8 @@ public class AlarmActivity extends AppCompatActivity {
     }
 
     void updateClock() {
-        TextView text = (TextView) findViewById(R.id.time);
-        text.setText(Alarm.format(System.currentTimeMillis()));
+        View time = findViewById(R.id.time);
+        updateTime(time, System.currentTimeMillis());
 
         if (updateClock == null) {
             handler.removeCallbacks(updateClock);
@@ -144,6 +135,30 @@ public class AlarmActivity extends AppCompatActivity {
         if (updateClock != null) {
             handler.removeCallbacks(updateClock);
             updateClock = null;
+        }
+    }
+
+    void updateTime(View view, long t) {
+        TextView time = (TextView) view.findViewById(R.id.alarm_time);
+        View am = view.findViewById(R.id.alarm_am);
+        View pm = view.findViewById(R.id.alarm_pm);
+
+        if (DateFormat.is24HourFormat(this)) {
+            SimpleDateFormat f = new SimpleDateFormat("HH:mm");
+            time.setText(f.format(new Date(t)));
+
+            am.setVisibility(View.GONE);
+            pm.setVisibility(View.GONE);
+        } else {
+            SimpleDateFormat f = new SimpleDateFormat("h:mm");
+            time.setText(f.format(new Date(t)));
+
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(t);
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+            am.setVisibility(hour >= 12 ? View.GONE : View.VISIBLE);
+            pm.setVisibility(hour >= 12 ? View.VISIBLE : View.GONE);
         }
     }
 

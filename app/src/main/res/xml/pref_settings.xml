@@ -1,6 +1,4 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <com.github.axet.androidlibrary.widgets.SeekBarPreference
         android:defaultValue="1"
         android:key="volume"
@@ -22,5 +20,4 @@
         android:positiveButtonText="@null"
         android:summary="Set application theme (dark / light)"
         android:title="Application Theme" />
-
 </PreferenceScreen>
