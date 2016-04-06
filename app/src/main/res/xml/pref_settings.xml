@@ -27,4 +27,10 @@
         android:summary="Will speak time including AM/PM suffix"
         android:title="Speak AM/PM" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
+        android:key="callsilence"
+        android:summary="Do not play alarm sounds during calls"
+        android:title="Silence during calls" />
+
 </PreferenceScreen>

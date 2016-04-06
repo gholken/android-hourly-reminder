@@ -8,11 +8,15 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -46,6 +50,32 @@ public class FireAlarmService extends Service {
     Handler handle = new Handler();
     Runnable alive;
     boolean alarmActivity = false;
+    boolean silenced = false;
+
+    PhoneStateChangeListener pscl;
+
+    class PhoneStateChangeListener extends PhoneStateListener {
+        public boolean wasRinging;
+
+        @Override
+        public void onCallStateChanged(int s, String incomingNumber) {
+            switch (s) {
+                case TelephonyManager.CALL_STATE_RINGING:
+                    wasRinging = true;
+                    break;
+                case TelephonyManager.CALL_STATE_OFFHOOK:
+                    wasRinging = true;
+                    if (sound != null) {
+                        sound.close();
+                        sound = new Sound(FireAlarmService.this);
+                    }
+                    break;
+                case TelephonyManager.CALL_STATE_IDLE:
+                    wasRinging = false;
+                    break;
+            }
+        }
+    }
 
     public class FireAlarmReceiver extends BroadcastReceiver {
         @Override
@@ -54,14 +84,14 @@ public class FireAlarmService extends Service {
 
             if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
                 long time = intent.getLongExtra("time", 0);
-                showAlarmActivity(time);
+                showAlarmActivity(time, silenced);
             }
             if (intent.getAction().equals(Intent.ACTION_SCREEN_OFF)) {
                 // do nothing. do not annoy user. he will see alarm screen on next screen on event.
             }
             if (intent.getAction().equals(SHOW_ACTIVITY)) {
                 long time = intent.getLongExtra("time", 0);
-                showAlarmActivity(time);
+                showAlarmActivity(time, silenced);
             }
         }
     }
@@ -101,6 +131,13 @@ public class FireAlarmService extends Service {
         filter.addAction(SHOW_ACTIVITY);
         registerReceiver(receiver, filter);
 
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_CALLSILENCE, false)) {
+            pscl = new PhoneStateChangeListener();
+            TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+            tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
+        }
+
         final long time = intent.getLongExtra("time", 0);
         final boolean beep = intent.getBooleanExtra("beep", false);
         final boolean speech = intent.getBooleanExtra("speech", false);
@@ -117,37 +154,40 @@ public class FireAlarmService extends Service {
 
         showNotificationAlarm(time);
 
-        if (beep) {
-            sound.playBeep(new Runnable() {
-                               @Override
-                               public void run() {
-                                   if (speech) {
-                                       sound.playSpeech(time, new Runnable() {
-                                           @Override
-                                           public void run() {
-                                               if (ringtone) {
-                                                   playRingtone(Uri.parse(ringtoneValue));
+        silenced = sound.silenced(time);
+        if (!silenced) {
+            if (beep) {
+                sound.playBeep(new Runnable() {
+                                   @Override
+                                   public void run() {
+                                       if (speech) {
+                                           sound.playSpeech(time, new Runnable() {
+                                               @Override
+                                               public void run() {
+                                                   if (ringtone) {
+                                                       playRingtone(Uri.parse(ringtoneValue));
+                                                   }
                                                }
-                                           }
-                                       });
-                                   } else if (ringtone) {
-                                       playRingtone(Uri.parse(ringtoneValue));
+                                           });
+                                       } else if (ringtone) {
+                                           playRingtone(Uri.parse(ringtoneValue));
+                                       }
                                    }
                                }
-                           }
-            );
-        } else if (speech) {
-            sound.playSpeech(time, new Runnable() {
-                @Override
-                public void run() {
-                    playRingtone(Uri.parse(ringtoneValue));
-                }
-            });
-        } else if (ringtone) {
-            playRingtone(Uri.parse(ringtoneValue));
+                );
+            } else if (speech) {
+                sound.playSpeech(time, new Runnable() {
+                    @Override
+                    public void run() {
+                        playRingtone(Uri.parse(ringtoneValue));
+                    }
+                });
+            } else if (ringtone) {
+                playRingtone(Uri.parse(ringtoneValue));
+            }
         }
 
-        showAlarmActivity(time);
+        showAlarmActivity(time, silenced);
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -179,12 +219,9 @@ public class FireAlarmService extends Service {
         return b;
     }
 
-    public void showAlarmActivity(long time) {
+    public void showAlarmActivity(long time, boolean silenced) {
         alarmActivity = true;
-        Intent intent = new Intent(this, AlarmActivity.class);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        intent.putExtra("time", time);
-        startActivity(intent);
+        AlarmActivity.showAlarmActivity(this, time, silenced);
     }
 
     void playRingtone(Uri uri) {
@@ -216,6 +253,12 @@ public class FireAlarmService extends Service {
         showNotificationAlarm(0);
 
         unregisterReceiver(receiver);
+
+        if (pscl != null) {
+            TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
+            tm.listen(pscl, PhoneStateListener.LISTEN_NONE);
+            pscl = null;
+        }
 
         if (alarmActivity) {
             alarmActivity = false;
