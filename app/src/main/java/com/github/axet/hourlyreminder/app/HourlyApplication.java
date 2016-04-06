@@ -35,6 +35,7 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_VOLUME = "volume";
 
     public static final String PREFERENCE_THEME = "theme";
+    public static final String PREFERENCE_SPEAK_AMPM= "speak_ampm";
 
     @Override
     public void onCreate() {
