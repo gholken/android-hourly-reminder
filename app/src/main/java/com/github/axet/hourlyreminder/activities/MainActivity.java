@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
 //        fab.setOnClickListener(new View.OnClickListener() {
 //            @Override
 //            public void onClick(View view) {
-//                ((HourlyApplication) getApplicationContext()).soundAlarm();
+//                ((HourlyApplication) getApplicationContext()).soundReminder();
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
 //            }

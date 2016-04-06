@@ -1,7 +1,6 @@
 package com.github.axet.hourlyreminder.services;
 
 import android.app.AlarmManager;
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -16,7 +15,6 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.RemoteViews;
 
-import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.activities.MainActivity;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
@@ -32,7 +30,7 @@ import java.util.TreeSet;
 
 /**
  * System Alarm Manager notifes this service to create/stop alarms.
- * <p/>
+ * <p>
  * All Alarm notifications clicks routed to this service.
  */
 public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -410,16 +408,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         Reminder reminder = getReminder(time);
         if (reminder != null && reminder.enabled) {
             final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-            if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
-                sound.playBeep(new Runnable() {
-                    @Override
-                    public void run() {
-                        sound.playSpeech(time, null);
-                    }
-                });
-            } else {
-                sound.playSpeech(time, null);
-            }
+            sound.soundReminder(time);
             // calling setNext is more safe. if this alarm have to fire today we will reset it
             // to the same time. if it is already past today's time (as we expect) then it will
             // be set for tomorrow.

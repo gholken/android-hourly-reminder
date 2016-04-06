@@ -17,7 +17,13 @@
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="beep"
-        android:summary="Play beep sound before alarm text"
+        android:summary="Play beep sound"
         android:title="Beep Sound" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="speak"
+        android:summary="Speak current time"
+        android:title="Speak" />
 
 </PreferenceScreen>
