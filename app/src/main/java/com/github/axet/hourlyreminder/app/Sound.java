@@ -12,6 +12,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
@@ -134,6 +135,10 @@ public class Sound {
 
     public void soundReminder(final long time) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+            vibrate();
+        }
 
         if (silenced(time)) {
             String text = String.format("Time is %s", Alarm.format(context, time));
@@ -354,5 +359,21 @@ public class Sound {
         player.setVolume(getVolume(), getVolume());
         player.start();
         return player;
+    }
+
+    public void vibrate() {
+        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(400);
+    }
+
+    public void vibrateStart() {
+        long[] pattern = {0, 1000, 300};
+        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(pattern, 0);
+    }
+
+    public void vibrateStop() {
+        Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+        v.cancel();
     }
 }
