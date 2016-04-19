@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.preference.SwitchPreference;
 import android.support.design.widget.FloatingActionButton;
@@ -90,16 +91,39 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
                 if (!permitted(PERMISSIONS)) {
-                    permitted();
+                    permitted(PERMISSIONS, 1);
                     return false;
                 }
                 return true;
             }
         });
+
+        Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        Preference vp = findPreference(HourlyApplication.PREFERENCE_VIBRATE);
+
+        if (!v.hasVibrator()) {
+            getPreferenceScreen().removePreference(vp);
+        } else {
+            vp.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    if (!permitted(PERMISSIONS_V)) {
+                        permitted(PERMISSIONS_V, 2);
+                        return false;
+                    }
+                    return true;
+                }
+            });
+        }
     }
 
     void setPhone() {
         SwitchPreferenceCompat s = (SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_CALLSILENCE);
+        s.setChecked(true);
+    }
+
+    void setVibr() {
+        SwitchPreferenceCompat s = (SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_VIBRATE);
         s.setChecked(true);
     }
 
@@ -113,10 +137,17 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                     setPhone();
                 else
                     Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+            case 2:
+                if (permitted(PERMISSIONS_V))
+                    setVibr();
+                else
+                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
         }
     }
 
     public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_PHONE_STATE};
+
+    public static final String[] PERMISSIONS_V = new String[]{Manifest.permission.VIBRATE};
 
     boolean permitted(String[] ss) {
         for (String s : ss) {
@@ -127,10 +158,10 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
         return true;
     }
 
-    boolean permitted() {
-        for (String s : PERMISSIONS) {
+    boolean permitted(String[] p, int c) {
+        for (String s : p) {
             if (ContextCompat.checkSelfPermission(getActivity(), s) != PackageManager.PERMISSION_GRANTED) {
-                FragmentCompat.requestPermissions(this, PERMISSIONS, 1);
+                FragmentCompat.requestPermissions(this, p, c);
                 return false;
             }
         }

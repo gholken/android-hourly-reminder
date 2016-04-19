@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.telephony.PhoneStateListener;
@@ -156,6 +157,9 @@ public class FireAlarmService extends Service {
 
         silenced = sound.silenced(time);
         if (!silenced) {
+            if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+                sound.vibrateStart();
+            }
             if (beep) {
                 sound.playBeep(new Runnable() {
                                    @Override
@@ -244,6 +248,11 @@ public class FireAlarmService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(FireAlarmService.class.getSimpleName(), "onDestory");
+
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+        if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+            sound.vibrateStop();
+        }
 
         if (sound != null) {
             sound.close();

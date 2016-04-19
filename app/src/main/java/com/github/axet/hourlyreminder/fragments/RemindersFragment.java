@@ -9,11 +9,22 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v14.preference.PreferenceFragment;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
+import android.support.v7.preference.PreferenceGroup;
+import android.support.v7.preference.PreferenceGroupAdapter;
+import android.support.v7.preference.PreferenceScreen;
+import android.support.v7.preference.PreferenceViewHolder;
+import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.ContentFrameLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 
 import com.github.axet.hourlyreminder.R;
@@ -68,6 +79,118 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         }
     };
 
+    //
+    // support library 23.0.1 and api 23 failed with:
+    //
+    // https://code.google.com/p/android/issues/detail?id=85392#makechanges
+    //
+    // http://stackoverflow.com/questions/30336635
+    //
+    // To fix this, we need create our own PreferenceGroupAdapter
+    //
+    class PreferenceGroupAdapterFix extends PreferenceGroupAdapter {
+        public PreferenceGroupAdapterFix(PreferenceGroup preferenceGroup) {
+            super(preferenceGroup);
+        }
+
+        public void onBindViewHolder(PreferenceViewHolder holder, int position) {
+            super.onBindViewHolder(holder, position);
+
+            // LinerLayoutManager.onLayoutChildren() call detach(), then fill() which cause:
+            //
+            // onBindViewHolder cause SwitchCompat.setCheck() call on currently detached view !!!
+            // so no animation starts.
+            // then called RecyclerView.attachViewToParent()
+        }
+
+        public void onViewAttachedToWindow(PreferenceViewHolder holder) {
+            super.onViewAttachedToWindow(holder);
+        }
+
+        public void onViewDetachedFromWindow(PreferenceViewHolder holder) {
+            super.onViewDetachedFromWindow(holder);
+        }
+    }
+
+    LinearLayoutManager llm;
+
+    class LinearLayoutManagerFix extends LinearLayoutManager {
+        public LinearLayoutManagerFix(Context context) {
+            super(context);
+        }
+
+        public void onLayoutChildren(RecyclerView.Recycler recycler, RecyclerView.State state) {
+            super.onLayoutChildren(recycler, state);
+        }
+
+        @Override
+        public void addView(View child) {
+            if (child.getParent() != null)
+                return;
+            super.addView(child);
+        }
+
+        @Override
+        public void addView(View child, int index) {
+            if (child.getParent() != null)
+                return;
+            super.addView(child, index);
+        }
+
+        @Override
+        public void addDisappearingView(View child) {
+            if (child.getParent() != null)
+                return;
+            super.addDisappearingView(child);
+        }
+
+        @Override
+        public void addDisappearingView(View child, int index) {
+            if (child.getParent() != null)
+                return;
+            super.addDisappearingView(child, index);
+        }
+    }
+
+    class RecyclerViewFix extends RecyclerView {
+        public RecyclerViewFix(Context context) {
+            super(context);
+        }
+
+        @Override
+        protected void attachViewToParent(View child, int index, ViewGroup.LayoutParams params) {
+            super.attachViewToParent(child, index, params);
+        }
+
+        @Override
+        protected void detachViewFromParent(View child) {
+            super.detachViewFromParent(child);
+        }
+
+        @Override
+        protected void detachViewFromParent(int index) {
+            super.detachViewFromParent(index);
+        }
+    }
+
+//    @Override
+//    public RecyclerView.LayoutManager onCreateLayoutManager() {
+//        return llm = new LinearLayoutManagerFix(this.getActivity());
+//    }
+
+//    @Override
+//    protected RecyclerView.Adapter onCreateAdapter(PreferenceScreen preferenceScreen) {
+//        return new PreferenceGroupAdapterFix(preferenceScreen);
+//    }
+
+//    @Override
+//    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+//        //RecyclerView recyclerView = (RecyclerView)inflater.inflate(android.support.v14.preference.R.layout.preference_recyclerview, parent, false);
+//        RecyclerView recyclerView = new RecyclerViewFix(getActivity());
+//        recyclerView.setLayoutManager(this.onCreateLayoutManager());
+//        return recyclerView;
+//    }
+
     public static void bindPreferenceSummaryToValue(Preference preference) {
         // Set the listener to watch for value changes.
         preference.setOnPreferenceChangeListener(sBindPreferenceSummaryToValueListener);
@@ -117,6 +240,24 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         sound = new Sound(getActivity());
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
+
+        findPreference(HourlyApplication.PREFERENCE_BEEP).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_SPEAK)).setChecked(true);
+                return true;
+            }
+        });
+        findPreference(HourlyApplication.PREFERENCE_SPEAK).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                Boolean b = (Boolean) o;
+                if (!b) {
+                    ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_BEEP)).setChecked(true);
+                }
+                return true;
+            }
+        });
     }
 
     @Override
