@@ -3,6 +3,7 @@ package com.github.axet.hourlyreminder.fragments;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -26,6 +27,7 @@ import android.view.ViewParent;
 import android.widget.Adapter;
 import android.widget.AdapterView;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
@@ -112,7 +114,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         }
     }
 
-    LinearLayoutManager llm;
+    // LinearLayoutManager llm;
 
     class LinearLayoutManagerFix extends LinearLayoutManager {
         public LinearLayoutManagerFix(Context context) {
@@ -244,20 +246,35 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         findPreference(HourlyApplication.PREFERENCE_BEEP).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_SPEAK)).setChecked(true);
+                Boolean beep = (Boolean) o;
+                boolean speak = ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_SPEAK)).isChecked();
+                if(!beep && !speak) {
+                    annonce();
+                }
                 return true;
             }
         });
         findPreference(HourlyApplication.PREFERENCE_SPEAK).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object o) {
-                Boolean b = (Boolean) o;
-                if (!b) {
-                    ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_BEEP)).setChecked(true);
+                Boolean speak = (Boolean) o;
+                boolean beep = ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_BEEP)).isChecked();
+                if(!beep && !speak) {
+                    annonce();
                 }
                 return true;
             }
         });
+    }
+
+    void annonce() {
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean v = shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false);
+        if(v) {
+            Toast.makeText(getActivity(), "Reminders set to vibrate only", Toast.LENGTH_LONG).show();
+        }else {
+            Toast.makeText(getActivity(), "All reminders silenced", Toast.LENGTH_LONG).show();
+        }
     }
 
     @Override
