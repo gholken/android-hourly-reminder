@@ -111,6 +111,7 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                         permitted(PERMISSIONS_V, 2);
                         return false;
                     }
+                    annonce((boolean) o);
                     return true;
                 }
             });
@@ -125,6 +126,16 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
     void setVibr() {
         SwitchPreferenceCompat s = (SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_VIBRATE);
         s.setChecked(true);
+        annonce(true);
+    }
+
+    void annonce(boolean v) {
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        boolean b = shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false);
+        boolean s = shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false);
+        if (!b && !s) {
+            RemindersFragment.annonce(getActivity(), v);
+        }
     }
 
     @Override

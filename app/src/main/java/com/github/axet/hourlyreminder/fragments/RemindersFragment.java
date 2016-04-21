@@ -248,8 +248,8 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             public boolean onPreferenceChange(Preference preference, Object o) {
                 Boolean beep = (Boolean) o;
                 boolean speak = ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_SPEAK)).isChecked();
-                if(!beep && !speak) {
-                    annonce();
+                if (!beep && !speak) {
+                    annonce(getActivity());
                 }
                 return true;
             }
@@ -259,21 +259,25 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             public boolean onPreferenceChange(Preference preference, Object o) {
                 Boolean speak = (Boolean) o;
                 boolean beep = ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_BEEP)).isChecked();
-                if(!beep && !speak) {
-                    annonce();
+                if (!beep && !speak) {
+                    annonce(getActivity());
                 }
                 return true;
             }
         });
     }
 
-    void annonce() {
-        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+    static void annonce(Context context) {
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(context);
         boolean v = shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false);
-        if(v) {
-            Toast.makeText(getActivity(), "Reminders set to vibrate only", Toast.LENGTH_LONG).show();
-        }else {
-            Toast.makeText(getActivity(), "All reminders silenced", Toast.LENGTH_LONG).show();
+        annonce(context, v);
+    }
+
+    static void annonce(Context context, boolean v) {
+        if (v) {
+            Toast.makeText(context, "Reminders set to vibrate only", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(context, "Reminders set to 'silence'", Toast.LENGTH_LONG).show();
         }
     }
 
