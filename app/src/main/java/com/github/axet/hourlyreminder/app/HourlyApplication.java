@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
@@ -29,6 +30,7 @@ public class HourlyApplication extends Application {
 
     public static final String PREFERENCE_ENABLED = "enabled";
     public static final String PREFERENCE_HOURS = "hours";
+    public static final String PREFERENCE_REPEAT = "repeat";
     public static final String PREFERENCE_ALARM = "alarm";
     public static final String PREFERENCE_ALARMS_PREFIX = "Alarm_";
     public static final String PREFERENCE_BEEP = "beep";
@@ -177,6 +179,9 @@ public class HourlyApplication extends Application {
         ArrayList<Reminder> list = new ArrayList<>();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
+        int repeat = Integer.parseInt(shared.getString(PREFERENCE_REPEAT, "60"));
+
         Set<String> hours = shared.getStringSet(PREFERENCE_HOURS, new HashSet<String>());
 
         for (int i = 0; i < 24; i++) {
@@ -184,9 +189,23 @@ public class HourlyApplication extends Application {
 
             Reminder r = new Reminder();
             r.hour = i;
+            r.minute = 0;
             r.enabled = hours.contains(h);
             r.setNext();
             list.add(r);
+
+            String next = Reminder.format(i + 1);
+
+            if (r.enabled && hours.contains(next)) {
+                for (int m = repeat; m < 60; m += repeat) {
+                    r = new Reminder();
+                    r.hour = i;
+                    r.minute = m;
+                    r.enabled = true;
+                    r.setNext();
+                    list.add(r);
+                }
+            }
         }
 
         return list;

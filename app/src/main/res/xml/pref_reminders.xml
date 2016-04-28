@@ -24,4 +24,14 @@
         android:key="speak"
         android:summary="Speak current time"
         android:title="Speak" />
+
+    <ListPreference
+        android:defaultValue="60"
+        android:entries="@array/repeat"
+        android:entryValues="@array/repeat_values"
+        android:key="repeat"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="Set reminders repeat"
+        android:title="Reminders Every" />
 </PreferenceScreen>

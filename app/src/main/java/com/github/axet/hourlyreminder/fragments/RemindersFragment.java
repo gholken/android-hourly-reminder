@@ -242,6 +242,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         sound = new Sound(getActivity());
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_REPEAT));
 
         findPreference(HourlyApplication.PREFERENCE_BEEP).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override

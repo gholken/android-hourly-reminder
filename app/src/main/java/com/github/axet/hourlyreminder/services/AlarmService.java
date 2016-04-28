@@ -440,5 +440,9 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         if (key.equals(HourlyApplication.PREFERENCE_ALARM)) {
             registerNextAlarm();
         }
+        if (key.equals(HourlyApplication.PREFERENCE_REPEAT)) {
+            reminders = HourlyApplication.loadReminders(this);
+            registerNextAlarm();
+        }
     }
 }
