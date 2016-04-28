@@ -162,12 +162,8 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         int rh = cal.get(Calendar.HOUR_OF_DAY);
         int rm = cal.get(Calendar.MINUTE);
 
-        if (rm != 0)
-            return null;
-
-        String h = Reminder.format(rh);
         for (Reminder r : reminders) {
-            if (r.getHour() == rh)
+            if (r.getHour() == rh && r.minute == rm)
                 return r;
         }
         return null;
