@@ -154,21 +154,6 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         return alarms;
     }
 
-    // check if 'hour' is a enabled reminder
-    public Reminder getReminder(long time) {
-        Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
-
-        int rh = cal.get(Calendar.HOUR_OF_DAY);
-        int rm = cal.get(Calendar.MINUTE);
-
-        for (Reminder r : reminders) {
-            if (r.getHour() == rh && r.minute == rm)
-                return r;
-        }
-        return null;
-    }
-
     // cancel alarm 'time' by set it time for day+1 (same hour:min)
     public void tomorrow(long time) {
         for (Alarm a : alarms) {
@@ -185,9 +170,10 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             }
         }
 
-        Reminder r = getReminder(time);
-        if (r != null && r.enabled && r.isToday()) {
-            r.setTomorrow();
+        for (Reminder r : reminders) {
+            if (r.time == time && r.enabled) {
+                r.setTomorrow();
+            }
         }
 
         registerNextAlarm();
@@ -398,19 +384,20 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             }
         }
 
-        Reminder reminder = getReminder(time);
-        if (reminder != null && reminder.enabled) {
-            if (!alarmed)
-                sound.soundReminder(time);
+        for (Reminder r : reminders) {
+            if (r.time == time && r.enabled) {
+                if (!alarmed)
+                    sound.soundReminder(time);
 
-            // calling setNext is more safe. if this alarm have to fire today we will reset it
-            // to the same time. if it is already past today's time (as we expect) then it will
-            // be set for tomorrow.
-            //
-            // also safe if we moved to another timezone.
-            reminder.setNext();
+                // calling setNext is more safe. if this alarm have to fire today we will reset it
+                // to the same time. if it is already past today's time (as we expect) then it will
+                // be set for tomorrow.
+                //
+                // also safe if we moved to another timezone.
+                r.setNext();
 
-            registerNextAlarm();
+                registerNextAlarm();
+            }
         }
     }
 
