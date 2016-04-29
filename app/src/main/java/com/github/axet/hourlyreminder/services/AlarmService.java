@@ -30,7 +30,7 @@ import java.util.TreeSet;
 
 /**
  * System Alarm Manager notifes this service to create/stop alarms.
- * <p>
+ * <p/>
  * All Alarm notifications clicks routed to this service.
  */
 public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -312,6 +312,10 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     // time - 0 cancel notifcation
     // time - upcoming alarm time, show text.
     public void showNotificationUpcoming(long time) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.getBoolean(HourlyApplication.PREFERENCE_NOTIFICATIONS, true))
+            return;
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (time == 0) {
