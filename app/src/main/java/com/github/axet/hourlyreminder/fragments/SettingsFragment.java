@@ -35,7 +35,7 @@ import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.basics.Reminder;
 import com.github.axet.hourlyreminder.layouts.HoursDialogFragment;
 
-public class SettingsFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback {
+public class SettingsFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener {
     Sound sound;
 
     @Override
@@ -116,6 +116,9 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                 }
             });
         }
+
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        shared.registerOnSharedPreferenceChangeListener(this);
     }
 
     void setPhone() {
@@ -213,6 +216,16 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
         if (sound != null) {
             sound.close();
             sound = null;
+        }
+
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        shared.unregisterOnSharedPreferenceChangeListener(this);
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(HourlyApplication.PREFERENCE_ALARM)) {
+            ((SwitchPreferenceCompat) findPreference(HourlyApplication.PREFERENCE_ALARM)).setChecked(sharedPreferences.getBoolean(HourlyApplication.PREFERENCE_ALARM, false));
         }
     }
 }
