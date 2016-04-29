@@ -42,7 +42,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class RemindersFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback {
+public class RemindersFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener  {
 
     Sound sound;
 
@@ -244,31 +244,33 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
 
-        Preference p = findPreference(HourlyApplication.PREFERENCE_REPEAT);
-        p.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-            @Override
-            public boolean onPreferenceChange(Preference preference, Object o) {
-                // it is only for 23 api phones and up. since only alarms can trigs often then 15 mins.
-                if (Build.VERSION.SDK_INT >= 23) {
-                    int min = Integer.parseInt((String)o);
-                    if (min < 15) {
-                        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
-                        boolean b = shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, false);
-                        if (!b) {
-                            Toast.makeText(getActivity(), "Setting alarm type to 'alarm', check settings.", Toast.LENGTH_SHORT).show();
-                            SharedPreferences.Editor edit = shared.edit();
-                            edit.putBoolean(HourlyApplication.PREFERENCE_ALARM, true);
-                            edit.commit();
+        {
+            Preference p = findPreference(HourlyApplication.PREFERENCE_REPEAT);
+            p.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    // it is only for 23 api phones and up. since only alarms can trigs often then 15 mins.
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        int min = Integer.parseInt((String) o);
+                        if (min < 15) {
+                            SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                            boolean b = shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, false);
+                            if (!b) {
+                                Toast.makeText(getActivity(), "Setting alarm type to 'alarm', check settings.", Toast.LENGTH_SHORT).show();
+                                SharedPreferences.Editor edit = shared.edit();
+                                edit.putBoolean(HourlyApplication.PREFERENCE_ALARM, true);
+                                edit.commit();
+                            }
                         }
                     }
+                    return sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, o);
                 }
-                return sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, o);
-            }
-        });
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(p,
-                PreferenceManager
-                        .getDefaultSharedPreferences(p.getContext())
-                        .getAll().get(p.getKey()));
+            });
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(p,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(p.getContext())
+                            .getAll().get(p.getKey()));
+        }
 
         findPreference(HourlyApplication.PREFERENCE_BEEP).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
@@ -292,6 +294,9 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
                 return true;
             }
         });
+
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        shared.registerOnSharedPreferenceChangeListener(this);
     }
 
     static void annonce(Context context) {
@@ -339,9 +344,24 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
     public void onDestroy() {
         super.onDestroy();
 
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        shared.unregisterOnSharedPreferenceChangeListener(this);
+
         if (sound != null) {
             sound.close();
             sound = null;
+        }
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+        if (s.equals(HourlyApplication.PREFERENCE_REPEAT)) {
+            Preference p = findPreference(HourlyApplication.PREFERENCE_REPEAT);
+            sBindPreferenceSummaryToValueListener.onPreferenceChange(p,
+                    PreferenceManager
+                            .getDefaultSharedPreferences(p.getContext())
+                            .getAll().get(p.getKey()));
+            ((ListPreference) p).setValue(sharedPreferences.getString(HourlyApplication.PREFERENCE_REPEAT, "60"));
         }
     }
 }

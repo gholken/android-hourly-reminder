@@ -75,8 +75,29 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
         sound = new Sound(getActivity());
 
         // 23 SDK requires to be Alarm to be percice on time
-        if (Build.VERSION.SDK_INT < 23)
+        if (Build.VERSION.SDK_INT < 23) {
             getPreferenceScreen().removePreference(findPreference(HourlyApplication.PREFERENCE_ALARM));
+        } else {
+            // it is only for 23 api phones and up. since only alarms can trigs often then 15 mins.
+
+            findPreference(HourlyApplication.PREFERENCE_ALARM).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+                @Override
+                public boolean onPreferenceChange(Preference preference, Object o) {
+                    SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                    int min = Integer.parseInt(shared.getString(HourlyApplication.PREFERENCE_REPEAT, "60"));
+                    if (min < 15) {
+                        boolean b = (Boolean)o;
+                        if (!b) {
+                            Toast.makeText(getActivity(), "Set reminders repeat 15 min, check 'reminders'.", Toast.LENGTH_SHORT).show();
+                            SharedPreferences.Editor edit = shared.edit();
+                            edit.putString(HourlyApplication.PREFERENCE_REPEAT, "15");
+                            edit.commit();
+                        }
+                    }
+                    return true;
+                }
+            });
+        }
 
         RemindersFragment.bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_VOLUME));
 
