@@ -322,6 +322,10 @@ public class FireAlarmService extends Service {
 
     // alarm dismiss button
     public void showNotificationAlarm(long time) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!prefs.getBoolean(HourlyApplication.PREFERENCE_NOTIFICATIONS, true))
+            return;
+
         NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (time == 0) {

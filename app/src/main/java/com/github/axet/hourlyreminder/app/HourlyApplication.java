@@ -36,6 +36,7 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_BEEP = "beep";
     public static final String PREFERENCE_SPEAK = "speak";
     public static final String PREFERENCE_VOLUME = "volume";
+    public static final String PREFERENCE_NOTIFICATIONS = "notifications";
 
     public static final String PREFERENCE_THEME = "theme";
     public static final String PREFERENCE_SPEAK_AMPM = "speak_ampm";
