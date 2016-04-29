@@ -18,8 +18,10 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.ContentFrameLayout;
+import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -86,7 +88,7 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                     SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
                     int min = Integer.parseInt(shared.getString(HourlyApplication.PREFERENCE_REPEAT, "60"));
                     if (min < 15) {
-                        boolean b = (Boolean)o;
+                        boolean b = (Boolean) o;
                         if (!b) {
                             Toast.makeText(getActivity(), "Set reminders repeat 15 min, check 'reminders'.", Toast.LENGTH_SHORT).show();
                             SharedPreferences.Editor edit = shared.edit();
@@ -203,6 +205,10 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
         return true;
     }
 
+    public int dp2px(int dp) {
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getActivity().getResources().getDisplayMetrics());
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -225,6 +231,10 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                     sound.soundReminder(System.currentTimeMillis());
                 }
             });
+
+            RecyclerView v = getListView();
+            v.setClipToPadding(false);
+            v.setPadding(0, 0, 0, dp2px(61) + dim);
         }
 
         return view;
