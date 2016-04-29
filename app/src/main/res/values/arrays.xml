@@ -40,11 +40,13 @@
         <item>Hourly</item>
         <item>Every 30 minutes</item>
         <item>Every 15 minutes</item>
+        <item>Every 5 minutes</item>
     </string-array>
 
     <string-array name="repeat_values">
         <item>60</item>
         <item>30</item>
         <item>15</item>
+        <item>5</item>
     </string-array>
 </resources>

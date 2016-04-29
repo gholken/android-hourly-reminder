@@ -4,6 +4,7 @@ import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -242,7 +243,32 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         sound = new Sound(getActivity());
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
-        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_REPEAT));
+
+        Preference p = findPreference(HourlyApplication.PREFERENCE_REPEAT);
+        p.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object o) {
+                // it is only for 23 api phones and up. since only alarms can trigs often then 15 mins.
+                if (Build.VERSION.SDK_INT >= 23) {
+                    int min = Integer.parseInt((String)o);
+                    if (min < 15) {
+                        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                        boolean b = shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, false);
+                        if (!b) {
+                            Toast.makeText(getActivity(), "Setting alarm type to 'alarm', check settings.", Toast.LENGTH_SHORT).show();
+                            SharedPreferences.Editor edit = shared.edit();
+                            edit.putBoolean(HourlyApplication.PREFERENCE_ALARM, true);
+                            edit.commit();
+                        }
+                    }
+                }
+                return sBindPreferenceSummaryToValueListener.onPreferenceChange(preference, o);
+            }
+        });
+        sBindPreferenceSummaryToValueListener.onPreferenceChange(p,
+                PreferenceManager
+                        .getDefaultSharedPreferences(p.getContext())
+                        .getAll().get(p.getKey()));
 
         findPreference(HourlyApplication.PREFERENCE_BEEP).setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
