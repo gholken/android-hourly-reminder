@@ -31,6 +31,7 @@ import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
@@ -314,10 +315,6 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         }
     }
 
-    public int dp2px(int dp) {
-        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, getActivity().getResources().getDisplayMetrics());
-    }
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
@@ -343,7 +340,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
             RecyclerView v = getListView();
             v.setClipToPadding(false);
-            v.setPadding(0, 0, 0, dp2px(61) + dim);
+            v.setPadding(0, 0, 0, ThemeUtils.dp2px(getActivity(), 61) + dim);
         }
 
         return view;
