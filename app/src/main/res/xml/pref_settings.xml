@@ -11,16 +11,6 @@
         android:summary="Use 'alarm' event type for hourly reminders (more precise on timing)"
         android:title="Alarm Type" />
 
-    <ListPreference
-        android:defaultValue="Theme_White"
-        android:entries="@array/themes"
-        android:entryValues="@array/themes_values"
-        android:key="theme"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:summary="Set application theme (dark / light)"
-        android:title="Application Theme" />
-
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="speak_ampm"
@@ -44,6 +34,16 @@
         android:key="notifications"
         android:summary="Show notifications"
         android:title="Notifications" />
+
+    <ListPreference
+        android:defaultValue="Theme_White"
+        android:entries="@array/themes"
+        android:entryValues="@array/themes_values"
+        android:key="theme"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="Set application theme (dark / light)"
+        android:title="Application Theme" />
 
     <ListPreference
         android:defaultValue="Mon"
