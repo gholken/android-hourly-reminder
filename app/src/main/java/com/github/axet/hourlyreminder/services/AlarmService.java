@@ -285,11 +285,11 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             Calendar cur = Calendar.getInstance();
 
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-            int repeat = Integer.parseInt(shared.getString(PREFERENCE_REPEAT, "60")) * 60;
+            int repeat = Integer.parseInt(shared.getString(HourlyApplication.PREFERENCE_REPEAT, "60")) * 60;
 
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(time);
-            cal.add(Calendar.SECOND, -(repeat / 15));
+            cal.add(Calendar.SECOND, -(repeat / 4));
 
             if (cur.after(cal)) {
                 // we already 15 before alarm, show notification_upcoming
