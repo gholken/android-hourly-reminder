@@ -30,7 +30,7 @@ import java.util.TreeSet;
 
 /**
  * System Alarm Manager notifes this service to create/stop alarms.
- * <p/>
+ * <p>
  * All Alarm notifications clicks routed to this service.
  */
 public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -284,9 +284,12 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         } else {
             Calendar cur = Calendar.getInstance();
 
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            int repeat = Integer.parseInt(shared.getString(PREFERENCE_REPEAT, "60")) * 60;
+
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(time);
-            cal.add(Calendar.MINUTE, -15);
+            cal.add(Calendar.SECOND, -(repeat / 15));
 
             if (cur.after(cal)) {
                 // we already 15 before alarm, show notification_upcoming
