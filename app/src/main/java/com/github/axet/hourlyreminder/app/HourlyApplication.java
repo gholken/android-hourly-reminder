@@ -383,7 +383,7 @@ public class HourlyApplication extends Application {
 
     public static String getTitle(Context context, String file) {
         if (file.isEmpty())
-            return getTitle(context, Alarm.DEFAULT_RING);
+            return null;
 
         File f = new File(file);
         if (f.exists()) {
