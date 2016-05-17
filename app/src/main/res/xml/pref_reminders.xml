@@ -19,6 +19,26 @@
         android:summary="Play beep sound"
         android:title="Beep Sound" />
 
+    <com.github.axet.hourlyreminder.widgets.CustomSoundListPreference
+        android:defaultValue="off"
+        android:key="custom_sound"
+        android:entries="@array/custom_sound"
+        android:entryValues="@array/custom_sound_values"
+        android:summary="Play custom sound"
+        android:title="Custom Sound" />
+
+    <com.github.axet.androidlibrary.widgets.RingtonePreference
+        android:defaultValue=""
+        android:key="ringtone"
+        android:summary="Set Ringtone"
+        android:title="Ringtone" />
+
+    <com.github.axet.androidlibrary.widgets.FilePathPreference
+        android:defaultValue=""
+        android:key="sound"
+        android:summary="User custom file"
+        android:title="Sound File" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="speak"

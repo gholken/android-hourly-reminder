@@ -16,6 +16,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
@@ -41,6 +42,7 @@ import android.widget.Toast;
 
 import com.github.axet.androidlibrary.animations.MarginAnimation;
 import com.github.axet.androidlibrary.animations.RemoveItemAnimation;
+import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.animations.AlarmAnimation;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
@@ -81,7 +83,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     int startweek = 0;
 
-    HashMap<Uri, String> titles = new HashMap<>();
     TreeMap<Long, Integer> viewids = new TreeMap<>();
 
     public AlarmsFragment() {
@@ -114,17 +115,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         super.onSaveInstanceState(outState);
 
         outState.putLong("selected", selected);
-    }
-
-    String getTitle(Uri uri) {
-        String title = titles.get(uri);
-        if (title != null)
-            return title;
-        Ringtone rt = RingtoneManager.getRingtone(getActivity(), uri);
-        title = rt.getTitle(getActivity());
-        rt.stop();
-        titles.put(uri, title);
-        return title;
     }
 
     @Override
@@ -217,19 +207,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
             if (uri != null) {
                 fragmentRequestRingtone.ringtoneValue = uri.toString();
-            } else {
-                fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
-            }
-            save(fragmentRequestRingtone);
-            fragmentRequestRingtone = null;
-            return;
-        }
-
-        if (requestCode == 1) {
-            Uri uri = data.getData();
-            if (uri != null) {
-                File f = storage.storeRingtone(uri);
-                fragmentRequestRingtone.ringtoneValue = f.getAbsolutePath();
             } else {
                 fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
             }
@@ -467,14 +444,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         ringtone.setChecked(a.ringtone);
         if (ringtone.isChecked()) {
             TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
-            String title = "";
-            File f = new File(a.ringtoneValue);
-            if (f.exists()) {
-                title = f.getName();
-            } else {
-                title = getTitle(Uri.parse(a.ringtoneValue));
-            }
-            ringtoneValue.setText(title.isEmpty() ? Alarm.DEFAULT_RING : title);
+            String title = HourlyApplication.getTitle(getActivity(), a.ringtoneValue);
+            ringtoneValue.setText(title);
         }
 
         final CheckBox beep = (CheckBox) view.findViewById(R.id.alarm_beep);
@@ -519,7 +490,15 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     return;
                 Uri uri = Uri.parse(a.ringtoneValue);
 
-                preview = sound.playOnce(uri);
+                preview = sound.playOnce(uri, new Runnable() {
+                    @Override
+                    public void run() {
+                        alarmRingtonePlay.clearAnimation();
+                        // it suppose to be already cleared
+                        preview.release();
+                        preview = null;
+                    }
+                });
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
                 if (preview != null)
                     alarmRingtonePlay.startAnimation(a);
@@ -622,13 +601,32 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     }
 
     void selectFile() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        final OpenFileDialog f = new OpenFileDialog(getActivity());
 
-        startActivityForResult(
-                Intent.createChooser(intent, "Select a File"),
-                1);
+        String path = fragmentRequestRingtone.ringtoneValue;
+
+        if (path == null || path.isEmpty()) {
+            path = Environment.getExternalStorageDirectory().getPath();
+        }
+
+        File sound = new File(path);
+
+        while (!sound.exists()) {
+            sound = sound.getParentFile();
+            if (sound == null)
+                sound = Environment.getExternalStorageDirectory();
+        }
+
+        f.setCurrentPath(sound);
+        f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                fragmentRequestRingtone.ringtoneValue = f.getCurrentPath().getAbsolutePath();
+                save(fragmentRequestRingtone);
+                fragmentRequestRingtone = null;
+            }
+        });
+        f.show();
     }
 
     @Override

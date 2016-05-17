@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
-import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.media.ToneGenerator;
@@ -18,7 +17,6 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.basics.Alarm;
@@ -136,7 +134,7 @@ public class Sound {
     public void soundReminder(final long time) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
-        if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
             vibrate();
         }
 
@@ -148,20 +146,63 @@ public class Sound {
             return;
         }
 
-        if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
-            playBeep(new Runnable() {
-                @Override
-                public void run() {
-                    if (shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false)) {
-                        playSpeech(time, null);
-                    }
+        final Runnable text = new Runnable() {
+            @Override
+            public void run() {
+                String text = String.format("Time is %s", Alarm.format(context, time));
+                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        final Runnable speech = new Runnable() {
+            @Override
+            public void run() {
+                if (shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false)) {
+                    playSpeech(time, null);
+                } else {
+                    text.run();
                 }
-            });
-        } else if (shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false)) {
-            playSpeech(time, null);
+            }
+        };
+
+        final Runnable custom = new Runnable() {
+            @Override
+            public void run() {
+                if (!shared.getString(HourlyApplication.PREFERENCE_CUSTOM_SOUND, "").equals(HourlyApplication.PREFERENCE_CUSTOM_SOUND_OFF)) {
+                    playCustom(time, speech);
+                } else {
+                    speech.run();
+                }
+            }
+        };
+
+        final Runnable beep = new Runnable() {
+            @Override
+            public void run() {
+                if (shared.getBoolean(HourlyApplication.PREFERENCE_BEEP, false)) {
+                    playBeep(custom);
+                } else {
+                    custom.run();
+                }
+            }
+        };
+
+        beep.run();
+    }
+
+    public void playCustom(long time, final Runnable done) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
+        String custom = shared.getString(HourlyApplication.PREFERENCE_CUSTOM_SOUND, "");
+
+        if (custom.equals("ringtone")) {
+            Uri uri = Uri.parse(shared.getString(HourlyApplication.PREFERENCE_RINGTONE, ""));
+            playOnce(uri, done);
+        } else if (custom.equals("sound")) {
+            Uri uri = Uri.parse(shared.getString(HourlyApplication.PREFERENCE_SOUND, ""));
+            playOnce(uri, done);
         } else {
-            String text = String.format("Time is %s", Alarm.format(context, time));
-            Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+            done.run();
         }
     }
 
@@ -330,7 +371,7 @@ public class Sound {
         return true;
     }
 
-    public MediaPlayer playOnce(Uri uri) {
+    public MediaPlayer playOnce(Uri uri, final Runnable done) {
         // https://code.google.com/p/android/issues/detail?id=1314
         MediaPlayer player = MediaPlayer.create(context, uri);
         if (player == null) {
@@ -338,6 +379,8 @@ public class Sound {
         }
         if (player == null) {
             Toast.makeText(context, "No default ringtone", Toast.LENGTH_SHORT).show();
+            if (done != null)
+                done.run();
             return null;
         }
         if (Build.VERSION.SDK_INT >= 21) {
@@ -346,16 +389,21 @@ public class Sound {
                     .setContentType(SOUND_TYPE)
                     .build());
         }
-        final MediaPlayer p = player;
         player.setLooping(false);
+
+        final MediaPlayer p = player;
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                                            @Override
                                            public void onCompletion(MediaPlayer mp) {
                                                p.stop();
                                                p.release();
+
+                                               if (done != null)
+                                                   done.run();
                                            }
                                        }
         );
+
         player.setVolume(getVolume(), getVolume());
         player.start();
         return player;
