@@ -1,50 +1,58 @@
 package com.github.axet.hourlyreminder.fragments;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v13.app.FragmentCompat;
 import android.support.v14.preference.PreferenceFragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.preference.EditTextPreference;
 import android.support.v7.preference.ListPreference;
 import android.support.v7.preference.Preference;
 import android.support.v7.preference.PreferenceGroup;
 import android.support.v7.preference.PreferenceGroupAdapter;
-import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.preference.PreferenceViewHolder;
 import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.ContentFrameLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.widget.Adapter;
-import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import com.github.axet.androidlibrary.widgets.FilePathPreference;
+import com.github.axet.androidlibrary.widgets.RingtonePreference;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
+import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.layouts.HoursDialogFragment;
 import com.github.axet.androidlibrary.widgets.SeekBarPreference;
 import com.github.axet.androidlibrary.widgets.SeekBarPreferenceDialogFragment;
+import com.github.axet.hourlyreminder.widgets.CustomSoundListPreference;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-public class RemindersFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener  {
+public class RemindersFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
     Sound sound;
 
@@ -53,16 +61,37 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
 
+            if (preference.getKey().equals(HourlyApplication.PREFERENCE_RINGTONE)) {
+                preference.setSummary(HourlyApplication.getTitle(preference.getContext(), stringValue));
+                return true;
+            }
+
+            if (preference.getKey().equals(HourlyApplication.PREFERENCE_CUSTOM_SOUND)) {
+                CustomSoundListPreference pp = (CustomSoundListPreference) preference;
+                pp.update(stringValue);
+                // keep update List type pref
+                // return true;
+            }
+
             if (preference.getKey().equals(HourlyApplication.PREFERENCE_HOURS)) {
                 List sortedList = new ArrayList((Set) value);
                 preference.setSummary(HourlyApplication.getHoursString(preference.getContext(), sortedList));
-            } else if (preference instanceof SeekBarPreference) {
+                return true;
+            }
+
+            if (preference instanceof FilePathPreference) {
+                if (stringValue.isEmpty())
+                    stringValue = "(not selected)";
+                preference.setSummary(stringValue);
+                return true;
+            }
+
+            if (preference instanceof SeekBarPreference) {
                 float f = (Float) value;
                 preference.setSummary((int) (f * 100) + "%");
             } else if (preference instanceof android.support.v14.preference.MultiSelectListPreference) {
                 List sortedList = new ArrayList((Set) value);
                 Collections.sort(sortedList);
-
                 preference.setSummary(sortedList.toString());
             } else if (preference instanceof ListPreference) {
                 // For list preferences, look up the correct display value in
@@ -217,8 +246,12 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         return this;
     }
 
+    public String getDefault() {
+        return Environment.getExternalStorageDirectory().getPath();
+    }
+
     @Override
-    public boolean onPreferenceDisplayDialog(PreferenceFragment preferenceFragment, Preference preference) {
+    public boolean onPreferenceDisplayDialog(PreferenceFragment preferenceFragment, final Preference preference) {
         if (preference instanceof SeekBarPreference) {
             SeekBarPreferenceDialogFragment f = SeekBarPreferenceDialogFragment.newInstance(preference.getKey());
             ((DialogFragment) f).setTargetFragment(this, 0);
@@ -230,6 +263,18 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             HoursDialogFragment f = HoursDialogFragment.newInstance(preference.getKey());
             ((DialogFragment) f).setTargetFragment(this, 0);
             ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
+            return true;
+        }
+
+        if (preference.getKey().equals(HourlyApplication.PREFERENCE_SOUND)) {
+            if (permitted())
+                selectFile();
+            return true;
+        }
+
+        if (preference.getKey().equals(HourlyApplication.PREFERENCE_RINGTONE)) {
+            RingtonePreference pp = (RingtonePreference) preference;
+            pp.showDialog(this, 0);
             return true;
         }
 
@@ -245,6 +290,12 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         sound = new Sound(getActivity());
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
+
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_SOUND));
+
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_CUSTOM_SOUND));
+
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_RINGTONE));
 
         {
             Preference p = findPreference(HourlyApplication.PREFERENCE_REPEAT);
@@ -370,4 +421,69 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             ((ListPreference) p).setValue(sharedPreferences.getString(HourlyApplication.PREFERENCE_REPEAT, "60"));
         }
     }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (resultCode != Activity.RESULT_OK) {
+            return;
+        }
+
+        if (requestCode == 0) {
+            Uri uri = data.getParcelableExtra(RingtoneManager.EXTRA_RINGTONE_PICKED_URI);
+            EditTextPreference edit = (EditTextPreference) findPreference(HourlyApplication.PREFERENCE_RINGTONE);
+            String text = "";
+
+            if (uri != null) {
+                text = uri.toString();
+            } else {
+                text = Alarm.DEFAULT_RING;
+            }
+
+            edit.setText(text);
+            edit.getOnPreferenceChangeListener().onPreferenceChange(edit, text);
+            return;
+        }
+    }
+
+    void selectFile() {
+        FilePathPreference pp = (FilePathPreference) findPreference(HourlyApplication.PREFERENCE_SOUND);
+        pp.showDialog(getActivity());
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch (requestCode) {
+            case 1:
+                if (permitted(permissions))
+                    selectFile();
+                else
+                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public static final String[] PERMISSIONS = new String[]{Manifest.permission.READ_EXTERNAL_STORAGE};
+
+    boolean permitted(String[] ss) {
+        for (String s : ss) {
+            if (ContextCompat.checkSelfPermission(getActivity(), s) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    boolean permitted() {
+        for (String s : PERMISSIONS) {
+            if (ContextCompat.checkSelfPermission(getActivity(), s) != PackageManager.PERMISSION_GRANTED) {
+                FragmentCompat.requestPermissions(this, PERMISSIONS, 1);
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -53,4 +53,16 @@
         <item>10</item>
         <item>5</item>
     </string-array>
+
+    <string-array name="custom_sound">
+        <item>Off</item>
+        <item>Ringtone Type</item>
+        <item>Sound File Type</item>
+    </string-array>
+
+    <string-array name="custom_sound_values">
+        <item>off</item>
+        <item>ringtone</item>
+        <item>sound</item>
+    </string-array>
 </resources>

@@ -3,6 +3,9 @@ package com.github.axet.hourlyreminder.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
@@ -15,9 +18,11 @@ import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -28,13 +33,21 @@ public class HourlyApplication extends Application {
     public static final int NOTIFICATION_ALARM_ICON = 1;
     public static final int NOTIFICATION_MISSED_ICON = 2;
 
+    public static final String PREFERENCE_VERSION = "version";
+
     public static final String PREFERENCE_ENABLED = "enabled";
     public static final String PREFERENCE_HOURS = "hours";
     public static final String PREFERENCE_REPEAT = "repeat";
     public static final String PREFERENCE_ALARM = "alarm";
     public static final String PREFERENCE_ALARMS_PREFIX = "Alarm_";
+
     public static final String PREFERENCE_BEEP = "beep";
+    public static final String PREFERENCE_CUSTOM_SOUND = "custom_sound";
+    public static final String PREFERENCE_CUSTOM_SOUND_OFF = "off";
+    public static final String PREFERENCE_RINGTONE = "ringtone";
+    public static final String PREFERENCE_SOUND = "sound";
     public static final String PREFERENCE_SPEAK = "speak";
+
     public static final String PREFERENCE_VOLUME = "volume";
     public static final String PREFERENCE_NOTIFICATIONS = "notifications";
 
@@ -45,6 +58,10 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_WEEKSTART = "weekstart";
 
     public static final String PREFERENCE_VIBRATE = "vibrate";
+
+    static HashMap<Uri, String> titles = new HashMap<>();
+
+    public static final int VERSION = 1;
 
     @Override
     public void onCreate() {
@@ -58,6 +75,17 @@ public class HourlyApplication extends Application {
             PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
             SharedPreferences.Editor editor = defaultValueSp.edit().putBoolean("_has_set_default_values", true);
             SharedPreferencesCompat.EditorCompat.getInstance().apply(editor);
+        }
+
+        // version settings upgrade
+        {
+            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+            int ver = shared.getInt(PREFERENCE_VERSION, 0);
+            SharedPreferences.Editor edit = shared.edit();
+            switch (ver) {
+            }
+            edit.putInt(PREFERENCE_VERSION, VERSION);
+            edit.commit();
         }
     }
 
@@ -351,5 +379,26 @@ public class HourlyApplication extends Application {
         } else {
             return light;
         }
+    }
+
+    public static String getTitle(Context context, String file) {
+        if (file.isEmpty())
+            return getTitle(context, Alarm.DEFAULT_RING);
+
+        File f = new File(file);
+        if (f.exists()) {
+            return f.getName();
+        }
+
+        Uri uri = Uri.parse(file);
+
+        String title = titles.get(uri);
+        if (title != null)
+            return title;
+        Ringtone rt = RingtoneManager.getRingtone(context, uri);
+        title = rt.getTitle(context);
+        rt.stop();
+        titles.put(uri, title);
+        return title;
     }
 }
