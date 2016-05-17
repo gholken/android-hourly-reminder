@@ -54,7 +54,16 @@ import java.util.Set;
 
 public class RemindersFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener {
 
+    public final static Uri DEFAULT_NOTIFICATION = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+
     Sound sound;
+
+    static String getTitle(Context context, String t) {
+        String s = HourlyApplication.getTitle(context, t);
+        if (s == null)
+            s = HourlyApplication.getTitle(context, DEFAULT_NOTIFICATION.toString());
+        return s;
+    }
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener = new Preference.OnPreferenceChangeListener() {
         @Override
@@ -62,7 +71,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             String stringValue = value.toString();
 
             if (preference.getKey().equals(HourlyApplication.PREFERENCE_RINGTONE)) {
-                preference.setSummary(HourlyApplication.getTitle(preference.getContext(), stringValue));
+                preference.setSummary(getTitle(preference.getContext(), stringValue));
                 return true;
             }
 
@@ -274,7 +283,16 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
         if (preference.getKey().equals(HourlyApplication.PREFERENCE_RINGTONE)) {
             RingtonePreference pp = (RingtonePreference) preference;
-            pp.showDialog(this, 0);
+
+            Uri uri = null;
+            if (!pp.getText().isEmpty()) {
+                uri = Uri.parse(pp.getText());
+            }
+            startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+                    .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+                    .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Reminder")
+                    .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri), 0);
+
             return true;
         }
 
@@ -438,7 +456,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             if (uri != null) {
                 text = uri.toString();
             } else {
-                text = Alarm.DEFAULT_RING;
+                text = DEFAULT_NOTIFICATION.toString();
             }
 
             edit.setText(text);

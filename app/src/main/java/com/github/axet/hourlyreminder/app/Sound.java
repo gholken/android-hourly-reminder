@@ -197,10 +197,16 @@ public class Sound {
 
         if (custom.equals("ringtone")) {
             Uri uri = Uri.parse(shared.getString(HourlyApplication.PREFERENCE_RINGTONE, ""));
-            playOnce(uri, done);
+            if (player != null) {
+                player.release();
+            }
+            player = playOnce(uri, done);
         } else if (custom.equals("sound")) {
             Uri uri = Uri.parse(shared.getString(HourlyApplication.PREFERENCE_SOUND, ""));
-            playOnce(uri, done);
+            if (player != null) {
+                player.release();
+            }
+            player = playOnce(uri, done);
         } else {
             done.run();
         }

@@ -445,6 +445,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         if (ringtone.isChecked()) {
             TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
             String title = HourlyApplication.getTitle(getActivity(), a.ringtoneValue);
+            if (title == null)
+                title = HourlyApplication.getTitle(getActivity(), Alarm.DEFAULT_RING);
             ringtoneValue.setText(title);
         }
 
