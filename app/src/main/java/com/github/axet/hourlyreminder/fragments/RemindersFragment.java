@@ -61,7 +61,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
     static String getTitle(Context context, String t) {
         String s = HourlyApplication.getTitle(context, t);
         if (s == null)
-            s = HourlyApplication.getTitle(context, DEFAULT_NOTIFICATION.toString());
+            s = "None";
         return s;
     }
 
@@ -276,23 +276,14 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         }
 
         if (preference.getKey().equals(HourlyApplication.PREFERENCE_SOUND)) {
-            if (permitted())
+            if (permitted(1))
                 selectFile();
             return true;
         }
 
         if (preference.getKey().equals(HourlyApplication.PREFERENCE_RINGTONE)) {
-            RingtonePreference pp = (RingtonePreference) preference;
-
-            Uri uri = null;
-            if (!pp.getText().isEmpty()) {
-                uri = Uri.parse(pp.getText());
-            }
-            startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
-                    .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
-                    .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Reminder")
-                    .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri), 0);
-
+            if (permitted(2))
+                selectRingtone();
             return true;
         }
 
@@ -403,6 +394,9 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             f.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    if (sound.playerClose()) {
+                        return;
+                    }
                     sound.soundReminder(System.currentTimeMillis());
                 }
             });
@@ -455,8 +449,6 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
             if (uri != null) {
                 text = uri.toString();
-            } else {
-                text = DEFAULT_NOTIFICATION.toString();
             }
 
             edit.setText(text);
@@ -470,6 +462,25 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         pp.showDialog(getActivity());
     }
 
+    void selectRingtone() {
+        // W/MediaPlayer: Couldn't open file on client side; trying server side:
+        // java.lang.SecurityException: Permission Denial: reading com.android.providers.media.MediaProvider uri content://media/external/audio/media/17722
+        // from pid=697, uid=10204
+        // requires android.permission.READ_EXTERNAL_STORAGE, or grantUriPermission()
+        //
+        // context.grantUriPermission("com.android.providers.media.MediaProvider", Uri.parse("content://media/external/images/media"), Intent.FLAG_GRANT_READ_URI_PERMISSION);
+
+        RingtonePreference pp = (RingtonePreference) findPreference(HourlyApplication.PREFERENCE_RINGTONE);
+        Uri uri = null;
+        if (!pp.getText().isEmpty()) {
+            uri = Uri.parse(pp.getText());
+        }
+        startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
+                .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
+                .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Reminder")
+                .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri), 0);
+    }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -478,6 +489,11 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             case 1:
                 if (permitted(permissions))
                     selectFile();
+                else
+                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+            case 2:
+                if (permitted(permissions))
+                    selectRingtone();
                 else
                     Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
         }
@@ -494,10 +510,10 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         return true;
     }
 
-    boolean permitted() {
+    boolean permitted(int code) {
         for (String s : PERMISSIONS) {
             if (ContextCompat.checkSelfPermission(getActivity(), s) != PackageManager.PERMISSION_GRANTED) {
-                FragmentCompat.requestPermissions(this, PERMISSIONS, 1);
+                FragmentCompat.requestPermissions(this, PERMISSIONS, code);
                 return false;
             }
         }

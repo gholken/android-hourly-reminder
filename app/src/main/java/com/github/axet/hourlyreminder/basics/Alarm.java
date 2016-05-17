@@ -2,6 +2,8 @@ package com.github.axet.hourlyreminder.basics;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.Html;
 import android.text.Spanned;
@@ -21,7 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class Alarm {
-    public final static String DEFAULT_RING = "content://settings/system/ringtone";
+    public final static Uri DEFAULT_RING = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
 
     // days <-> java index converter
     //
@@ -99,7 +101,7 @@ public class Alarm {
         ringtone = false;
         beep = false;
         speech = true;
-        ringtoneValue = DEFAULT_RING;
+        ringtoneValue = DEFAULT_RING.toString();
 
         setTime(9, 0);
     }
