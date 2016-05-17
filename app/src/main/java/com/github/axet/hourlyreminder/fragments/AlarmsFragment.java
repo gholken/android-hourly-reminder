@@ -208,7 +208,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             if (uri != null) {
                 fragmentRequestRingtone.ringtoneValue = uri.toString();
             } else {
-                fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING;
+                fragmentRequestRingtone.ringtoneValue = Alarm.DEFAULT_RING.toString();
             }
             save(fragmentRequestRingtone);
             fragmentRequestRingtone = null;
@@ -446,7 +446,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             TextView ringtoneValue = (TextView) view.findViewById(R.id.alarm_ringtone_value);
             String title = HourlyApplication.getTitle(getActivity(), a.ringtoneValue);
             if (title == null)
-                title = HourlyApplication.getTitle(getActivity(), Alarm.DEFAULT_RING);
+                title = HourlyApplication.getTitle(getActivity(), Alarm.DEFAULT_RING.toString());
             ringtoneValue.setText(title);
         }
 

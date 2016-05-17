@@ -1,11 +1,13 @@
 package com.github.axet.hourlyreminder.app;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
+import android.media.RingtoneManager;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
@@ -28,6 +30,8 @@ import java.util.UUID;
 
 public class Sound {
     public static final String TAG = Sound.class.getSimpleName();
+
+    public final static Uri DEFAULT_ALARM = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
 
     // beep ms
     public static final int BEEP = 100;
@@ -76,7 +80,8 @@ public class Sound {
             tts = null;
         }
         if (player != null) {
-            player.stop();
+            // sometime it can fail with Caused by: java.lang.IllegalStateException
+            //player.stop();
             player.release();
             player = null;
         }
@@ -196,17 +201,43 @@ public class Sound {
         String custom = shared.getString(HourlyApplication.PREFERENCE_CUSTOM_SOUND, "");
 
         if (custom.equals("ringtone")) {
-            Uri uri = Uri.parse(shared.getString(HourlyApplication.PREFERENCE_RINGTONE, ""));
+            String uri = shared.getString(HourlyApplication.PREFERENCE_RINGTONE, "");
             if (player != null) {
                 player.release();
+                player = null;
             }
-            player = playOnce(uri, done);
+            if (uri.isEmpty())
+                done.run();
+            else
+                player = playOnce(Uri.parse(uri), new Runnable() {
+                    @Override
+                    public void run() {
+                        if (player != null) {
+                            player.release();
+                            player = null;
+                        }
+                        done.run();
+                    }
+                });
         } else if (custom.equals("sound")) {
-            Uri uri = Uri.parse(shared.getString(HourlyApplication.PREFERENCE_SOUND, ""));
+            String uri = shared.getString(HourlyApplication.PREFERENCE_SOUND, "");
             if (player != null) {
                 player.release();
+                player = null;
             }
-            player = playOnce(uri, done);
+            if (uri.isEmpty())
+                done.run();
+            else
+                player = playOnce(Uri.parse(uri), new Runnable() {
+                    @Override
+                    public void run() {
+                        if (player != null) {
+                            player.release();
+                            player = null;
+                        }
+                        done.run();
+                    }
+                });
         } else {
             done.run();
         }
@@ -251,7 +282,7 @@ public class Sound {
         }
         player = MediaPlayer.create(context, uri);
         if (player == null) {
-            player = MediaPlayer.create(context, Uri.parse(Alarm.DEFAULT_RING));
+            player = MediaPlayer.create(context, Alarm.DEFAULT_RING);
         }
         if (player == null) {
             if (tone != null) {
@@ -378,10 +409,9 @@ public class Sound {
     }
 
     public MediaPlayer playOnce(Uri uri, final Runnable done) {
-        // https://code.google.com/p/android/issues/detail?id=1314
         MediaPlayer player = MediaPlayer.create(context, uri);
         if (player == null) {
-            player = MediaPlayer.create(context, Uri.parse(Alarm.DEFAULT_RING));
+            player = MediaPlayer.create(context, DEFAULT_ALARM);
         }
         if (player == null) {
             Toast.makeText(context, "No default ringtone", Toast.LENGTH_SHORT).show();
@@ -395,14 +425,15 @@ public class Sound {
                     .setContentType(SOUND_TYPE)
                     .build());
         }
+
+        // https://code.google.com/p/android/issues/detail?id=1314
         player.setLooping(false);
 
-        final MediaPlayer p = player;
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                                            @Override
                                            public void onCompletion(MediaPlayer mp) {
-                                               p.stop();
-                                               p.release();
+                                               mp.stop();
+                                               mp.release();
 
                                                if (done != null)
                                                    done.run();
@@ -429,5 +460,14 @@ public class Sound {
     public void vibrateStop() {
         Vibrator v = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         v.cancel();
+    }
+
+    public boolean playerClose() {
+        if (player != null) {
+            player.release();
+            player = null;
+            return true;
+        }
+        return false;
     }
 }
