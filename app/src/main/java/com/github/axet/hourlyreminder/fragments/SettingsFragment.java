@@ -179,11 +179,13 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                     setPhone();
                 else
                     Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                break;
             case 2:
                 if (permitted(PERMISSIONS_V))
                     setVibr();
                 else
                     Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
