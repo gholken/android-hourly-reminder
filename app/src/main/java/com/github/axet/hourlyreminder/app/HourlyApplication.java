@@ -54,6 +54,7 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_THEME = "theme";
     public static final String PREFERENCE_SPEAK_AMPM = "speak_ampm";
 
+    public static final String PREFERENCE_MUSICSILENCE = "musicsilence";
     public static final String PREFERENCE_CALLSILENCE = "callsilence";
     public static final String PREFERENCE_WEEKSTART = "weekstart";
 

@@ -25,6 +25,12 @@
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
+        android:key="musicsilence"
+        android:summary="Do not play alarm sounds while listening music"
+        android:title="Silence while music plays" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="false"
         android:key="vibrate"
         android:summary="Vibrate while sounding an alarm"
         android:title="Vibrate" />
@@ -54,5 +60,4 @@
         android:positiveButtonText="@null"
         android:summary="Start week on specified day"
         android:title="Start week on" />
-
 </PreferenceScreen>

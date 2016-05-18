@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
+import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
@@ -124,11 +125,19 @@ public class Sound {
         return track;
     }
 
-    public boolean silenced(long time) {
+    public boolean silenced() {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
         if (shared.getBoolean(HourlyApplication.PREFERENCE_CALLSILENCE, false)) {
             TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
             if (tm.getCallState() == TelephonyManager.CALL_STATE_OFFHOOK) {
+                return true;
+            }
+        }
+
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_MUSICSILENCE, false)) {
+            AudioManager tm = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+            if (tm.isMusicActive()) {
                 return true;
             }
         }
@@ -143,7 +152,8 @@ public class Sound {
             vibrate();
         }
 
-        if (silenced(time)) {
+        // do we have slince alarm?
+        if (silenced()) {
             String text = String.format("Time is %s", Alarm.format(context, time));
             text += "\n" +
                     "(Sound Silenced - Call)";

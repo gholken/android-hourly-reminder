@@ -133,6 +133,7 @@ public class FireAlarmService extends Service {
         registerReceiver(receiver, filter);
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
+
         if (shared.getBoolean(HourlyApplication.PREFERENCE_CALLSILENCE, false)) {
             pscl = new PhoneStateChangeListener();
             TelephonyManager tm = (TelephonyManager) this.getSystemService(Context.TELEPHONY_SERVICE);
@@ -155,7 +156,8 @@ public class FireAlarmService extends Service {
 
         showNotificationAlarm(time);
 
-        silenced = sound.silenced(time);
+        // do we have silence alarm?
+        silenced = sound.silenced();
         if (!silenced) {
             if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
                 sound.vibrateStart();
