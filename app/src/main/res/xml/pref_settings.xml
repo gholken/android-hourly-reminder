@@ -20,19 +20,19 @@
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="callsilence"
-        android:summary="Do not play alarm sounds during calls"
+        android:summary="Do not play sounds during calls"
         android:title="Silence during calls" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="musicsilence"
-        android:summary="Do not play alarm sounds while listening music"
-        android:title="Silence while music plays" />
+        android:summary="Do not play sounds while listening music"
+        android:title="Silence during music" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="vibrate"
-        android:summary="Vibrate while sounding an alarm"
+        android:summary="Vibrate while sounding an reminder / alarm"
         android:title="Vibrate" />
 
     <SwitchPreferenceCompat
