@@ -491,11 +491,13 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
                     selectFile();
                 else
                     Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                break;
             case 2:
                 if (permitted(permissions))
                     selectRingtone();
                 else
                     Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                break;
         }
     }
 
