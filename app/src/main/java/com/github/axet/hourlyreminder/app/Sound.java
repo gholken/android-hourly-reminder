@@ -154,9 +154,10 @@ public class Sound {
 
         // do we have slince alarm?
         if (silenced()) {
-            String text = String.format("Time is %s", Alarm.format(context, time));
-            text += "\n" +
-                    "(Sound Silenced - Call)";
+            String text = "";
+            text += "(Sound Silenced)";
+            text += "\n";
+            text += String.format("Time is %s", Alarm.format(context, time));
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             return;
         }
