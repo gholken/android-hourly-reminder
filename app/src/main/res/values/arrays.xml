@@ -65,4 +65,22 @@
         <item>ringtone</item>
         <item>sound</item>
     </string-array>
+
+    <string-array name="increasing_volume">
+        <item>Off</item>
+        <item>1 sec</item>
+        <item>2 sec</item>
+        <item>3 sec</item>
+        <item>4 sec</item>
+        <item>5 sec</item>
+    </string-array>
+
+    <string-array name="increasing_volume_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+    </string-array>
 </resources>

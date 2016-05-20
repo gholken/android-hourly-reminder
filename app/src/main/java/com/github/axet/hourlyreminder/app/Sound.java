@@ -20,6 +20,7 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.basics.Alarm;
@@ -46,6 +47,7 @@ public class Sound {
     Handler handler;
 
     Float volume;
+    Runnable increaseVolume;
 
     // AudioSystem.STREAM_ALARM AudioManager.STREAM_ALARM;
     final static int SOUND_CHANNEL = AudioAttributes.USAGE_ALARM;
@@ -82,12 +84,7 @@ public class Sound {
             tts.shutdown();
             tts = null;
         }
-        if (player != null) {
-            // sometime it can fail with Caused by: java.lang.IllegalStateException
-            //player.stop();
-            player.release();
-            player = null;
-        }
+        playerClose();
         if (tone != null) {
             tone.release();
             tone = null;
@@ -187,7 +184,7 @@ public class Sound {
             @Override
             public void run() {
                 if (!shared.getString(HourlyApplication.PREFERENCE_CUSTOM_SOUND, "").equals(HourlyApplication.PREFERENCE_CUSTOM_SOUND_OFF)) {
-                    playCustom(time, speech);
+                    playCustom(speech);
                 } else {
                     speech.run();
                 }
@@ -208,46 +205,34 @@ public class Sound {
         beep.run();
     }
 
-    public void playCustom(long time, final Runnable done) {
+    public void playCustom(final Runnable done) {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
         String custom = shared.getString(HourlyApplication.PREFERENCE_CUSTOM_SOUND, "");
 
         if (custom.equals("ringtone")) {
             String uri = shared.getString(HourlyApplication.PREFERENCE_RINGTONE, "");
-            if (player != null) {
-                player.release();
-                player = null;
-            }
+            playerClose();
             if (uri.isEmpty())
                 done.run();
             else
                 player = playOnce(Uri.parse(uri), new Runnable() {
                     @Override
                     public void run() {
-                        if (player != null) {
-                            player.release();
-                            player = null;
-                        }
+                        playerClose();
                         done.run();
                     }
                 });
         } else if (custom.equals("sound")) {
             String uri = shared.getString(HourlyApplication.PREFERENCE_SOUND, "");
-            if (player != null) {
-                player.release();
-                player = null;
-            }
+            playerClose();
             if (uri.isEmpty())
                 done.run();
             else
                 player = playOnce(Uri.parse(uri), new Runnable() {
                     @Override
                     public void run() {
-                        if (player != null) {
-                            player.release();
-                            player = null;
-                        }
+                        playerClose();
                         done.run();
                     }
                 });
@@ -290,9 +275,7 @@ public class Sound {
     }
 
     public void playRingtone(Uri uri) {
-        if (player != null) {
-            player.release();
-        }
+        playerClose();
         player = MediaPlayer.create(context, uri);
         if (player == null) {
             player = MediaPlayer.create(context, Alarm.DEFAULT_RING);
@@ -312,8 +295,62 @@ public class Sound {
                     .build());
         }
         player.setLooping(true);
-        player.setVolume(getVolume(), getVolume());
+        player.setVolume(getRingtoneVolume(), getRingtoneVolume());
         player.start();
+
+        increasedVolume(player);
+    }
+
+    public void increasedVolume(final MediaPlayer player) {
+        if (increaseVolume != null)
+            handler.removeCallbacks(increaseVolume);
+
+        increaseVolume = new Runnable() {
+            int step = 0;
+            int steps = 50;
+            int delay = 100;
+
+            {
+                SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+                int inc = Integer.parseInt(shared.getString(HourlyApplication.PREFERENCE_INCREASE_VOLUME, "0")) * 1000;
+
+                steps = (inc / delay);
+            }
+
+            @Override
+            public void run() {
+                if (player == null)
+                    return;
+
+                float log1 = (float) (Math.log(steps - step) / Math.log(steps));
+                float vol = 1 - log1;
+
+                try {
+                    player.setVolume(vol, vol);
+                } catch (IllegalStateException e) {
+                    // ignore. player probably already closed
+                    return;
+                }
+
+                step++;
+
+                if (step >= steps)
+                    return;
+
+                handler.postDelayed(increaseVolume, delay);
+            }
+        };
+
+        increaseVolume.run();
+    }
+
+    float getRingtoneVolume() {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        if (Integer.parseInt(shared.getString(HourlyApplication.PREFERENCE_INCREASE_VOLUME, "0")) > 0) {
+            return 0;
+        }
+
+        return getVolume();
     }
 
     float getVolume() {
@@ -458,17 +495,15 @@ public class Sound {
         player.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                                            @Override
                                            public void onCompletion(MediaPlayer mp) {
-                                               mp.stop();
-                                               mp.release();
-
                                                if (done != null)
                                                    done.run();
                                            }
                                        }
         );
 
-        player.setVolume(getVolume(), getVolume());
+        player.setVolume(getRingtoneVolume(), getRingtoneVolume());
         player.start();
+
         return player;
     }
 
@@ -493,6 +528,10 @@ public class Sound {
             player.release();
             player = null;
             return true;
+        }
+        if (increaseVolume != null) {
+            handler.removeCallbacks(increaseVolume);
+            increaseVolume = null;
         }
         return false;
     }
