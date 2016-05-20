@@ -1,6 +1,7 @@
 package com.github.axet.hourlyreminder.basics;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.RingtoneManager;
 import android.net.Uri;

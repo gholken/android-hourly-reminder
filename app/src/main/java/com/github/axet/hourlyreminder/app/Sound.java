@@ -1,7 +1,6 @@
 package com.github.axet.hourlyreminder.app;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
@@ -20,14 +19,16 @@ import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
 import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.basics.Alarm;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 public class Sound {
@@ -45,6 +46,7 @@ public class Sound {
     AudioTrack track;
     Runnable delayed;
     Handler handler;
+    Set<Runnable> done = new HashSet<>();
 
     Float volume;
     Runnable increaseVolume;
@@ -80,11 +82,12 @@ public class Sound {
     }
 
     public void close() {
+        playerClose();
+
         if (tts != null) {
             tts.shutdown();
             tts = null;
         }
-        playerClose();
         if (tone != null) {
             tone.release();
             tone = null;
@@ -213,31 +216,46 @@ public class Sound {
         if (custom.equals("ringtone")) {
             String uri = shared.getString(HourlyApplication.PREFERENCE_RINGTONE, "");
             playerClose();
-            if (uri.isEmpty())
-                done.run();
-            else
+
+            Sound.this.done.clear();
+            Sound.this.done.add(done);
+
+            if (uri.isEmpty()) {
+                if (done != null)
+                    done.run();
+            } else {
                 player = playOnce(Uri.parse(uri), new Runnable() {
                     @Override
                     public void run() {
+                        if (done != null && Sound.this.done.contains(done))
+                            done.run();
                         playerClose();
-                        done.run();
                     }
                 });
+            }
         } else if (custom.equals("sound")) {
             String uri = shared.getString(HourlyApplication.PREFERENCE_SOUND, "");
             playerClose();
-            if (uri.isEmpty())
-                done.run();
-            else
+
+            Sound.this.done.clear();
+            Sound.this.done.add(done);
+
+            if (uri.isEmpty()) {
+                if (done != null)
+                    done.run();
+            } else {
                 player = playOnce(Uri.parse(uri), new Runnable() {
                     @Override
                     public void run() {
+                        if (done != null && Sound.this.done.contains(done))
+                            done.run();
                         playerClose();
-                        done.run();
                     }
                 });
+            }
         } else {
-            done.run();
+            if (done != null)
+                done.run();
         }
     }
 
@@ -253,6 +271,9 @@ public class Sound {
             track.setVolume(getVolume());
         }
 
+        Sound.this.done.clear();
+        Sound.this.done.add(done);
+
         track.setPlaybackPositionUpdateListener(new AudioTrack.OnPlaybackPositionUpdateListener() {
             @Override
             public void onMarkerReached(AudioTrack t) {
@@ -262,7 +283,7 @@ public class Sound {
                     track.release();
                     track = null;
                 }
-                if (done != null)
+                if (done != null && Sound.this.done.contains(done))
                     done.run();
             }
 
@@ -365,7 +386,10 @@ public class Sound {
         volume = f;
     }
 
-    public void playSpeech(final long time, final Runnable run) {
+    public void playSpeech(final long time, final Runnable done) {
+        Sound.this.done.clear();
+        Sound.this.done.add(done);
+
         final Runnable clear = new Runnable() {
             @Override
             public void run() {
@@ -373,8 +397,8 @@ public class Sound {
                     handler.removeCallbacks(delayed);
                     delayed = null;
                 }
-                if (run != null)
-                    run.run();
+                if (done != null && Sound.this.done.contains(done))
+                    done.run();
             }
         };
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
@@ -524,6 +548,7 @@ public class Sound {
     }
 
     public boolean playerClose() {
+        done.clear();
         if (player != null) {
             player.release();
             player = null;
@@ -534,5 +559,45 @@ public class Sound {
             increaseVolume = null;
         }
         return false;
+    }
+
+    public void playAlarm(final Alarm a) {
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+            vibrateStart();
+        }
+
+        final long time = System.currentTimeMillis();
+
+        if (a.beep) {
+            playBeep(new Runnable() {
+                         @Override
+                         public void run() {
+                             if (a.speech) {
+                                 playSpeech(time, new Runnable() {
+                                     @Override
+                                     public void run() {
+                                         if (a.ringtone) {
+                                             playRingtone(Uri.parse(a.ringtoneValue));
+                                         }
+                                     }
+                                 });
+                             } else if (a.ringtone) {
+                                 playRingtone(Uri.parse(a.ringtoneValue));
+                             }
+                         }
+                     }
+            );
+        } else if (a.speech) {
+            playSpeech(time, new Runnable() {
+                @Override
+                public void run() {
+                    playRingtone(Uri.parse(a.ringtoneValue));
+                }
+            });
+        } else if (a.ringtone) {
+            playRingtone(Uri.parse(a.ringtoneValue));
+        }
     }
 }

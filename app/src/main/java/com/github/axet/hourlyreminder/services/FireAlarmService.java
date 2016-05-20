@@ -61,16 +61,19 @@ public class FireAlarmService extends Service {
         @Override
         public void onCallStateChanged(int s, String incomingNumber) {
             switch (s) {
+                // incoming call ringing
                 case TelephonyManager.CALL_STATE_RINGING:
                     wasRinging = true;
                     break;
+                // answered
                 case TelephonyManager.CALL_STATE_OFFHOOK:
                     wasRinging = true;
+                    // stop current alarm
                     if (sound != null) {
-                        sound.close();
-                        sound = new Sound(FireAlarmService.this);
+                        sound.playerClose();
                     }
                     break;
+                // switch to idle state: no call, no ringing
                 case TelephonyManager.CALL_STATE_IDLE:
                     wasRinging = false;
                     break;
@@ -107,6 +110,18 @@ public class FireAlarmService extends Service {
                 .putExtra("ringtoneValue", a.ringtoneValue));
     }
 
+    public Alarm getAlarm(Intent intent) {
+        Alarm a = new Alarm(this);
+
+        a.time = intent.getLongExtra("time", 0);
+        a.beep = intent.getBooleanExtra("beep", false);
+        a.speech = intent.getBooleanExtra("speech", false);
+        a.ringtone = intent.getBooleanExtra("ringtone", false);
+        a.ringtoneValue = intent.getStringExtra("ringtoneValue");
+
+        return a;
+    }
+
     public static void dismissActiveAlarm(Context context) {
         context.stopService(new Intent(context, FireAlarmService.class));
     }
@@ -140,63 +155,28 @@ public class FireAlarmService extends Service {
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
 
-        final long time = intent.getLongExtra("time", 0);
-        final boolean beep = intent.getBooleanExtra("beep", false);
-        final boolean speech = intent.getBooleanExtra("speech", false);
-        final boolean ringtone = intent.getBooleanExtra("ringtone", false);
-        final String ringtoneValue = intent.getStringExtra("ringtoneValue");
+        Alarm a = getAlarm(intent);
 
-        Log.d(TAG, "time=" + Alarm.format(time));
+        Log.d(TAG, "time=" + Alarm.format(a.time));
 
-        if (!alive(time)) {
+        if (!alive(a.time)) {
             stopSelf();
-            showNotificationMissed(time);
+            showNotificationMissed(a.time);
             return START_NOT_STICKY;
         }
 
-        showNotificationAlarm(time);
+        showNotificationAlarm(a.time);
 
-        // restet volume for alarms
+        // reset volume for alarms
         sound.setVolume(1);
 
         // do we have silence alarm?
         silenced = sound.silenced();
-        if (!silenced) {
-            if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
-                sound.vibrateStart();
-            }
-            if (beep) {
-                sound.playBeep(new Runnable() {
-                                   @Override
-                                   public void run() {
-                                       if (speech) {
-                                           sound.playSpeech(time, new Runnable() {
-                                               @Override
-                                               public void run() {
-                                                   if (ringtone) {
-                                                       sound.playRingtone(Uri.parse(ringtoneValue));
-                                                   }
-                                               }
-                                           });
-                                       } else if (ringtone) {
-                                           sound.playRingtone(Uri.parse(ringtoneValue));
-                                       }
-                                   }
-                               }
-                );
-            } else if (speech) {
-                sound.playSpeech(time, new Runnable() {
-                    @Override
-                    public void run() {
-                        sound.playRingtone(Uri.parse(ringtoneValue));
-                    }
-                });
-            } else if (ringtone) {
-                sound.playRingtone(Uri.parse(ringtoneValue));
-            }
-        }
 
-        showAlarmActivity(time, silenced);
+        if (!silenced)
+            sound.playAlarm(a);
+
+        showAlarmActivity(a.time, silenced);
 
         return super.onStartCommand(intent, flags, startId);
     }
@@ -251,7 +231,7 @@ public class FireAlarmService extends Service {
         Log.d(FireAlarmService.class.getSimpleName(), "onDestory");
 
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(this);
-        if(shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
             sound.vibrateStop();
         }
 
