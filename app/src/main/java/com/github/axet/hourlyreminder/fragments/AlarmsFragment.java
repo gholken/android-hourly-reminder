@@ -77,7 +77,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
     boolean boxAnimate;
     Handler handler;
     // preview ringtone
-    MediaPlayer preview;
+    boolean preview;
     Sound sound;
     Storage storage;
 
@@ -335,9 +335,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     void select(long id) {
         // stop sound preview when detailed view closed.
-        if (preview != null) {
-            preview.release();
-            preview = null;
+        if (preview) {
+            sound.playerClose();
+            preview = false;
         }
         selected = id;
         changed();
@@ -474,6 +474,12 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         final CheckBox alarmRingtone = (CheckBox) view.findViewById(R.id.alarm_ringtone);
         final View alarmRingtonePlay = view.findViewById(R.id.alarm_ringtone_play);
 
+        if (preview) {
+            alarmRingtonePlay.clearAnimation();
+            sound.playerClose();
+            preview = false;
+        }
+
         alarmRingtone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -484,12 +490,13 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         alarmRingtonePlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (preview != null) {
+                if (preview) {
                     alarmRingtonePlay.clearAnimation();
-                    preview.release();
-                    preview = null;
+                    sound.playerClose();
+                    preview = false;
                     return;
                 }
+
                 if (a.ringtoneValue.isEmpty())
                     return;
 
@@ -498,20 +505,12 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     return;
                 }
 
-                Uri uri = Uri.parse(a.ringtoneValue);
-                preview = sound.playOnce(uri, new Runnable() {
-                    @Override
-                    public void run() {
-                        alarmRingtonePlay.clearAnimation();
-                        sound.playerClose();
-                        preview.release();
-                        preview = null;
-                    }
-                });
-                sound.increasedVolume(preview);
+                preview = true;
+
+                sound.playAlarm(a);
+
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
-                if (preview != null)
-                    alarmRingtonePlay.startAnimation(a);
+                alarmRingtonePlay.startAnimation(a);
             }
         });
 
@@ -713,10 +712,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         prefs.unregisterOnSharedPreferenceChangeListener(this);
 
-        if (preview != null) {
-            preview.release();
-            preview = null;
-        }
         if (sound != null) {
             sound.close();
             sound = null;
