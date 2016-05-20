@@ -503,11 +503,12 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     @Override
                     public void run() {
                         alarmRingtonePlay.clearAnimation();
-                        // it suppose to be already cleared
+                        sound.playerClose();
                         preview.release();
                         preview = null;
                     }
                 });
+                sound.increasedVolume(preview);
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
                 if (preview != null)
                     alarmRingtonePlay.startAnimation(a);

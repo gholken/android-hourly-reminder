@@ -108,6 +108,8 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
 
         RemindersFragment.bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_VOLUME));
 
+        RemindersFragment.bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_INCREASE_VOLUME));
+
         if (DateFormat.is24HourFormat(getActivity())) {
             getPreferenceScreen().removePreference(findPreference(HourlyApplication.PREFERENCE_SPEAK_AMPM));
         }
