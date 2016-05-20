@@ -88,7 +88,7 @@
     <string name="NotPermitted">Not permitted</string>
 
     <string name="Reminder">Reminder</string>
-    <string name="Reminders15">Set reminders repeat 15 min, check 'reminders'.</string>
+    <string name="Reminders15">Set reminders repeat 15 min, check \'reminders\'.</string>
 
     <string name="UpcomingAlarm">Upcoming alarm</string>
     <string name="Cancel">Cancel</string>

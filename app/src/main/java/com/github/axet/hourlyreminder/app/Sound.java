@@ -442,25 +442,22 @@ public class Sound {
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
             boolean speakAMPM = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
 
-            // English
-            {
-                String ampm = "";
-                if (speakAMPM) {
-                    ampm = hour >= 12 ? "PM" : "AM";
-                }
+            String ampm = "";
+            if (speakAMPM) {
+                ampm = hour >= 12 ? "PM" : "AM";
+            }
 
-                if (min != 0) {
-                    if (min < 10) {
-                        speak = String.format("Time is %d o %d %s.", hour, min, ampm);
-                    } else {
-                        speak = String.format("Time is %d %02d %s.", hour, min, ampm);
-                    }
+            if (min != 0) {
+                if (min < 10) {
+                    speak = String.format("Time is %d o %d %s.", hour, min, ampm);
                 } else {
-                    if (speakAMPM)
-                        speak = String.format("Time is %d o'%s", hour, ampm);
-                    else
-                        speak = String.format("%d o'clock", hour);
+                    speak = String.format("Time is %d %02d %s.", hour, min, ampm);
                 }
+            } else {
+                if (speakAMPM)
+                    speak = String.format("Time is %d o'%s", hour, ampm);
+                else
+                    speak = String.format("%d o'clock", hour);
             }
         }
 
