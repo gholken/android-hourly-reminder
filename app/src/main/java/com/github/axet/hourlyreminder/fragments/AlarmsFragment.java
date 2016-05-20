@@ -95,6 +95,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         handler = new Handler();
 
         sound = new Sound(getActivity());
+        sound.setVolume(1);
+
         storage = new Storage(getActivity());
 
         updateStartWeek();
@@ -490,8 +492,13 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 }
                 if (a.ringtoneValue.isEmpty())
                     return;
-                Uri uri = Uri.parse(a.ringtoneValue);
 
+                if (sound.silenced()) {
+                    sound.silencedToast();
+                    return;
+                }
+
+                Uri uri = Uri.parse(a.ringtoneValue);
                 preview = sound.playOnce(uri, new Runnable() {
                     @Override
                     public void run() {

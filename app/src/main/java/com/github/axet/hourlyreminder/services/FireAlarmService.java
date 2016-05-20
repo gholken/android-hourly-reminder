@@ -156,6 +156,9 @@ public class FireAlarmService extends Service {
 
         showNotificationAlarm(time);
 
+        // restet volume for alarms
+        sound.setVolume(1);
+
         // do we have silence alarm?
         silenced = sound.silenced();
         if (!silenced) {
@@ -171,12 +174,12 @@ public class FireAlarmService extends Service {
                                                @Override
                                                public void run() {
                                                    if (ringtone) {
-                                                       playRingtone(Uri.parse(ringtoneValue));
+                                                       sound.playRingtone(Uri.parse(ringtoneValue));
                                                    }
                                                }
                                            });
                                        } else if (ringtone) {
-                                           playRingtone(Uri.parse(ringtoneValue));
+                                           sound.playRingtone(Uri.parse(ringtoneValue));
                                        }
                                    }
                                }
@@ -185,11 +188,11 @@ public class FireAlarmService extends Service {
                 sound.playSpeech(time, new Runnable() {
                     @Override
                     public void run() {
-                        playRingtone(Uri.parse(ringtoneValue));
+                        sound.playRingtone(Uri.parse(ringtoneValue));
                     }
                 });
             } else if (ringtone) {
-                playRingtone(Uri.parse(ringtoneValue));
+                sound.playRingtone(Uri.parse(ringtoneValue));
             }
         }
 
@@ -228,10 +231,6 @@ public class FireAlarmService extends Service {
     public void showAlarmActivity(long time, boolean silenced) {
         alarmActivity = true;
         AlarmActivity.showAlarmActivity(this, time, silenced);
-    }
-
-    void playRingtone(Uri uri) {
-        sound.playRingtone(uri);
     }
 
     @Nullable
