@@ -45,6 +45,8 @@ public class Sound {
     Runnable delayed;
     Handler handler;
 
+    Float volume;
+
     // AudioSystem.STREAM_ALARM AudioManager.STREAM_ALARM;
     final static int SOUND_CHANNEL = AudioAttributes.USAGE_ALARM;
     final static int SOUND_TYPE = AudioAttributes.CONTENT_TYPE_SONIFICATION;
@@ -315,8 +317,15 @@ public class Sound {
     }
 
     float getVolume() {
+        if (volume != null)
+            return volume;
+
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         return (float) (Math.pow(shared.getFloat(HourlyApplication.PREFERENCE_VOLUME, 1f), 3));
+    }
+
+    public void setVolume(float f) {
+        volume = f;
     }
 
     public void playSpeech(final long time, final Runnable run) {
@@ -417,6 +426,12 @@ public class Sound {
             }
         }
         return true;
+    }
+
+    public void silencedToast() {
+        String text = "";
+        text += "(Sound Silenced)";
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
     public MediaPlayer playOnce(Uri uri, final Runnable done) {
