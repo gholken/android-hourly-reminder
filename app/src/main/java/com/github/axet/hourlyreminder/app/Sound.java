@@ -21,6 +21,7 @@ import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
 import android.widget.Toast;
 
+import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.io.IOException;
@@ -157,20 +158,12 @@ public class Sound {
         // do we have slince alarm?
         if (silenced()) {
             String text = "";
-            text += "(Sound Silenced)";
+            text += context.getString(R.string.SoundSilenced);
             text += "\n";
-            text += String.format("Time is %s", Alarm.format(context, time));
+            text += context.getResources().getString(R.string.TimeIs, Alarm.format(context, time));
             Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
             return;
         }
-
-        final Runnable text = new Runnable() {
-            @Override
-            public void run() {
-                String text = String.format("Time is %s", Alarm.format(context, time));
-                Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
-            }
-        };
 
         final Runnable speech = new Runnable() {
             @Override
@@ -178,7 +171,7 @@ public class Sound {
                 if (shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK, false)) {
                     playSpeech(time, null);
                 } else {
-                    text.run();
+                    timeToast(time);
                 }
             }
         };
@@ -420,7 +413,7 @@ public class Sound {
         // TTS may say failed, but play sounds successfuly. we need regardless or failed do not
         // play speech twice if clear.run() was called.
         if (!playSpeech(time)) {
-            Toast.makeText(context, "Waiting for TTS", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.WaitTTS), Toast.LENGTH_SHORT).show();
             if (delayed != null) {
                 handler.removeCallbacks(delayed);
             }
@@ -428,7 +421,7 @@ public class Sound {
                 @Override
                 public void run() {
                     if (!playSpeech(time)) {
-                        Toast.makeText(context, "Failed TTS again, skiping", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, context.getString(R.string.FailedTTS), Toast.LENGTH_SHORT).show();
                         clear.run();
                     }
                 }
@@ -443,33 +436,35 @@ public class Sound {
         int hour = c.get(Calendar.HOUR_OF_DAY);
         int min = c.get(Calendar.MINUTE);
 
-        String text = String.format("Time is %s", Alarm.format(context, time));
-
         String speak;
+
         {
             SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
             boolean speakAMPM = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
-            String ampm = "";
 
-            if (speakAMPM) {
-                ampm = hour >= 12 ? "PM" : "AM";
-            }
-
-            if (min != 0) {
-                if (min < 10) {
-                    speak = String.format("Time is %d o %d %s.", hour, min, ampm);
-                } else {
-                    speak = String.format("Time is %d %02d %s.", hour, min, ampm);
+            // English
+            {
+                String ampm = "";
+                if (speakAMPM) {
+                    ampm = hour >= 12 ? "PM" : "AM";
                 }
-            } else {
-                if (speakAMPM)
-                    speak = String.format("Time is %d o'%s", hour, ampm);
-                else
-                    speak = String.format("%d o'clock", hour);
+
+                if (min != 0) {
+                    if (min < 10) {
+                        speak = String.format("Time is %d o %d %s.", hour, min, ampm);
+                    } else {
+                        speak = String.format("Time is %d %02d %s.", hour, min, ampm);
+                    }
+                } else {
+                    if (speakAMPM)
+                        speak = String.format("Time is %d o'%s", hour, ampm);
+                    else
+                        speak = String.format("%d o'clock", hour);
+                }
             }
         }
 
-        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+        timeToast(time);
 
         if (Build.VERSION.SDK_INT >= 21) {
             Bundle params = new Bundle();
@@ -489,9 +484,14 @@ public class Sound {
         return true;
     }
 
+    public void timeToast(long time) {
+        String text = context.getResources().getString(R.string.TimeIs, Alarm.format(context, time));
+        Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
+    }
+
     public void silencedToast() {
         String text = "";
-        text += "(Sound Silenced)";
+        text += context.getString(R.string.SoundSilenced);
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
@@ -501,7 +501,7 @@ public class Sound {
             player = MediaPlayer.create(context, DEFAULT_ALARM);
         }
         if (player == null) {
-            Toast.makeText(context, "No default ringtone", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, context.getString(R.string.NoDefaultRingtone), Toast.LENGTH_SHORT).show();
             if (done != null)
                 done.run();
             return null;

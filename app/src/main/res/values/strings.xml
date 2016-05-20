@@ -4,6 +4,24 @@
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
+    <!--MainActivity-->
+    <string name="HourlyReminders">Hourly Reminders</string>
+    <string name="CustomAlarms">Custom Alarms</string>
+
+    <!--Sound-->
+    <string name="WaitTTS">Waiting for TTS</string>
+    <string name="FailedTTS">Failed TTS again, skiping</string>
+    <string name="NoDefaultRingtone">No default ringtone</string>
+    <string name="SoundSilenced">(Sound Silenced)</string>
+    <string name="TimeIs">Time is %1$s</string>
+
+    <!--Alarm-->
+    <string name="Everyday">Everyday</string>
+    <string name="Weekdays">Weekdays</string>
+    <string name="Weekend">Weekend</string>
+    <string name="Today">Today</string>
+    <string name="Tomorrow">Tomorrow</string>
+
     <string name="WEEK_MON">Mon</string>
     <string name="WEEK_TUE">Tue</string>
     <string name="WEEK_WED">Wed</string>
@@ -13,8 +31,6 @@
     <string name="WEEK_SUN">Sun</string>
 
     <string name="title_activity_alarm">Alarm</string>
-    <string name="dummy_button">Dummy Button</string>
-    <string name="dummy_content">DUMMY\nCONTENT</string>
     <string name="title_activity_settings">Settings</string>
 
     <plurals name="days">
@@ -62,4 +78,22 @@
         <item>Sun</item>
         <item>Mon</item>
     </string-array>
+
+    <string name="AreYouSure">Are you sure?</string>
+    <string name="Yes">Yes</string>
+    <string name="No">No</string>
+
+    <string name="SelectAlarm">Select Alarm</string>
+
+    <string name="NotPermitted">Not permitted</string>
+
+    <string name="Reminder">Reminder</string>
+    <string name="Reminders15">Set reminders repeat 15 min, check 'reminders'.</string>
+
+    <string name="UpcomingAlarm">Upcoming alarm</string>
+    <string name="Cancel">Cancel</string>
+
+    <string name="Alarm">Alarm</string>
+    <string name="AlarmMissed">Alarm missed</string>
+    <string name="AlarmMissedAfter">Alarm %1$02d:%2$02d dismissed after %3$d mins</string>
 </resources>

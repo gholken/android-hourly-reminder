@@ -30,7 +30,7 @@ import java.util.TreeSet;
 
 /**
  * System Alarm Manager notifes this service to create/stop alarms.
- * <p>
+ * <p/>
  * All Alarm notifications clicks routed to this service.
  */
 public class AlarmService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
@@ -332,7 +332,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
                     new Intent(this, MainActivity.class).setAction(MainActivity.SHOW_ALARMS_PAGE).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-            String subject = "Upcoming alarm";
+            String subject = getString(R.string.UpcomingAlarm);
             String text = Alarm.format(this, time);
 
             RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
@@ -340,7 +340,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             view.setOnClickPendingIntent(R.id.notification_base, main);
             view.setTextViewText(R.id.notification_subject, subject);
             view.setTextViewText(R.id.notification_text, text);
-            view.setTextViewText(R.id.notification_button, "Cancel");
+            view.setTextViewText(R.id.notification_button, getString(R.string.Cancel));
 
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setOngoing(true)

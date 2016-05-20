@@ -280,16 +280,16 @@ public class FireAlarmService extends Service {
                     new Intent(this, MainActivity.class).setAction(MainActivity.SHOW_ALARMS_PAGE).putExtra("time", time),
                     PendingIntent.FLAG_UPDATE_CURRENT);
 
-            String text = String.format("Alarm %02d:%02d dismissed after %d mins", hour, min, ALARM_AUTO_OFF);
+            String text = getString(R.string.AlarmMissedAfter, hour, min, ALARM_AUTO_OFF);
 
             RemoteViews view = new RemoteViews(getPackageName(), HourlyApplication.getTheme(getBaseContext(), R.layout.notification_alarm_light, R.layout.notification_alarm_dark));
             view.setOnClickPendingIntent(R.id.notification_base, main);
-            view.setTextViewText(R.id.notification_subject, "Alarm missed");
+            view.setTextViewText(R.id.notification_subject, getString(R.string.AlarmMissed));
             view.setTextViewText(R.id.notification_text, text);
             view.setViewVisibility(R.id.notification_button, View.GONE);
 
             Notification.Builder builder = new Notification.Builder(this)
-                    .setContentTitle("Alarm")
+                    .setContentTitle(getString(R.string.Alarm))
                     .setContentText(text)
                     .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                     .setContent(view);
@@ -334,7 +334,7 @@ public class FireAlarmService extends Service {
 
             Notification.Builder builder = new Notification.Builder(this)
                     .setOngoing(true)
-                    .setContentTitle("Alarm")
+                    .setContentTitle(getString(R.string.Alarm))
                     .setContentText(text)
                     .setSmallIcon(R.drawable.ic_notifications_black_24dp)
                     .setContent(view);
