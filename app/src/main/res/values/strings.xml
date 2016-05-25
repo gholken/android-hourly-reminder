@@ -13,6 +13,10 @@
     <string name="FailedTTS">Failed TTS again, skiping</string>
     <string name="NoDefaultRingtone">No default ringtone</string>
     <string name="SoundSilenced">(Sound Silenced)</string>
+    <string name="SoundSilencedVibrate">(Sound Silenced) - Vibrate</string>
+    <string name="SoundSilencedCall">(Sound Silenced) - Call</string>
+    <string name="SoundSilencedMusic">(Sound Silenced) - Music</string>
+    <string name="SoundSilencedSettings">(Sound Silenced) - Settings</string>
     <string name="TimeIs">Time is %1$s</string>
 
     <!--Alarm-->

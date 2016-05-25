@@ -51,7 +51,7 @@ public class FireAlarmService extends Service {
     Handler handle = new Handler();
     Runnable alive;
     boolean alarmActivity = false;
-    boolean silenced = false;
+    Sound.Silenced silenced = Sound.Silenced.NONE;
 
     PhoneStateChangeListener pscl;
 
@@ -171,10 +171,7 @@ public class FireAlarmService extends Service {
         sound.setVolume(1);
 
         // do we have silence alarm?
-        silenced = sound.silenced();
-
-        if (!silenced)
-            sound.playAlarm(a);
+        silenced = sound.playAlarm(a);
 
         showAlarmActivity(a.time, silenced);
 
@@ -208,7 +205,7 @@ public class FireAlarmService extends Service {
         return b;
     }
 
-    public void showAlarmActivity(long time, boolean silenced) {
+    public void showAlarmActivity(long time, Sound.Silenced silenced) {
         alarmActivity = true;
         AlarmActivity.showAlarmActivity(this, time, silenced);
     }

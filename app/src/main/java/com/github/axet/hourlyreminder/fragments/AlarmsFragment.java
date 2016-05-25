@@ -500,8 +500,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 if (a.ringtoneValue.isEmpty())
                     return;
 
-                if (sound.silenced()) {
-                    sound.silencedToast();
+                Sound.Silenced s = sound.silencedAlarm(a);
+                if (s != Sound.Silenced.NONE) {
+                    sound.silencedToast(s);
                     return;
                 }
 
