@@ -249,9 +249,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         public CharSequence getPageTitle(int position) {
             switch (position) {
                 case 0:
-                    return "Hourly Reminders";
+                    return getResources().getString(R.string.HourlyReminders);
                 case 1:
-                    return "Custom Alarms";
+                    return getResources().getString(R.string.CustomAlarms);
                 case 2:
                     return "⋮";
             }

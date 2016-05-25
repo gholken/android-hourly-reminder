@@ -500,8 +500,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 if (a.ringtoneValue.isEmpty())
                     return;
 
-                if (sound.silenced()) {
-                    sound.silencedToast();
+                Sound.Silenced s = sound.silencedAlarm(a);
+                if (s != Sound.Silenced.NONE) {
+                    sound.silencedToast(s);
                     return;
                 }
 
@@ -535,8 +536,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     }
                 };
                 AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setMessage("Are you sure?").setPositiveButton("Yes", dialogClickListener)
-                        .setNegativeButton("No", dialogClickListener).show();
+                builder.setMessage(R.string.AreYouSure).setPositiveButton(R.string.Yes, dialogClickListener)
+                        .setNegativeButton(R.string.No, dialogClickListener).show();
             }
         });
 
@@ -552,8 +553,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
                 startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
                         .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_ALARM)
-                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Select Alarm")
-                        .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, (Uri) uri), 0);
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, R.string.SelectAlarm)
+                        .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri), 0);
             }
         });
         View ringtoneBrowse = view.findViewById(R.id.alarm_ringtone_browse);
@@ -626,6 +627,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 sound = Environment.getExternalStorageDirectory();
         }
 
+        f.setReadonly(true);
         f.setCurrentPath(sound);
         f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
@@ -647,7 +649,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 if (permitted(permissions))
                     selectFile();
                 else
-                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.NotPermitted, Toast.LENGTH_SHORT).show();
         }
     }
 

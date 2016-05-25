@@ -303,13 +303,13 @@ public class Alarm {
     public String getDays() {
         if (weekdays) {
             if (isEveryday()) {
-                return "Everyday";
+                return context.getString(R.string.Everyday);
             }
             if (isWeekdays()) {
-                return "Weekdays";
+                return context.getString(R.string.Weekdays);
             }
             if (isWeekend()) {
-                return "Weekend";
+                return context.getString(R.string.Weekend);
             }
             String str = "";
             for (Integer i : order(weekdaysValues)) {
@@ -322,9 +322,9 @@ public class Alarm {
             return str;
         } else {
             if (isToday()) {
-                return "Today";
+                return context.getString(R.string.Today);
             } else {
-                return "Tomorrow";
+                return context.getString(R.string.Tomorrow);
             }
         }
     }

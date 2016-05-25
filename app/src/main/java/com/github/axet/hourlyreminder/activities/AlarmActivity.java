@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
+import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.services.FireAlarmService;
 
 import java.text.SimpleDateFormat;
@@ -28,7 +29,7 @@ public class AlarmActivity extends AppCompatActivity {
     Handler handler = new Handler();
     Runnable updateClock;
 
-    public static void showAlarmActivity(Context context, long time, boolean silenced) {
+    public static void showAlarmActivity(Context context, long time, Sound.Silenced silenced) {
         Intent intent = new Intent(context, AlarmActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.putExtra("time", time);
@@ -86,10 +87,26 @@ public class AlarmActivity extends AppCompatActivity {
             }
         });
 
-        boolean silenced = intent.getBooleanExtra("silenced", false);
-        View sil = findViewById(R.id.alarm_silenced);
-        sil.setVisibility(silenced ? View.VISIBLE : View.GONE);
-
+        Sound.Silenced silenced = (Sound.Silenced) intent.getSerializableExtra("silenced");
+        TextView sil = (TextView) findViewById(R.id.alarm_silenced);
+        sil.setVisibility(View.GONE);
+        if (silenced != null && silenced != Sound.Silenced.NONE) {
+            sil.setVisibility(View.VISIBLE);
+            switch (silenced) {
+                case VIBRATE:
+                    sil.setText(R.string.SoundSilencedVibrate);
+                    break;
+                case CALL:
+                    sil.setText(R.string.SoundSilencedCall);
+                    break;
+                case MUSIC:
+                    sil.setText(R.string.SoundSilencedMusic);
+                    break;
+                case SETTINGS:
+                    sil.setText(R.string.SoundSilencedSettings);
+                    break;
+            }
+        }
     }
 
     @Override

@@ -27,10 +27,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class HoursDialogFragment extends PreferenceDialogFragment {
-    private static final String SAVE_STATE_VALUES = "SeekBarPreferenceDialogFragment.values";
-    private static final String SAVE_STATE_CHANGED = "SeekBarPreferenceDialogFragment.changed";
-    private static final String SAVE_STATE_ENTRIES = "SeekBarPreferenceDialogFragment.entries";
-    private static final String SAVE_STATE_ENTRY_VALUES = "SeekBarPreferenceDialogFragment.entryValues";
     private boolean mPreferenceChanged;
 
     int[] ids = new int[]{

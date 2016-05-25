@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.DialogFragment;
 import android.app.Fragment;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -36,6 +37,7 @@ import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.FilePathPreference;
+import com.github.axet.androidlibrary.widgets.OpenFileDialog;
 import com.github.axet.androidlibrary.widgets.RingtonePreference;
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
@@ -47,6 +49,7 @@ import com.github.axet.androidlibrary.widgets.SeekBarPreference;
 import com.github.axet.androidlibrary.widgets.SeekBarPreferenceDialogFragment;
 import com.github.axet.hourlyreminder.widgets.CustomSoundListPreference;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -458,8 +461,29 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
     }
 
     void selectFile() {
-        FilePathPreference pp = (FilePathPreference) findPreference(HourlyApplication.PREFERENCE_SOUND);
-        pp.showDialog(getActivity());
+        final FilePathPreference pp = (FilePathPreference) findPreference(HourlyApplication.PREFERENCE_SOUND);
+
+        final OpenFileDialog f = new OpenFileDialog(getActivity());
+
+        String path = pp.getText();
+
+        if (path == null || path.isEmpty()) {
+            path = getDefault();
+        }
+
+        f.setReadonly(true);
+        f.setCurrentPath(new File(path));
+        f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                File ff = f.getCurrentPath();
+                String fileName = ff.getPath();
+                if (pp.callChangeListener(fileName)) {
+                    pp.setText(fileName);
+                }
+            }
+        });
+        f.show();
     }
 
     void selectRingtone() {
@@ -477,7 +501,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         }
         startActivityForResult(new Intent(RingtoneManager.ACTION_RINGTONE_PICKER)
                 .putExtra(RingtoneManager.EXTRA_RINGTONE_TYPE, RingtoneManager.TYPE_NOTIFICATION)
-                .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, "Reminder")
+                .putExtra(RingtoneManager.EXTRA_RINGTONE_TITLE, getActivity().getString(R.string.Reminder))
                 .putExtra(RingtoneManager.EXTRA_RINGTONE_EXISTING_URI, uri), 0);
     }
 
@@ -490,13 +514,13 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
                 if (permitted(permissions))
                     selectFile();
                 else
-                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.NotPermitted, Toast.LENGTH_SHORT).show();
                 break;
             case 2:
                 if (permitted(permissions))
                     selectRingtone();
                 else
-                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.NotPermitted, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
@@ -521,5 +545,4 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         }
         return true;
     }
-
 }

@@ -95,7 +95,7 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                     if (min < 15) {
                         boolean b = (Boolean) o;
                         if (!b) {
-                            Toast.makeText(getActivity(), "Set reminders repeat 15 min, check 'reminders'.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(getActivity(), R.string.Reminders15, Toast.LENGTH_SHORT).show();
                             SharedPreferences.Editor edit = shared.edit();
                             edit.putString(HourlyApplication.PREFERENCE_REPEAT, "15");
                             edit.commit();
@@ -180,13 +180,13 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                 if (permitted(PERMISSIONS))
                     setPhone();
                 else
-                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.NotPermitted, Toast.LENGTH_SHORT).show();
                 break;
             case 2:
                 if (permitted(PERMISSIONS_V))
                     setVibr();
                 else
-                    Toast.makeText(getActivity(), "Not permitted", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), R.string.NotPermitted, Toast.LENGTH_SHORT).show();
                 break;
         }
     }
