@@ -649,12 +649,17 @@ public class Sound {
 
         Silenced s = silencedAlarm(a);
 
-        if (shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+        if (s == Silenced.VIBRATE) {
             vibrateStart();
+            return s;
         }
 
         if (s != Silenced.NONE)
             return s;
+
+        if (shared.getBoolean(HourlyApplication.PREFERENCE_VIBRATE, false)) {
+            vibrateStart();
+        }
 
         final long time = System.currentTimeMillis();
 
