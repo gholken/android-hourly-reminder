@@ -492,6 +492,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             public void onClick(View v) {
                 if (preview) {
                     alarmRingtonePlay.clearAnimation();
+                    sound.vibrateStop();
                     sound.playerClose();
                     preview = false;
                     return;
@@ -500,15 +501,17 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 if (a.ringtoneValue.isEmpty())
                     return;
 
-                Sound.Silenced s = sound.silencedAlarm(a);
+                Sound.Silenced s = sound.playAlarm(a);
+                if(s == Sound.Silenced.VIBRATE) {
+                    preview = true;
+                    return;
+                }
                 if (s != Sound.Silenced.NONE) {
                     sound.silencedToast(s);
                     return;
                 }
 
                 preview = true;
-
-                sound.playAlarm(a);
 
                 Animation a = AnimationUtils.loadAnimation(getActivity(), R.anim.shake);
                 alarmRingtonePlay.startAnimation(a);

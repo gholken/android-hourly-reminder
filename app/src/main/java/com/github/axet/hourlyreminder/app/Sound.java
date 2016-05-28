@@ -206,6 +206,7 @@ public class Sound {
         final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
         Silenced s = silencedReminder();
+
         // do we have slince alarm?
         if (s != Silenced.NONE) {
             if (s == Silenced.VIBRATE)
@@ -231,9 +232,9 @@ public class Sound {
 
             Toast t = Toast.makeText(context, text, Toast.LENGTH_SHORT);
             TextView v = (TextView) t.getView().findViewById(android.R.id.message);
-            if (v != null) v.setGravity(Gravity.CENTER);
+            if (v != null)
+                v.setGravity(Gravity.CENTER);
             t.show();
-
             return;
         }
 
@@ -632,15 +633,18 @@ public class Sound {
 
     public boolean playerClose() {
         done.clear();
+
+        if (increaseVolume != null) {
+            handler.removeCallbacks(increaseVolume);
+            increaseVolume = null;
+        }
+
         if (player != null) {
             player.release();
             player = null;
             return true;
         }
-        if (increaseVolume != null) {
-            handler.removeCallbacks(increaseVolume);
-            increaseVolume = null;
-        }
+
         return false;
     }
 
