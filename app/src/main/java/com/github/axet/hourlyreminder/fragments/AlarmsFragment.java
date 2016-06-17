@@ -95,7 +95,6 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         handler = new Handler();
 
         sound = new Sound(getActivity());
-        sound.setVolume(1);
 
         storage = new Storage(getActivity());
 
