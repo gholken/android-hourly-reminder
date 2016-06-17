@@ -400,20 +400,17 @@ public class Sound {
             return;
         }
 
-//        float startVolume;
-//
-//        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-//        float systemVolume = am.getStreamMaxVolume(AudioManager.STREAM_ALARM) / (float) am.getStreamVolume(AudioManager.STREAM_ALARM);
-//        float alarmVolume = getVolume();
-//
-//        // if user trying to reduce alarms volume, then use it as start volume. else start from silence
-//        if (systemVolume > alarmVolume)
-//            startVolume = alarmVolume;
-//        else
-//            startVolume = 0;
+        final float startVolume;
 
-        player.setVolume(0, 0);
-        player.start();
+        AudioManager am = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        float systemVolume = am.getStreamMaxVolume(AudioManager.STREAM_ALARM) / (float) am.getStreamVolume(AudioManager.STREAM_ALARM);
+        float alarmVolume = getVolume();
+
+        // if user trying to reduce alarms volume, then use it as start volume. else start from silence
+        if (systemVolume > alarmVolume)
+            startVolume = alarmVolume;
+        else
+            startVolume = 0;
 
         if (increaseVolume != null)
             handler.removeCallbacks(increaseVolume);
@@ -422,9 +419,12 @@ public class Sound {
             int step = 0;
             int steps = 50;
             int delay = 100;
+            // we start from startVolume, rest - how much we should increase
+            float rest = 0;
 
             {
                 steps = (inc / delay);
+                rest = 1f - startVolume;
             }
 
             @Override
@@ -433,10 +433,14 @@ public class Sound {
                     return;
 
                 float log1 = (float) (Math.log(steps - step) / Math.log(steps));
+                // volume 0..1
                 float vol = 1 - log1;
 
+                // actual volume
+                float restvol = startVolume + rest * vol;
+
                 try {
-                    player.setVolume(vol, vol);
+                    player.setVolume(restvol, restvol);
                 } catch (IllegalStateException e) {
                     // ignore. player probably already closed
                     return;
@@ -457,6 +461,7 @@ public class Sound {
         };
 
         increaseVolume.run();
+        player.start();
     }
 
     float getRingtoneVolume() {
