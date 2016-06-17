@@ -19,6 +19,12 @@
         android:summary="Play beep sound"
         android:title="Beep Sound" />
 
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="speak"
+        android:summary="Speak current time"
+        android:title="Speak" />
+
     <com.github.axet.hourlyreminder.widgets.CustomSoundListPreference
         android:defaultValue="off"
         android:key="custom_sound"
@@ -38,12 +44,6 @@
         android:key="sound"
         android:summary="User custom file"
         android:title="Sound File" />
-
-    <SwitchPreferenceCompat
-        android:defaultValue="true"
-        android:key="speak"
-        android:summary="Speak current time"
-        android:title="Speak" />
 
     <ListPreference
         android:defaultValue="60"

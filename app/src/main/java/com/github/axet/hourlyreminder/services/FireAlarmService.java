@@ -167,9 +167,6 @@ public class FireAlarmService extends Service {
 
         showNotificationAlarm(a.time);
 
-        // reset volume for alarms
-        sound.setVolume(1);
-
         // do we have silence alarm?
         silenced = sound.playAlarm(a);
 

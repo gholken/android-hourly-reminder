@@ -148,12 +148,6 @@
                         android:orientation="horizontal">
 
                         <CheckBox
-                            android:id="@+id/alarm_ringtone"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Ringtone" />
-
-                        <CheckBox
                             android:id="@+id/alarm_beep"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -164,6 +158,12 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Speech" />
+
+                        <CheckBox
+                            android:id="@+id/alarm_ringtone"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Ringtone" />
                     </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
 
                     <FrameLayout
