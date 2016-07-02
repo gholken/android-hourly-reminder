@@ -34,9 +34,20 @@
         <item name="22">22</item>
         <item name="23">23</item>
     </string-array>
+
+    <string-array name="weekdays_values">
+        <item>Mon</item>
+        <item>Tue</item>
+        <item>Wed</item>
+        <item>Thu</item>
+        <item>Fri</item>
+        <item>Sat</item>
+        <item>Sun</item>
+    </string-array>
+
     <string-array name="empty" />
 
-    <string-array name="repeat">
+    <string-array name="repeat_text">
         <item>Hourly</item>
         <item>Every 30 minutes</item>
         <item>Every 20 minutes</item>
@@ -54,7 +65,7 @@
         <item>5</item>
     </string-array>
 
-    <string-array name="custom_sound">
+    <string-array name="custom_sound_text">
         <item>Off</item>
         <item>Ringtone Type</item>
         <item>Sound File Type</item>
@@ -66,7 +77,7 @@
         <item>sound</item>
     </string-array>
 
-    <string-array name="increasing_volume">
+    <string-array name="increasing_volume_text">
         <item>Off</item>
         <item>1 sec</item>
         <item>2 sec</item>

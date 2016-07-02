@@ -13,6 +13,14 @@
         android:summary="Select hours"
         android:title="Hours" />
 
+    <MultiSelectListPreference
+        android:defaultValue="@array/weekdays_values"
+        android:entries="@array/weekdays_values"
+        android:entryValues="@array/weekdays_values"
+        android:key="weekdays"
+        android:summary="Select Weekdays"
+        android:title="Reminder Days" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="beep"
@@ -28,7 +36,7 @@
     <com.github.axet.hourlyreminder.widgets.CustomSoundListPreference
         android:defaultValue="off"
         android:key="custom_sound"
-        android:entries="@array/custom_sound"
+        android:entries="@array/custom_sound_text"
         android:entryValues="@array/custom_sound_values"
         android:summary="Play custom sound"
         android:title="Custom Sound" />
@@ -47,11 +55,11 @@
 
     <ListPreference
         android:defaultValue="60"
-        android:entries="@array/repeat"
+        android:entries="@array/repeat_text"
         android:entryValues="@array/repeat_values"
         android:key="repeat"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
         android:summary="Set reminders repeat"
-        android:title="Reminders Every" />
+        android:title="Reminder Every" />
 </PreferenceScreen>

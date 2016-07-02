@@ -26,42 +26,42 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_00"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="00" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_01"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="01" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_02"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="02" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_03"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="03" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_04"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="04" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_05"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -77,42 +77,42 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_06"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="06" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_07"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="07" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_08"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="08" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_09"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="09" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_10"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="10" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_11"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -136,42 +136,42 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_12"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="12" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_13"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="13" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_14"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="14" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_15"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="15" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_16"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="16" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_17"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -187,42 +187,42 @@
             android:orientation="horizontal"
             app:maxChild="60dp">
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_18"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="18" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_19"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="19" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_20"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="20" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_21"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="21" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_22"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_margin="5dp"
                 android:text="22" />
 
-            <com.github.axet.androidlibrary.widgets.RoundCheckbox
+            <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                 android:id="@+id/hours_23"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

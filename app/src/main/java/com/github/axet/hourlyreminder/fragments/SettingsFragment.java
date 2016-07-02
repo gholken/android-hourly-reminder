@@ -10,8 +10,6 @@ import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Vibrator;
-import android.preference.PreferenceManager;
-import android.preference.SwitchPreference;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v14.preference.PreferenceFragment;
@@ -21,8 +19,6 @@ import android.support.v7.preference.SwitchPreferenceCompat;
 import android.support.v7.widget.ContentFrameLayout;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,8 +32,7 @@ import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
-import com.github.axet.hourlyreminder.basics.Reminder;
-import com.github.axet.hourlyreminder.layouts.HoursDialogFragment;
+import com.github.axet.hourlyreminder.widgets.HoursDialogFragment;
 
 public class SettingsFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener {
     Sound sound;

@@ -1,28 +1,20 @@
-package com.github.axet.hourlyreminder.layouts;
+package com.github.axet.hourlyreminder.widgets;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.res.Resources;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v14.preference.MultiSelectListPreference;
 import android.support.v14.preference.PreferenceDialogFragment;
 import android.text.format.DateFormat;
-import android.util.Log;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
-import android.widget.SeekBar;
-import android.widget.TextView;
 
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Reminder;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -169,7 +161,6 @@ public class HoursDialogFragment extends PreferenceDialogFragment {
         }
         values = s;
     }
-
 
     @Override
     public void onDialogClosed(boolean positiveResult) {

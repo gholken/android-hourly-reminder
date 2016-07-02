@@ -37,6 +37,7 @@ public class HourlyApplication extends Application {
 
     public static final String PREFERENCE_ENABLED = "enabled";
     public static final String PREFERENCE_HOURS = "hours";
+    public static final String PREFERENCE_DAYS = "weekdays";
     public static final String PREFERENCE_REPEAT = "repeat";
     public static final String PREFERENCE_ALARM = "alarm";
     public static final String PREFERENCE_ALARMS_PREFIX = "Alarm_";
@@ -218,7 +219,7 @@ public class HourlyApplication extends Application {
         for (int i = 0; i < 24; i++) {
             String h = Reminder.format(i);
 
-            Reminder r = new Reminder();
+            Reminder r = new Reminder(context);
             r.hour = i;
             r.minute = 0;
             r.enabled = hours.contains(h);
@@ -229,7 +230,7 @@ public class HourlyApplication extends Application {
 
             if (r.enabled && hours.contains(next)) {
                 for (int m = repeat; m < 60; m += repeat) {
-                    r = new Reminder();
+                    r = new Reminder(context);
                     r.hour = i;
                     r.minute = m;
                     r.enabled = true;
