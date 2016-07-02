@@ -127,7 +127,7 @@ public class Alarm {
     // keep proper order week days
     //
     // should take ordering values from settings (sun or mon first).
-    public List<Integer> order(List<Integer> list) {
+    public static List<Integer> order(List<Integer> list) {
         ArrayList<Integer> l = new ArrayList<>();
         for (int i = 0; i < EVERYDAY.length; i++) {
             int w = EVERYDAY[i];
@@ -270,7 +270,6 @@ public class Alarm {
             weekdaysValues.add(w);
         }
     }
-
 
     // check if all 5 days are enabled (mon-fri)
     public boolean isWeekdays() {

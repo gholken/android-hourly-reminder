@@ -43,8 +43,9 @@ import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
-import com.github.axet.hourlyreminder.basics.Alarm;
-import com.github.axet.hourlyreminder.layouts.HoursDialogFragment;
+import com.github.axet.hourlyreminder.basics.Reminder;
+import com.github.axet.hourlyreminder.widgets.DaysDialogFragment;
+import com.github.axet.hourlyreminder.widgets.HoursDialogFragment;
 import com.github.axet.androidlibrary.widgets.SeekBarPreference;
 import com.github.axet.androidlibrary.widgets.SeekBarPreferenceDialogFragment;
 import com.github.axet.hourlyreminder.widgets.CustomSoundListPreference;
@@ -88,6 +89,11 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             if (preference.getKey().equals(HourlyApplication.PREFERENCE_HOURS)) {
                 List sortedList = new ArrayList((Set) value);
                 preference.setSummary(HourlyApplication.getHoursString(preference.getContext(), sortedList));
+                return true;
+            }
+
+            if (preference.getKey().equals(HourlyApplication.PREFERENCE_DAYS)) {
+                preference.setSummary(Reminder.getDays(preference.getContext(), (Set) value));
                 return true;
             }
 
@@ -278,6 +284,13 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             return true;
         }
 
+        if (preference.getKey().equals(HourlyApplication.PREFERENCE_DAYS)) {
+            DaysDialogFragment f = DaysDialogFragment.newInstance(preference.getKey());
+            ((DialogFragment) f).setTargetFragment(this, 0);
+            ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
+            return true;
+        }
+
         if (preference.getKey().equals(HourlyApplication.PREFERENCE_SOUND)) {
             if (permitted(1))
                 selectFile();
@@ -302,6 +315,8 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         sound = new Sound(getActivity());
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_HOURS));
+
+        bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_DAYS));
 
         bindPreferenceSummaryToValue(findPreference(HourlyApplication.PREFERENCE_SOUND));
 

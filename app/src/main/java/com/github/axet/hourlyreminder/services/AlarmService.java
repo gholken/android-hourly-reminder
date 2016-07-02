@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -424,6 +425,10 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             registerNextAlarm();
         }
         if (key.equals(HourlyApplication.PREFERENCE_HOURS)) {
+            reminders = HourlyApplication.loadReminders(this);
+            registerNextAlarm();
+        }
+        if (key.equals(HourlyApplication.PREFERENCE_DAYS)) {
             reminders = HourlyApplication.loadReminders(this);
             registerNextAlarm();
         }

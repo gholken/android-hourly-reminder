@@ -7,7 +7,7 @@
 
     <ListPreference
         android:defaultValue="0"
-        android:entries="@array/increasing_volume"
+        android:entries="@array/increasing_volume_text"
         android:entryValues="@array/increasing_volume_values"
         android:key="increasing_volume"
         android:negativeButtonText="@null"

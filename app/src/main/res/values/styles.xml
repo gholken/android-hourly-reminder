@@ -3,7 +3,7 @@
     <style name="AppThemeLight" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">#FF4081</item>
+        <item name="colorAccent">@color/colorAccentLight</item>
         <item name="alarmBackground">@color/alarmBackgroundLight</item>
         <item name="alarmRing">@drawable/round_circle_light</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
@@ -21,7 +21,7 @@
     <style name="AppThemeDark" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-        <item name="colorAccent">#a4a4a4</item>
+        <item name="colorAccent">@color/colorAccentDark</item>
         <item name="alarmBackground">@color/actionBarBackgroundDark</item>
         <item name="alarmRing">@drawable/round_circle_dark</item>
         <item name="preferenceTheme">@style/PreferenceThemeOverlay</item>
@@ -31,4 +31,5 @@
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
+
 </resources>

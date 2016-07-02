@@ -41,13 +41,13 @@
 
                 <TextView
                     android:id="@+id/alarm_pm"
-                    android:visibility="gone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@id/alarm_time"
                     android:layout_toRightOf="@id/alarm_time"
                     android:text="PM"
-                    android:textSize="25dp" />
+                    android:textSize="25dp"
+                    android:visibility="gone" />
             </RelativeLayout>
 
             <Switch
@@ -94,44 +94,44 @@
                                 android:orientation="horizontal"
                                 app:maxChild="60dp">
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:checked="true"
                                     android:text="M" />
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:text="T" />
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:text="W" />
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:text="T" />
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:text="F" />
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:text="S" />
 
-                                <com.github.axet.androidlibrary.widgets.RoundCheckbox
+                                <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
@@ -195,13 +195,19 @@
                                     android:src="@drawable/ic_notifications_black_24dp"
                                     android:tint="?attr/colorAccent" />
 
-                                <TextView
-                                    android:id="@+id/alarm_ringtone_value"
+                                <com.github.axet.androidlibrary.widgets.PathMax
                                     android:layout_width="wrap_content"
                                     android:layout_height="match_parent"
-                                    android:layout_weight="1"
-                                    android:gravity="center_vertical"
-                                    android:text="Default Ringtone" />
+                                    android:paddingRight="5dp">
+
+                                    <TextView
+                                        android:id="@+id/alarm_ringtone_value"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="match_parent"
+                                        android:layout_weight="1"
+                                        android:gravity="center_vertical"
+                                        android:text="Default Ringtone" />
+                                </com.github.axet.androidlibrary.widgets.PathMax>
                             </LinearLayout>
 
                             <TextView
