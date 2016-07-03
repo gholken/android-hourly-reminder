@@ -80,10 +80,29 @@ public class Week {
         return set;
     }
 
+    // "Thu" -> (int)Calendar.Thursday
+    int parseTag(String d) {
+        for (int i = 0; i < Week.DAYS.length; i++) {
+            String day = context.getString(Week.DAYS[i]);
+            if (day.equals(d)) {
+                return Week.EVERYDAY[i];
+            }
+        }
+        throw new RuntimeException("unknown day");
+    }
+
     public void setWeekDaysProperty(Set<String> set) {
         ArrayList w = new ArrayList<>();
         for (String s : set) {
-            w.add(Integer.parseInt(s));
+            int i;
+
+            try {
+                i = Integer.parseInt(s);
+            } catch (NumberFormatException e) {
+                i = parseTag(s);
+            }
+
+            w.add(i);
         }
         weekDaysValues = w;
     }

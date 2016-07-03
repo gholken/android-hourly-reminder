@@ -23,29 +23,15 @@ public class Reminder extends Week {
         // reminder days
         Set<String> days = shared.getStringSet(HourlyApplication.PREFERENCE_DAYS, new TreeSet<String>());
 
-        load(days);
+        weekdaysCheck = true;
+        setWeekDaysProperty(days);
     }
 
     public Reminder(Context context, Set days) {
         super(context);
 
-        load(days);
-   }
-
-    // ["Mon", "Tru"] --> [Calendar.Monday, Calendar.Thusday]
-    public void load(Set<String> days) {
         weekdaysCheck = true;
-        // java Calendar.MONDAY... values
-        weekDaysValues = new ArrayList<>();
-        // convert 'days' -> 'weekDays'
-        for (String d : days) {
-            for (int i = 0; i < Week.DAYS.length; i++) {
-                String day = context.getString(Week.DAYS[i]);
-                if (day.equals(d)) {
-                    weekDaysValues.add(Week.EVERYDAY[i]);
-                }
-            }
-        }
+        setWeekDaysProperty(days);
     }
 
     public static String format(int hour) {
