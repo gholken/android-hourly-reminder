@@ -62,6 +62,8 @@ public class HourlyApplication extends Application {
 
     public static final String PREFERENCE_VIBRATE = "vibrate";
 
+    public static final String PREFERENCE_LAST_PATH = "lastpath";
+
     static HashMap<Uri, String> titles = new HashMap<>();
 
     public static final int VERSION = 1;

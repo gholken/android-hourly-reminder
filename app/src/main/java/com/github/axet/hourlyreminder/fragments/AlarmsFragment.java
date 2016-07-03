@@ -497,7 +497,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     return;
 
                 Sound.Silenced s = sound.playAlarm(a);
-                if(s == Sound.Silenced.VIBRATE) {
+                if (s == Sound.Silenced.VIBRATE) {
                     preview = true;
                     return;
                 }
@@ -614,7 +614,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         String path = fragmentRequestRingtone.ringtoneValue;
 
         if (path == null || path.isEmpty()) {
-            path = Environment.getExternalStorageDirectory().getPath();
+            String def = Environment.getExternalStorageDirectory().getPath();
+            SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+            path = shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def);
         }
 
         File sound = new File(path);
@@ -630,6 +632,9 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, f.getCurrentPath().getParent()).commit();
+
                 fragmentRequestRingtone.ringtoneValue = f.getCurrentPath().getAbsolutePath();
                 save(fragmentRequestRingtone);
                 fragmentRequestRingtone = null;

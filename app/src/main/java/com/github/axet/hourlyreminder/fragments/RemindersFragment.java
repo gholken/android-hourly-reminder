@@ -266,7 +266,9 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
     }
 
     public String getDefault() {
-        return Environment.getExternalStorageDirectory().getPath();
+        String def = Environment.getExternalStorageDirectory().getPath();
+        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+        return shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def);
     }
 
     @Override
@@ -493,6 +495,10 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 File ff = f.getCurrentPath();
+
+                SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, ff.getParent()).commit();
+
                 String fileName = ff.getPath();
                 if (pp.callChangeListener(fileName)) {
                     pp.setText(fileName);

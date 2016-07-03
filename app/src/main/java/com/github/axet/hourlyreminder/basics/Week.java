@@ -200,14 +200,41 @@ public class Week {
         setNext();
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public void setTime(long l) {
+        this.time = l;
+    }
+
+    // set today alarm
+    public void setTime(int hour, int min) {
+        Calendar cur = Calendar.getInstance();
+
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
+
+        this.time = cal.getTimeInMillis();
+
+        time = getAlarmTime(cal, cur);
+    }
+
     // move alarm to the next day (tomorrow)
     //
     // (including weekdays checks)
     public void setTomorrow() {
         Calendar cur = Calendar.getInstance();
 
+        Calendar m = Calendar.getInstance();
+        m.setTimeInMillis(time);
+        int hour = m.get(Calendar.HOUR_OF_DAY);
+        int min = m.get(Calendar.MINUTE);
+
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
         cal.add(Calendar.DATE, 1);
 
         time = getAlarmTime(cal, cur);
@@ -219,8 +246,14 @@ public class Week {
     public void setNext() {
         Calendar cur = Calendar.getInstance();
 
+        Calendar m = Calendar.getInstance();
+        m.setTimeInMillis(time);
+        int hour = m.get(Calendar.HOUR_OF_DAY);
+        int min = m.get(Calendar.MINUTE);
+
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
+        cal.set(Calendar.HOUR_OF_DAY, hour);
+        cal.set(Calendar.MINUTE, min);
 
         time = getAlarmTime(cal, cur);
     }
@@ -290,24 +323,5 @@ public class Week {
                 return cal.getTimeInMillis();
             }
         }
-    }
-
-    public long getTime() {
-        return time;
-    }
-
-    public void setTime(long l) {
-        this.time = l;
-    }
-
-    // set today alarm
-    public void setTime(int hour, int min) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, hour);
-        cal.set(Calendar.MINUTE, min);
-
-        this.time = cal.getTimeInMillis();
-
-        setNext();
     }
 }
