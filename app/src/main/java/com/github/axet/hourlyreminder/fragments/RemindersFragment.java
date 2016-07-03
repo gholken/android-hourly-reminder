@@ -93,7 +93,8 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             }
 
             if (preference.getKey().equals(HourlyApplication.PREFERENCE_DAYS)) {
-                preference.setSummary(Reminder.getDays(preference.getContext(), (Set) value));
+                Reminder r = new Reminder(preference.getContext(), (Set) value);
+                preference.setSummary(r.getDays());
                 return true;
             }
 
@@ -262,10 +263,6 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
     @Override
     public Fragment getCallbackFragment() {
         return this;
-    }
-
-    public String getDefault() {
-        return Environment.getExternalStorageDirectory().getPath();
     }
 
     @Override
@@ -483,7 +480,9 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         String path = pp.getText();
 
         if (path == null || path.isEmpty()) {
-            path = getDefault();
+            String def = Environment.getExternalStorageDirectory().getPath();
+            SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+            path = shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def);
         }
 
         f.setReadonly(true);
@@ -492,6 +491,10 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 File ff = f.getCurrentPath();
+
+                SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, ff.getParent()).commit();
+
                 String fileName = ff.getPath();
                 if (pp.callChangeListener(fileName)) {
                     pp.setText(fileName);

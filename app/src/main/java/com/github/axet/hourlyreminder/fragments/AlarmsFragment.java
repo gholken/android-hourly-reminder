@@ -11,8 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.DataSetObserver;
-import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,9 +20,7 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
 import android.support.v4.content.ContextCompat;
-import android.text.Html;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,13 +45,13 @@ import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
 import com.github.axet.hourlyreminder.app.Storage;
 import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.basics.Week;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
@@ -184,8 +180,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
         String s = prefs.getString(HourlyApplication.PREFERENCE_WEEKSTART, "");
-        for (int i = 0; i < Alarm.DAYS.length; i++) {
-            if (s.equals(getString(Alarm.DAYS[i]))) {
+        for (int i = 0; i < Week.DAYS.length; i++) {
+            if (s.equals(getString(Week.DAYS[i]))) {
                 startweek = i;
                 break;
             }
@@ -409,8 +405,8 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         for (int i = 0; i < weekdaysValues.getChildCount(); i++) {
             final CheckBox child = (CheckBox) weekdaysValues.getChildAt(i);
             if (child instanceof CheckBox) {
-                child.setText(getString(Alarm.DAYS[startweek]).substring(0, 1));
-                final int week = Alarm.EVERYDAY[startweek];
+                child.setText(getString(Week.DAYS[startweek]).substring(0, 1));
+                final int week = Week.EVERYDAY[startweek];
 
                 child.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -425,16 +421,16 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                 });
                 child.setChecked(a.isWeek(week));
                 startweek++;
-                if (startweek >= Alarm.DAYS.length)
+                if (startweek >= Week.DAYS.length)
                     startweek = 0;
             }
         }
-        weekdays.setChecked(a.weekdays);
+        weekdays.setChecked(a.weekdaysCheck);
         weekdays.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                a.weekdays = weekdays.isChecked();
-                if (a.weekdays && a.noDays()) {
+                a.weekdaysCheck = weekdays.isChecked();
+                if (a.weekdaysCheck && a.noDays()) {
                     a.setEveryday();
                 }
                 save(a);
@@ -501,7 +497,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
                     return;
 
                 Sound.Silenced s = sound.playAlarm(a);
-                if(s == Sound.Silenced.VIBRATE) {
+                if (s == Sound.Silenced.VIBRATE) {
                     preview = true;
                     return;
                 }
@@ -617,16 +613,19 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         String path = fragmentRequestRingtone.ringtoneValue;
 
-        if (path == null || path.isEmpty()) {
-            path = Environment.getExternalStorageDirectory().getPath();
+        if (path == null) {
+            path = "";
         }
 
         File sound = new File(path);
 
         while (!sound.exists()) {
             sound = sound.getParentFile();
-            if (sound == null)
-                sound = Environment.getExternalStorageDirectory();
+            if (sound == null) {
+                String def = Environment.getExternalStorageDirectory().getPath();
+                SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                sound = new File(shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def));
+            }
         }
 
         f.setReadonly(true);
@@ -634,7 +633,12 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                fragmentRequestRingtone.ringtoneValue = f.getCurrentPath().getAbsolutePath();
+                File ff = f.getCurrentPath();
+                
+                SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, ff.getParent()).commit();
+
+                fragmentRequestRingtone.ringtoneValue = ff.getAbsolutePath();
                 save(fragmentRequestRingtone);
                 fragmentRequestRingtone = null;
             }

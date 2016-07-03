@@ -9,13 +9,13 @@ import android.net.Uri;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
+import com.github.axet.hourlyreminder.basics.Week;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
 import java.io.File;
@@ -61,6 +61,8 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_WEEKSTART = "weekstart";
 
     public static final String PREFERENCE_VIBRATE = "vibrate";
+
+    public static final String PREFERENCE_LAST_PATH = "lastpath";
 
     static HashMap<Uri, String> titles = new HashMap<>();
 
@@ -109,11 +111,11 @@ public class HourlyApplication extends Application {
             Alarm a;
             a = new Alarm(context);
             a.setTime(9, 0);
-            a.weekdays = true;
+            a.weekdaysCheck = true;
             a.speech = true;
             a.beep = true;
             a.ringtone = true;
-            a.setWeekDays(Alarm.WEEKDAY);
+            a.setWeekDaysValues(Week.WEEKDAY);
             alarms.add(a);
             while (ids.contains(a.id)) {
                 a.id++;
@@ -122,11 +124,11 @@ public class HourlyApplication extends Application {
 
             a = new Alarm(context);
             a.setTime(10, 0);
-            a.weekdays = true;
+            a.weekdaysCheck = true;
             a.speech = true;
             a.beep = true;
             a.ringtone = true;
-            a.setWeekDays(Alarm.WEEKEND);
+            a.setWeekDaysValues(Week.WEEKEND);
             alarms.add(a);
             while (ids.contains(a.id)) {
                 a.id++;
@@ -135,7 +137,7 @@ public class HourlyApplication extends Application {
 
             a = new Alarm(context);
             a.setTime(10, 30);
-            a.weekdays = false;
+            a.weekdaysCheck = false;
             a.speech = true;
             a.beep = true;
             a.ringtone = true;
@@ -159,10 +161,8 @@ public class HourlyApplication extends Application {
             ids.add(a.id);
 
             a.time = shared.getLong(prefix + "Time", 0);
-            a.hour = shared.getInt(prefix + "Hour", 0);
-            a.min = shared.getInt(prefix + "Min", 0);
             a.enable = shared.getBoolean(prefix + "Enable", false);
-            a.weekdays = shared.getBoolean(prefix + "WeekDays", false);
+            a.weekdaysCheck = shared.getBoolean(prefix + "WeekDays", false);
             a.setWeekDaysProperty(shared.getStringSet(prefix + "WeekDays_Values", null));
             a.ringtone = shared.getBoolean(prefix + "Ringtone", false);
             a.ringtoneValue = shared.getString(prefix + "Ringtone_Value", "");
@@ -191,11 +191,9 @@ public class HourlyApplication extends Application {
             ids.add(a.id);
 
             edit.putLong(prefix + "Id", a.id);
-            edit.putInt(prefix + "Hour", a.hour);
-            edit.putInt(prefix + "Min", a.min);
             edit.putLong(prefix + "Time", a.time);
             edit.putBoolean(prefix + "Enable", a.enable);
-            edit.putBoolean(prefix + "WeekDays", a.weekdays);
+            edit.putBoolean(prefix + "WeekDays", a.weekdaysCheck);
             edit.putStringSet(prefix + "WeekDays_Values", a.getWeekDaysProperty());
             edit.putBoolean(prefix + "Ringtone", a.ringtone);
             edit.putString(prefix + "Ringtone_Value", a.ringtoneValue);
@@ -216,25 +214,21 @@ public class HourlyApplication extends Application {
 
         Set<String> hours = shared.getStringSet(PREFERENCE_HOURS, new HashSet<String>());
 
-        for (int i = 0; i < 24; i++) {
-            String h = Reminder.format(i);
+        for (int hour = 0; hour < 24; hour++) {
+            String h = Reminder.format(hour);
 
             Reminder r = new Reminder(context);
-            r.hour = i;
-            r.minute = 0;
             r.enabled = hours.contains(h);
-            r.setNext();
+            r.setTime(hour, 0);
             list.add(r);
 
-            String next = Reminder.format(i + 1);
+            String next = Reminder.format(hour + 1);
 
             if (r.enabled && hours.contains(next)) {
                 for (int m = repeat; m < 60; m += repeat) {
                     r = new Reminder(context);
-                    r.hour = i;
-                    r.minute = m;
                     r.enabled = true;
-                    r.setNext();
+                    r.setTime(hour, m);
                     list.add(r);
                 }
             }
