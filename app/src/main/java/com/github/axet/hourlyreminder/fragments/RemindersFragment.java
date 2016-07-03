@@ -93,7 +93,8 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
             }
 
             if (preference.getKey().equals(HourlyApplication.PREFERENCE_DAYS)) {
-                preference.setSummary(Reminder.getDays(preference.getContext(), (Set) value));
+                Reminder r = new Reminder(preference.getContext(), (Set) value);
+                preference.setSummary(r.getDays());
                 return true;
             }
 

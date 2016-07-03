@@ -26,7 +26,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 import java.util.TreeSet;
 
 /**
@@ -159,7 +158,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     public void tomorrow(long time) {
         for (Alarm a : alarms) {
             if (a.time == time && a.enable) {
-                if (a.weekdays) {
+                if (a.weekdaysCheck) {
                     // be safe for another timezone. if we moved we better call setNext()
                     a.setTomorrow();
                 } else {
@@ -373,7 +372,7 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
             if (a.time == time && a.enable) {
                 Log.d(TAG, "Sound Alarm " + Alarm.format(a.time));
                 Alarm old = new Alarm(a);
-                if (!a.weekdays) {
+                if (!a.weekdaysCheck) {
                     // disable alarm after it goes off for non rcuring alarms (!a.weekdays)
                     a.setEnable(false);
                 } else {

@@ -18,6 +18,7 @@ import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.basics.Alarm;
 import com.github.axet.hourlyreminder.basics.Reminder;
+import com.github.axet.hourlyreminder.basics.Week;
 
 import java.util.Arrays;
 import java.util.Set;
@@ -102,8 +103,8 @@ public class DaysDialogFragment extends PreferenceDialogFragment {
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String s = prefs.getString(HourlyApplication.PREFERENCE_WEEKSTART, "");
-        for (int i = 0; i < Alarm.DAYS.length; i++) {
-            if (s.equals(getString(Alarm.DAYS[i]))) {
+        for (int i = 0; i < Week.DAYS.length; i++) {
+            if (s.equals(getString(Week.DAYS[i]))) {
                 startweek = i;
                 break;
             }
@@ -114,9 +115,9 @@ public class DaysDialogFragment extends PreferenceDialogFragment {
         for (int i = 0; i < weekdaysValues.getChildCount(); i++) {
             final CheckBox child = (CheckBox) weekdaysValues.getChildAt(i);
             if (child instanceof CheckBox) {
-                String v = getString(Alarm.DAYS[startweek]);
+                String v = getString(Week.DAYS[startweek]);
                 child.setText(v.substring(0, 1));
-                final int week = Alarm.EVERYDAY[startweek];
+                final int week = Week.EVERYDAY[startweek];
 
                 child.setTag(v);
 
@@ -129,7 +130,7 @@ public class DaysDialogFragment extends PreferenceDialogFragment {
                 boolean b = values.contains(v);
                 child.setChecked(b);
                 startweek++;
-                if (startweek >= Alarm.DAYS.length)
+                if (startweek >= Week.DAYS.length)
                     startweek = 0;
             }
         }
