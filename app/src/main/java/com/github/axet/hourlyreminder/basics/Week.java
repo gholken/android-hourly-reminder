@@ -174,7 +174,7 @@ public class Week {
         // check if alarm is active for current weekday. skip all disabled weekdays.
         int week = cal.get(Calendar.DAY_OF_WEEK);
         int i;
-        for (i = 0; i < 7; i++) {
+        for (i = 0; i < EVERYDAY.length; i++) {
             // check week enabled?
             if (isWeek(week))
                 break;
@@ -303,7 +303,6 @@ public class Week {
     // set today alarm
     public void setTime(int hour, int min) {
         Calendar cal = Calendar.getInstance();
-        cal.setTimeInMillis(time);
         cal.set(Calendar.HOUR_OF_DAY, hour);
         cal.set(Calendar.MINUTE, min);
 

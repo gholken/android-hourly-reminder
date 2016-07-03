@@ -22,21 +22,19 @@ public class Reminder extends Week {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         // reminder days
         Set<String> days = shared.getStringSet(HourlyApplication.PREFERENCE_DAYS, new TreeSet<String>());
-        load(days);
 
-        this.weekdaysCheck = true;
+        load(days);
     }
 
     public Reminder(Context context, Set days) {
         super(context);
 
         load(days);
-
-        this.weekdaysCheck = true;
-    }
+   }
 
     // ["Mon", "Tru"] --> [Calendar.Monday, Calendar.Thusday]
     public void load(Set<String> days) {
+        weekdaysCheck = true;
         // java Calendar.MONDAY... values
         weekDaysValues = new ArrayList<>();
         // convert 'days' -> 'weekDays'
