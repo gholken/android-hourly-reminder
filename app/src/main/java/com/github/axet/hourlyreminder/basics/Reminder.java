@@ -193,6 +193,7 @@ public class Reminder {
         if (cal.after(cur)) {
             // time is future? then it points for correct time.
             // change nothing, but seconds.
+            cal = rollWeek(cal);
             return cal.getTimeInMillis();
         } else {
             int ch = cur.get(Calendar.HOUR_OF_DAY);
