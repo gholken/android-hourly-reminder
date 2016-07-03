@@ -613,18 +613,19 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
         String path = fragmentRequestRingtone.ringtoneValue;
 
-        if (path == null || path.isEmpty()) {
-            String def = Environment.getExternalStorageDirectory().getPath();
-            SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
-            path = shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def);
+        if (path == null) {
+            path = "";
         }
 
         File sound = new File(path);
 
         while (!sound.exists()) {
             sound = sound.getParentFile();
-            if (sound == null)
-                sound = Environment.getExternalStorageDirectory();
+            if (sound == null) {
+                String def = Environment.getExternalStorageDirectory().getPath();
+                SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+                sound = new File(shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def));
+            }
         }
 
         f.setReadonly(true);
@@ -632,10 +633,12 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
         f.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                File ff = f.getCurrentPath();
+                
                 SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
-                shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, f.getCurrentPath().getParent()).commit();
+                shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, ff.getParent()).commit();
 
-                fragmentRequestRingtone.ringtoneValue = f.getCurrentPath().getAbsolutePath();
+                fragmentRequestRingtone.ringtoneValue = ff.getAbsolutePath();
                 save(fragmentRequestRingtone);
                 fragmentRequestRingtone = null;
             }

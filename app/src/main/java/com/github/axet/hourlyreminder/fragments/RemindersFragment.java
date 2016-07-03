@@ -265,12 +265,6 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         return this;
     }
 
-    public String getDefault() {
-        String def = Environment.getExternalStorageDirectory().getPath();
-        SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
-        return shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def);
-    }
-
     @Override
     public boolean onPreferenceDisplayDialog(PreferenceFragment preferenceFragment, final Preference preference) {
         if (preference instanceof SeekBarPreference) {
@@ -486,7 +480,9 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         String path = pp.getText();
 
         if (path == null || path.isEmpty()) {
-            path = getDefault();
+            String def = Environment.getExternalStorageDirectory().getPath();
+            SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
+            path = shared.getString(HourlyApplication.PREFERENCE_LAST_PATH, def);
         }
 
         f.setReadonly(true);
