@@ -48,6 +48,7 @@ public class Sound {
     MediaPlayer player;
     AudioTrack track;
     Runnable delayed; // tts may not be initalized, on init done, run delayed.run()
+    boolean restart; // restart tts once if failed. on apk upgrade tts failed connection.
     Handler handler;
     Set<Runnable> done = new HashSet<>();
 
@@ -539,10 +540,25 @@ public class Sound {
                 @Override
                 public void run() {
                     if (!playSpeech(time)) {
-                        Toast.makeText(context, context.getString(R.string.FailedTTS), Toast.LENGTH_SHORT).show();
-                        tts.shutdown();
+                        tts.shutdown(); // on apk upgrade tts failed allwyas. close and restart.
                         tts = null;
-                        clear.run();
+                        if (restart) {
+                            Toast.makeText(context, context.getString(R.string.FailedTTS), Toast.LENGTH_SHORT).show();
+                            clear.run();
+                        }else {
+                            restart = true;
+                            Toast.makeText(context, context.getString(R.string.FailedTTSRestar), Toast.LENGTH_SHORT).show();
+                            if (delayed != null) {
+                                handler.removeCallbacks(delayed);
+                            }
+                            delayed = new Runnable() {
+                                @Override
+                                public void run() {
+                                    playSpeech(time, done);
+                                }
+                            };
+                            handler.postDelayed(delayed, 5000);
+                        }
                     }
                 }
             };
@@ -596,6 +612,7 @@ public class Sound {
                 return false;
             }
         }
+        restart = false;
         return true;
     }
 

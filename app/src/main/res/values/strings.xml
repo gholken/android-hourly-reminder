@@ -11,6 +11,7 @@
     <!--Sound-->
     <string name="WaitTTS">Waiting for TTS</string>
     <string name="FailedTTS">Failed TTS again, skiping</string>
+    <string name="FailedTTSRestar">Failed TTS again, restarting</string>
     <string name="NoDefaultRingtone">No default ringtone</string>
     <string name="SoundSilenced">(Sound Silenced)</string>
     <string name="SoundSilencedVibrate">(Sound Silenced) - Vibrate</string>
