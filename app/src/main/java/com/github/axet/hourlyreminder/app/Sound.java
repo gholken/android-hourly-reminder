@@ -47,7 +47,7 @@ public class Sound {
     ToneGenerator tone;
     MediaPlayer player;
     AudioTrack track;
-    Runnable delayed;
+    Runnable delayed; // tts may not be initalized, on init done, run delayed.run()
     Handler handler;
     Set<Runnable> done = new HashSet<>();
 
@@ -72,6 +72,10 @@ public class Sound {
 
         handler = new Handler();
 
+        ttsCreate();
+    }
+
+    void ttsCreate() {
         tts = new TextToSpeech(context, new TextToSpeech.OnInitListener() {
             @Override
             public void onInit(int status) {
@@ -273,6 +277,8 @@ public class Sound {
                 }
             }
         };
+
+        timeToast(time);
 
         beep.run();
     }
@@ -489,6 +495,7 @@ public class Sound {
         Sound.this.done.clear();
         Sound.this.done.add(done);
 
+        // clear delayed(), sound just played
         final Runnable clear = new Runnable() {
             @Override
             public void run() {
@@ -500,6 +507,11 @@ public class Sound {
                     done.run();
             }
         };
+
+        if (tts == null) {
+            ttsCreate();
+        }
+
         tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
             @Override
             public void onStart(String utteranceId) {
@@ -528,6 +540,8 @@ public class Sound {
                 public void run() {
                     if (!playSpeech(time)) {
                         Toast.makeText(context, context.getString(R.string.FailedTTS), Toast.LENGTH_SHORT).show();
+                        tts.shutdown();
+                        tts = null;
                         clear.run();
                     }
                 }
@@ -566,8 +580,6 @@ public class Sound {
                     speak = String.format("%d o'clock", hour);
             }
         }
-
-        timeToast(time);
 
         if (Build.VERSION.SDK_INT >= 21) {
             Bundle params = new Bundle();
