@@ -2,9 +2,8 @@
     <string name="app_name">Hourly Reminder</string>
     <string name="title_activity_main">Hourly Reminder</string>
     <string name="action_settings">Settings</string>
-    <string name="section_format">Hello World from section: %1$d</string>
 
-    <string-array name="hour_default">
+    <string-array name="hour_default" translatable="false">
         <item>08</item>
         <item>09</item>
         <item>10</item>
@@ -12,7 +11,7 @@
         <item>12</item>
     </string-array>
 
-    <string-array name="hour_values">
+    <string-array name="hour_values" translatable="false">
         <item name="00">00</item>
         <item name="01">01</item>
         <item name="02">02</item>
@@ -49,7 +48,7 @@
         <item>Sun</item>
     </string-array>
 
-    <string-array name="weekdays_values">
+    <string-array name="weekdays_values" translatable="false">
         <item>Mon</item>
         <item>Tue</item>
         <item>Wed</item>
@@ -70,7 +69,7 @@
         <item>Every 5 minutes</item>
     </string-array>
 
-    <string-array name="repeat_values">
+    <string-array name="repeat_values" translatable="false">
         <item>60</item>
         <item>30</item>
         <item>20</item>
@@ -85,7 +84,7 @@
         <item>Sound File Type</item>
     </string-array>
 
-    <string-array name="custom_sound_values">
+    <string-array name="custom_sound_values" translatable="false">
         <item>off</item>
         <item>ringtone</item>
         <item>sound</item>
@@ -100,7 +99,7 @@
         <item>5 sec</item>
     </string-array>
 
-    <string-array name="increasing_volume_values">
+    <string-array name="increasing_volume_values" translatable="false">
         <item>0</item>
         <item>1</item>
         <item>2</item>
@@ -109,12 +108,12 @@
         <item>5</item>
     </string-array>
 
-    <string-array name="languages_text">
+    <string-array name="languages_text" translatable="false">
         <item>English</item>
-        <item>Russian</item>
+        <item>Русский</item>
     </string-array>
 
-    <string-array name="languages_values">
+    <string-array name="languages_values" translatable="false">
         <item>en_US</item>
         <item>ru_RU</item>
     </string-array>
@@ -128,6 +127,7 @@
     <string name="FailedTTS">Failed TTS again, skiping</string>
     <string name="FailedTTSRestar">Failed TTS again, restarting</string>
     <string name="NoDefaultRingtone">No default ringtone</string>
+    <string name="DefaultRingtone">Default ringtone</string>
     <string name="SoundSilenced">(Sound Silenced)</string>
     <string name="SoundSilencedVibrate">(Sound Silenced) - Vibrate</string>
     <string name="SoundSilencedCall">(Sound Silenced) - Call</string>
@@ -138,6 +138,7 @@
     <!--Alarm-->
     <string name="Everyday">Everyday</string>
     <string name="Weekdays">Weekdays</string>
+    <string name="DaysOfWeek">Weekdays</string>
     <string name="Weekend">Weekend</string>
     <string name="Today">Today</string>
     <string name="Tomorrow">Tomorrow</string>
@@ -149,6 +150,14 @@
     <string name="WEEK_FRI">Fri</string>
     <string name="WEEK_SAT">Sat</string>
     <string name="WEEK_SUN">Sun</string>
+
+    <string name="monday">M</string>
+    <string name="tuesday">T</string>
+    <string name="wednesday">W</string>
+    <string name="thursday">T</string>
+    <string name="friday">F</string>
+    <string name="saturday">S</string>
+    <string name="sunday">S</string>
 
     <string name="title_activity_alarm">Alarm</string>
     <string name="title_activity_settings">Settings</string>
@@ -173,39 +182,27 @@
         <item quantity="other">%d seconds</item>
     </plurals>
 
-    <plurals name="hours_ru">
-        <item quantity="one">%d час</item>
-        <item quantity="few">%d часа</item>
-        <item quantity="many">%d часов</item>
-    </plurals>
-
-    <plurals name="minutes_ru">
-        <item quantity="one">%d минута</item>
-        <item quantity="few">%d минуты</item>
-        <item quantity="many">%d минут</item>
-    </plurals>
-
     <string name="alarm_set_for">Alarm set for%s from now!</string>
     <string name="alarm_disabled">Alarm is disabled</string>
     <string name="hour_symbol">h</string>
 
-    <string-array name="themes">
+    <string-array name="themes_text">
         <item>Theme White (default)</item>
         <item>Theme Dark</item>
     </string-array>
 
-    <string-array name="themes_values">
+    <string-array name="themes_values" translatable="false">
         <item>Theme_White</item>
         <item>Theme_Dark</item>
     </string-array>
 
-    <string-array name="weekstart">
+    <string-array name="weekstart_text">
         <item>Saturday</item>
         <item>Sunday</item>
         <item>Monday</item>
     </string-array>
 
-    <string-array name="weekstart_values">
+    <string-array name="weekstart_values" translatable="false">
         <item>Sat</item>
         <item>Sun</item>
         <item>Mon</item>
@@ -228,4 +225,27 @@
     <string name="Alarm">Alarm</string>
     <string name="AlarmMissed">Alarm missed</string>
     <string name="AlarmMissedAfter">Alarm %1$02d:%2$02d dismissed after %3$d mins</string>
+
+    <string name="dismiss_alarm">Dismiss Alarm</string>
+
+    <string name="day_pm">PM</string>
+    <string name="day_am">AM</string>
+    <string name="day_night">AM</string>
+    <string name="day_mid">PM</string>
+
+    <string name="beep">Beep</string>
+    <string name="speech">Speech</string>
+    <string name="ringtone">Ringtone</string>
+    <string name="browse_sdcard">Browse sdcard</string>
+
+    <string name="active_alarm">Active Alarm!</string>
+    <string name="dismiss">Dismiss</string>
+
+    <string name="not_selected">(not selected)</string>
+    <string name="alarm_type_alarm">Setting alarm type to \'alarm\', check settings.</string>
+    <string name="reminders_vibrate">Reminders set to vibrate only</string>
+    <string name="reminders_silence">Reminders set to \'silence\'</string>
+
+    <string name="speak_time">Time is %1$s</string>
+    <string name="speak_time_24">%1$s o\'clock</string>
 </resources>

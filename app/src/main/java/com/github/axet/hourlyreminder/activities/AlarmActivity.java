@@ -171,8 +171,15 @@ public class AlarmActivity extends AppCompatActivity {
 
     void updateTime(View view, long t) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
-        View am = view.findViewById(R.id.alarm_am);
-        View pm = view.findViewById(R.id.alarm_pm);
+        TextView am = (TextView) view.findViewById(R.id.alarm_am);
+        TextView pm = (TextView) view.findViewById(R.id.alarm_pm);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(t);
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+        am.setText(HourlyApplication.getHourString(this, hour));
+        pm.setText(HourlyApplication.getHourString(this, hour));
 
         if (DateFormat.is24HourFormat(this)) {
             SimpleDateFormat f = new SimpleDateFormat("HH:mm");
@@ -183,10 +190,6 @@ public class AlarmActivity extends AppCompatActivity {
         } else {
             SimpleDateFormat f = new SimpleDateFormat("h:mm");
             time.setText(f.format(new Date(t)));
-
-            Calendar cal = Calendar.getInstance();
-            cal.setTimeInMillis(t);
-            int hour = cal.get(Calendar.HOUR_OF_DAY);
 
             am.setVisibility(hour >= 12 ? View.GONE : View.VISIBLE);
             pm.setVisibility(hour >= 12 ? View.VISIBLE : View.GONE);

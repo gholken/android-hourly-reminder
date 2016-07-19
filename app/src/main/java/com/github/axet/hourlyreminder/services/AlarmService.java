@@ -4,8 +4,10 @@ import android.app.AlarmManager;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.IBinder;
@@ -59,6 +61,13 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     List<Alarm> alarms;
     List<Reminder> reminders;
 
+    BroadcastReceiver language = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Sound.resetLanguage(context);
+        }
+    };
+
     public AlarmService() {
         super();
     }
@@ -79,6 +88,11 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
         sound = new Sound(this);
         alarms = HourlyApplication.loadAlarms(this);
         reminders = HourlyApplication.loadReminders(this);
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_LOCALE_CHANGED);
+
+        registerReceiver(language, filter);
     }
 
     @Nullable
@@ -91,6 +105,11 @@ public class AlarmService extends Service implements SharedPreferences.OnSharedP
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+
+        if (language != null) {
+            unregisterReceiver(language);
+            language = null;
+        }
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
         prefs.unregisterOnSharedPreferenceChangeListener(this);

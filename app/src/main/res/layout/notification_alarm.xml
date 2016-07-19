@@ -26,7 +26,7 @@
             android:id="@+id/notification_subject"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Active Alarm!"
+            android:text="@string/active_alarm"
             android:textColor="?android:attr/colorForeground"
             android:textStyle="bold" />
 
@@ -44,5 +44,5 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:layout_margin="5dp"
-        android:text="Dismiss" />
+        android:text="@string/dismiss" />
 </LinearLayout>

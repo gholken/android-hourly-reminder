@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/alarm_time"
             android:layout_toRightOf="@id/alarm_time"
-            android:text="AM"
+            android:text="@string/day_am"
             android:textColor="@android:color/secondary_text_dark"
             android:textSize="25dp" />
 
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:layout_alignBaseline="@id/alarm_time"
             android:layout_toRightOf="@id/alarm_time"
-            android:text="PM"
+            android:text="@string/day_pm"
             android:textColor="@android:color/secondary_text_dark"
             android:textSize="25dp"
             android:visibility="gone" />
@@ -50,7 +50,7 @@
         android:layout_height="170dp"
         android:background="?attr/alarmRing"
         android:padding="5dp"
-        android:text="Dismiss Alarm"
+        android:text="@string/dismiss_alarm"
         android:textColor="@android:color/white"
         android:textSize="20dp" />
 
@@ -65,7 +65,7 @@
             android:id="@+id/alarm_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Alarm"
+            android:text="@string/Alarm"
             android:textColor="@android:color/white" />
 
         <RelativeLayout
@@ -88,7 +88,7 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/alarm_time"
                 android:layout_toRightOf="@id/alarm_time"
-                android:text="AM"
+                android:text="@string/day_am"
                 android:textColor="@android:color/white"
                 android:textSize="8dp" />
 
@@ -98,17 +98,22 @@
                 android:layout_height="wrap_content"
                 android:layout_alignBaseline="@id/alarm_time"
                 android:layout_toRightOf="@id/alarm_time"
-                android:text="PM"
+                android:text="@string/day_pm"
                 android:textColor="@android:color/white"
                 android:textSize="8dp"
                 android:visibility="gone" />
         </RelativeLayout>
 
         <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="" />
+
+        <TextView
             android:id="@+id/alarm_silenced"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="\n(Sound Silenced)"
+            android:text="@string/SoundSilenced"
             android:textColor="@android:color/white" />
     </LinearLayout>
 

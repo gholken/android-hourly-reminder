@@ -1,9 +1,13 @@
 package com.github.axet.hourlyreminder.basics;
 
 import android.content.Context;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.text.format.DateFormat;
+
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,6 +15,7 @@ import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Locale;
 
 public class Alarm extends Week {
     public final static Uri DEFAULT_RING = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_RINGTONE);
@@ -95,8 +100,16 @@ public class Alarm extends Week {
             SimpleDateFormat f = new SimpleDateFormat("HH:mm");
             return f.format(new Date(time));
         } else {
-            SimpleDateFormat f = new SimpleDateFormat("h:mm a");
-            return f.format(new Date(time));
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(time);
+            int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+            Resources res = context.getResources();
+            Configuration conf = res.getConfiguration();
+            Locale locale = conf.locale;
+
+            SimpleDateFormat f = new SimpleDateFormat("h:mm");
+            return f.format(new Date(time)) + " " + HourlyApplication.getHourString(context, locale, hour);
         }
     }
 

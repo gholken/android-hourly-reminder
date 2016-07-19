@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Hourly Reminder</string>
+
+    <plurals name="hours">
+        <item quantity="one">%d час</item>
+        <item quantity="few">%d часа</item>
+        <item quantity="many">%d часов</item>
+    </plurals>
+
+    <plurals name="minutes">
+        <item quantity="one">%d минута</item>
+        <item quantity="few">%d минуты</item>
+        <item quantity="many">%d минут</item>
+    </plurals>
+
+    <plurals name="seconds">
+        <item quantity="one">%d секунда</item>
+        <item quantity="few">%d секунды</item>
+        <item quantity="many">%d секунд</item>
+    </plurals>
+
+    <string name="Alarm">Будильник</string>
+    <string name="AlarmMissed">Будильник пропущен</string>
+    <string name="AlarmMissedAfter">Будильник пропущен %1$02d:%2$02d после %3$d минут</string>
+    <string name="AreYouSure">Вы уверены?</string>
+    <string name="Cancel">Отмена</string>
+    <string name="CustomAlarms">Будильник</string>
+    <string name="DefaultRingtone">Оповещение по умолчанию</string>
+    <string name="Everyday">Каждый день</string>
+    <string name="FailedTTS">Ошибка TTS повторно, пропускаем</string>
+    <string name="FailedTTSRestar">Ошибка TTS повторно, перезапускаем</string>
+    <string name="HourlyReminders">Оповещения</string>
+    <string name="No">Нет</string>
+    <string name="NoDefaultRingtone">Нет оповещения по умолчанию</string>
+    <string name="NotPermitted">Отказано в доступе</string>
+    <string name="Reminder">Оповещение</string>
+    <string name="Reminders15">Оповещение установлено каждые 15 минут, проверьте настройки.</string>
+    <string name="SelectAlarm">Выбрать Будильник</string>
+    <string name="SoundSilenced">(Звук выключен)</string>
+    <string name="SoundSilencedCall">(Звук выключен) - Звонок</string>
+    <string name="SoundSilencedMusic">(Звук выключен) - Музыка</string>
+    <string name="SoundSilencedSettings">(Звук выключен) - Настройки</string>
+    <string name="SoundSilencedVibrate">(Звук выключен) - Вибратор</string>
+    <string name="TimeIs">Текущее время %1$s</string>
+    <string name="Today">Сегодня</string>
+    <string name="Tomorrow">Завтра</string>
+    <string name="UpcomingAlarm">Оповещение Будильник</string>
+
+    <string-array name="weekdays_text">
+        <item>Пн</item>
+        <item>Вт</item>
+        <item>Ср</item>
+        <item>Чт</item>
+        <item>Пт</item>
+        <item>Сб</item>
+        <item>Вс</item>
+    </string-array>
+
+    <string-array name="repeat_text">
+        <item>Каждый час</item>
+        <item>Каждые 30 минут</item>
+        <item>Каждые 20 минут</item>
+        <item>Каждые 15 минут</item>
+        <item>Каждые 10 минут</item>
+        <item>Каждые 5 минут</item>
+    </string-array>
+
+    <string-array name="custom_sound_text">
+        <item>Выключено</item>
+        <item>Тип Звонок</item>
+        <item>Тип Звуковой файл</item>
+    </string-array>
+
+    <string-array name="increasing_volume_text">
+        <item>Выключено</item>
+        <item>1 сек</item>
+        <item>2 сек</item>
+        <item>3 сек</item>
+        <item>4 сек</item>
+        <item>5 сек</item>
+    </string-array>
+
+    <string-array name="themes_text">
+        <item>Тема Светлый (по умолчанию)</item>
+        <item>Тема Темный</item>
+    </string-array>
+
+    <string-array name="weekstart_text">
+        <item>Суббота</item>
+        <item>Воскресение</item>
+        <item>Понедельник</item>
+    </string-array>
+
+    <string name="WEEK_MON">Пн</string>
+    <string name="WEEK_TUE">Вт</string>
+    <string name="WEEK_WED">Ср</string>
+    <string name="WEEK_THU">Чт</string>
+    <string name="WEEK_FRI">Пт</string>
+    <string name="WEEK_SAT">Сб</string>
+    <string name="WEEK_SUN">Вс</string>
+
+    <string name="friday">П</string>
+    <string name="monday">П</string>
+    <string name="sunday">В</string>
+    <string name="thursday">Ч</string>
+    <string name="tuesday">В</string>
+    <string name="wednesday">С</string>
+    <string name="saturday">С</string>
+
+    <string name="day_night">ночи</string>
+    <string name="day_am">утра</string>
+    <string name="day_mid">дня</string>
+    <string name="day_pm">вечера</string>
+
+    <string name="WaitTTS">Ждем TTS</string>
+    <string name="Weekdays">Рабочие дни</string>
+    <string name="DaysOfWeek">Дни недели</string>
+    <string name="Weekend">Выходные дни</string>
+    <string name="Yes">Да</string>
+    <string name="action_settings">Настройки</string>
+    <string name="active_alarm">Будильник!</string>
+    <string name="alarm_disabled">Будильник отключен</string>
+    <string name="alarm_set_for">Будильник установлен через %s</string>
+    <string name="beep">Сигнал</string>
+    <string name="browse_sdcard">Обзор Карты</string>
+
+    <string name="hour_symbol">ч</string>
+
+    <string name="dismiss">Отменить</string>
+    <string name="dismiss_alarm">Отменить Будильник</string>
+    <string name="ringtone">Оповещение</string>
+    <string name="speech">Голос</string>
+    <string name="title_activity_alarm">Будильник</string>
+    <string name="title_activity_main">Почасовое оповещение</string>
+    <string name="title_activity_settings">Настройки</string>
+
+    <string name="speak_time">Текущее время %1$s</string>
+    <string name="speak_time_24">%1$s</string>
+
+    <string name="not_selected">(не выбрано)</string>
+    <string name="alarm_type_alarm">Установлен тип оповещений \'alarm\', проверьте настройки.</string>
+    <string name="reminders_vibrate">Оповещения переведены в режим \'вибратор\'</string>
+    <string name="reminders_silence">Оповещения переведены в беззвучный режим</string>
+</resources>

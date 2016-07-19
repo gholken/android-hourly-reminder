@@ -36,7 +36,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@id/alarm_time"
                     android:layout_toRightOf="@id/alarm_time"
-                    android:text="AM"
+                    android:text="@string/day_am"
                     android:textSize="25dp" />
 
                 <TextView
@@ -45,7 +45,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignBaseline="@id/alarm_time"
                     android:layout_toRightOf="@id/alarm_time"
-                    android:text="PM"
+                    android:text="@string/day_pm"
                     android:textSize="25dp"
                     android:visibility="gone" />
             </RelativeLayout>
@@ -80,7 +80,7 @@
                             android:id="@+id/alarm_week_days"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Weekdays" />
+                            android:text="@string/DaysOfWeek" />
 
                         <FrameLayout
                             android:layout_width="match_parent"
@@ -99,43 +99,43 @@
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
                                     android:checked="true"
-                                    android:text="M" />
+                                    android:text="@string/monday" />
 
                                 <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:text="T" />
+                                    android:text="@string/tuesday" />
 
                                 <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:text="W" />
+                                    android:text="@string/wednesday" />
 
                                 <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:text="T" />
+                                    android:text="@string/thursday" />
 
                                 <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:text="F" />
+                                    android:text="@string/friday" />
 
                                 <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:text="S" />
+                                    android:text="@string/saturday" />
 
                                 <com.github.axet.hourlyreminder.widgets.RoundCheckbox
                                     android:layout_width="wrap_content"
                                     android:layout_height="wrap_content"
                                     android:layout_margin="5dp"
-                                    android:text="S" />
+                                    android:text="@string/sunday" />
                             </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
                         </FrameLayout>
                     </LinearLayout>
@@ -151,19 +151,19 @@
                             android:id="@+id/alarm_beep"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Beep" />
+                            android:text="@string/beep" />
 
                         <CheckBox
                             android:id="@+id/alarm_speech"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Speech" />
+                            android:text="@string/speech" />
 
                         <CheckBox
                             android:id="@+id/alarm_ringtone"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="Ringtone" />
+                            android:text="@string/ringtone" />
                     </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
 
                     <FrameLayout
@@ -206,7 +206,7 @@
                                         android:layout_height="match_parent"
                                         android:layout_weight="1"
                                         android:gravity="center_vertical"
-                                        android:text="Default Ringtone" />
+                                        android:text="@string/DefaultRingtone" />
                                 </com.github.axet.androidlibrary.widgets.PathMax>
                             </LinearLayout>
 
@@ -218,7 +218,7 @@
                                 android:gravity="center"
                                 android:paddingLeft="10dp"
                                 android:paddingRight="10dp"
-                                android:text="Browse sdcard" />
+                                android:text="@string/browse_sdcard" />
                         </com.github.axet.androidlibrary.widgets.EqualLinearLayout>
                     </FrameLayout>
                 </LinearLayout>
@@ -260,7 +260,7 @@
                         android:id="@+id/alarm_compact_first"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Tomorrow"
+                        android:text="@string/Tomorrow"
                         android:textStyle="bold" />
 
                     <ImageView
