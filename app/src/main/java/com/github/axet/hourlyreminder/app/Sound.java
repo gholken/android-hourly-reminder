@@ -591,6 +591,12 @@ public class Sound {
         return str;
     }
 
+    String getQuantityString(int id, Object... formatArgs) {
+        Resources res = context.getResources();
+        String str = res.getQuantityString(id, (int) formatArgs[0], formatArgs);
+        return str;
+    }
+
     boolean playSpeech(long time) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(time);
@@ -634,8 +640,8 @@ public class Sound {
                 speakAMPM = hour >= 12 ? "Вечера" : "Дня";
             }
 
-            speakHour = getQuantityString("ru", R.plurals.hours, h);
-            speakMinute = getQuantityString("ru", R.plurals.minutes, min);
+            speakHour = getQuantityString(R.plurals.hours_ru, h);
+            speakMinute = getQuantityString(R.plurals.minutes_ru, min);
 
             if (min != 0) {
                 speak = String.format("Текущее время. %s. %s %s", speakHour, speakMinute, speakAMPM);

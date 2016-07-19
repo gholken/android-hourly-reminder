@@ -15,7 +15,7 @@
 
     <MultiSelectListPreference
         android:defaultValue="@array/weekdays_values"
-        android:entries="@array/weekdays_values"
+        android:entries="@array/weekdays_text"
         android:entryValues="@array/weekdays_values"
         android:key="weekdays"
         android:summary="Select Weekdays"

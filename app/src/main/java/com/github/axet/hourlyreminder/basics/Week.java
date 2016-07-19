@@ -17,6 +17,8 @@ public class Week {
     // keep EVERYDAY order
     public final static int[] DAYS = new int[]{R.string.WEEK_MON, R.string.WEEK_TUE, R.string.WEEK_WED, R.string.WEEK_THU, R.string.WEEK_FRI, R.string.WEEK_SAT, R.string.WEEK_SUN};
 
+    public final static String[] DAYS_VALUES = new String[]{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
     public final static Integer[] EVERYDAY = new Integer[]{Calendar.MONDAY, Calendar.TUESDAY, Calendar.WEDNESDAY,
             Calendar.THURSDAY, Calendar.FRIDAY, Calendar.SATURDAY, Calendar.SUNDAY};
 
@@ -83,7 +85,7 @@ public class Week {
     // "Thu" -> (int)Calendar.Thursday
     int parseTag(String d) {
         for (int i = 0; i < Week.DAYS.length; i++) {
-            String day = context.getString(Week.DAYS[i]);
+            String day = DAYS_VALUES[i];
             if (day.equals(d)) {
                 return Week.EVERYDAY[i];
             }
