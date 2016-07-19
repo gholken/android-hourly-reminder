@@ -596,66 +596,59 @@ public class Sound {
         int h = DateFormat.is24HourFormat(context) ? hour : c.get(Calendar.HOUR);
         int min = c.get(Calendar.MINUTE);
 
-        String speak;
+        String speak = "";
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
-        String lang = shared.getString(HourlyApplication.PREFERENCE_LANGUAGE, "en_US");
         boolean speakAMPMFlag = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
 
+        Locale locale = new Locale(shared.getString(HourlyApplication.PREFERENCE_LANGUAGE, "en_US"));
+
         String speakAMPM = "";
-        String speakHour;
-        String speakMinute;
+        String speakHour = "";
+        String speakMinute = "";
 
-        if (tts.isLanguageAvailable(new Locale(lang)) == TextToSpeech.LANG_NOT_SUPPORTED) {
-            lang = "en_US";
+        if (tts.isLanguageAvailable(locale) == TextToSpeech.LANG_NOT_SUPPORTED) {
+//            locale = new Locale("en_US");
         }
 
-        // default
-        {
-            Locale en = new Locale("en");
+        if (speakAMPMFlag) {
+            speakAMPM = HourlyApplication.getHourString(context, locale, hour);
+        }
 
-            if (speakAMPMFlag) {
-                speakAMPM = HourlyApplication.getHourString(context, en, hour);
-            }
-
+        if (locale.toString().startsWith("en")) {
             speakHour = String.format("%d", h);
-            speakMinute = String.format("%d", min);
+
+            if (min < 10)
+                speakMinute = String.format("o %d", min);
+            else
+                speakMinute = String.format("%d", min);
 
             if (min != 0) {
-                if (min < 10) {
-                    speakMinute = String.format("o %d", min);
-                }
-                speak = HourlyApplication.getString(context, en, R.string.speak_time, " " + speakHour + " " + speakMinute + " " + speakAMPM);
+                speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
             } else {
                 if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakAMPM);
+                    speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
                 else
-                    speak = HourlyApplication.getString(context, en, R.string.speak_time_24, speakHour);
+                    speak = HourlyApplication.getString(context, locale, R.string.speak_time_24, speakHour);
             }
-            tts.setLanguage(en);
         }
 
-        if (lang.equals("ru_RU")) {
-            Locale ru = new Locale("ru");
-
-            if (speakAMPMFlag) {
-                speakAMPM = HourlyApplication.getHourString(context, ru, hour);
-            }
-
-            speakHour = HourlyApplication.getQuantityString(context, ru, R.plurals.hours, h);
-            speakMinute = HourlyApplication.getQuantityString(context, ru, R.plurals.minutes, min);
+        if (locale.toString().startsWith("ru")) {
+            speakHour = HourlyApplication.getQuantityString(context, locale, R.plurals.hours, h);
+            speakMinute = HourlyApplication.getQuantityString(context, locale, R.plurals.minutes, min);
 
             if (min != 0) {
-                speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
+                speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
             } else {
                 if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
+                    speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
                 else
-                    speak = HourlyApplication.getString(context, ru, R.string.speak_time_24, speakHour);
+                    speak = HourlyApplication.getString(context, locale, R.string.speak_time_24, speakHour);
             }
-            tts.setLanguage(ru);
         }
+
+        tts.setLanguage(locale);
 
         Log.d(TAG, speak);
 
