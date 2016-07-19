@@ -108,12 +108,16 @@
         <item>5</item>
     </string-array>
 
+    <string name="system">System Language</string>
+
     <string-array name="languages_text" translatable="false">
+        <item>@string/system</item>
         <item>English</item>
         <item>Русский</item>
     </string-array>
 
     <string-array name="languages_values" translatable="false">
+        <item></item>
         <item>en_US</item>
         <item>ru_RU</item>
     </string-array>
