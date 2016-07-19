@@ -64,6 +64,8 @@ public class HourlyApplication extends Application {
 
     public static final String PREFERENCE_LAST_PATH = "lastpath";
 
+    public static final String PREFERENCE_LANGUAGE = "language";
+
     static HashMap<Uri, String> titles = new HashMap<>();
 
     public static final int VERSION = 1;
