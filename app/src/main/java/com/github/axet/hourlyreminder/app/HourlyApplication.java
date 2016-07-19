@@ -84,7 +84,6 @@ public class HourlyApplication extends Application {
         if (!defaultValueSp.getBoolean("_has_set_default_values", false)) {
             PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, true);
             PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
-            Sound.initLanguage(this);
             SharedPreferences.Editor editor = defaultValueSp.edit().putBoolean("_has_set_default_values", true);
             SharedPreferencesCompat.EditorCompat.getInstance().apply(editor);
         }

@@ -102,25 +102,6 @@ public class Sound {
         });
     }
 
-    public static void initLanguage(Context context) {
-        Resources res = context.getResources();
-        Configuration conf = res.getConfiguration();
-        Locale locale = conf.locale;
-
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor edit = shared.edit();
-        edit.putString(HourlyApplication.PREFERENCE_LANGUAGE, locale.toString());
-        edit.commit();
-    }
-
-    public static void resetLanguage(Context context) {
-        Locale locale = Locale.getDefault();
-        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor edit = shared.edit();
-        edit.putString(HourlyApplication.PREFERENCE_LANGUAGE, locale.toString());
-        edit.commit();
-    }
-
     public void close() {
         playerClose();
 
@@ -602,21 +583,51 @@ public class Sound {
 
         boolean speakAMPMFlag = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
 
-        Locale locale = new Locale(shared.getString(HourlyApplication.PREFERENCE_LANGUAGE, "en_US"));
+        String lang = shared.getString(HourlyApplication.PREFERENCE_LANGUAGE, "");
 
-        String speakAMPM = "";
-        String speakHour = "";
-        String speakMinute = "";
+        Locale locale;
+
+        if (lang.isEmpty())
+            locale = Locale.getDefault();
+        else
+            locale = new Locale(lang);
 
         if (tts.isLanguageAvailable(locale) == TextToSpeech.LANG_NOT_SUPPORTED) {
             locale = new Locale("en_US");
         }
 
-        if (speakAMPMFlag) {
-            speakAMPM = HourlyApplication.getHourString(context, locale, hour);
+        String speakAMPM = "";
+        String speakHour = "";
+        String speakMinute = "";
+
+        // Russian requires dots "." and hours/minutes
+        Locale ru = new Locale("ru");
+        if (locale.toString().startsWith(ru.toString())) {
+            if (speakAMPMFlag) {
+                speakAMPM = HourlyApplication.getHourString(context, ru, hour);
+            }
+
+            speakHour = HourlyApplication.getQuantityString(context, ru, R.plurals.hours, h);
+            speakMinute = HourlyApplication.getQuantityString(context, ru, R.plurals.minutes, min);
+
+            if (min != 0) {
+                speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
+            } else {
+                if (speakAMPMFlag)
+                    speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
+                else
+                    speak = HourlyApplication.getString(context, ru, R.string.speak_time_24, speakHour);
+            }
+            tts.setLanguage(ru);
         }
 
-        if (locale.toString().startsWith("en")) {
+        // english requres zero minutes
+        Locale en = new Locale("en");
+        if (locale.toString().startsWith(en.toString()) || speak.isEmpty()) {
+            if (speakAMPMFlag) {
+                speakAMPM = HourlyApplication.getHourString(context, en, hour);
+            }
+
             speakHour = String.format("%d", h);
 
             if (min < 10)
@@ -625,30 +636,15 @@ public class Sound {
                 speakMinute = String.format("%d", min);
 
             if (min != 0) {
-                speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
+                speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakMinute + " " + speakAMPM);
             } else {
                 if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakAMPM);
                 else
-                    speak = HourlyApplication.getString(context, locale, R.string.speak_time_24, speakHour);
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time_24, speakHour);
             }
+            tts.setLanguage(en);
         }
-
-        if (locale.toString().startsWith("ru")) {
-            speakHour = HourlyApplication.getQuantityString(context, locale, R.plurals.hours, h);
-            speakMinute = HourlyApplication.getQuantityString(context, locale, R.plurals.minutes, min);
-
-            if (min != 0) {
-                speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
-            } else {
-                if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, locale, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
-                else
-                    speak = HourlyApplication.getString(context, locale, R.string.speak_time_24, speakHour);
-            }
-        }
-
-        tts.setLanguage(locale);
 
         Log.d(TAG, speak);
 

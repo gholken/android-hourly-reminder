@@ -16,7 +16,7 @@
         android:title="Increasing Alarm Volume" />
 
     <ListPreference
-        android:defaultValue="en_US"
+        android:defaultValue=""
         android:entries="@array/languages_text"
         android:entryValues="@array/languages_values"
         android:key="language"
