@@ -609,7 +609,7 @@ public class Sound {
         String speakMinute = "";
 
         if (tts.isLanguageAvailable(locale) == TextToSpeech.LANG_NOT_SUPPORTED) {
-//            locale = new Locale("en_US");
+            locale = new Locale("en_US");
         }
 
         if (speakAMPMFlag) {
