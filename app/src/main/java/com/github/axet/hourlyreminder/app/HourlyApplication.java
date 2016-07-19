@@ -3,9 +3,12 @@ package com.github.axet.hourlyreminder.app;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.content.SharedPreferencesCompat;
 import android.support.v7.preference.PreferenceManager;
 import android.text.format.DateFormat;
@@ -25,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -80,6 +84,7 @@ public class HourlyApplication extends Application {
         if (!defaultValueSp.getBoolean("_has_set_default_values", false)) {
             PreferenceManager.setDefaultValues(this, R.xml.pref_reminders, true);
             PreferenceManager.setDefaultValues(this, R.xml.pref_settings, true);
+            Sound.initLanguage(this);
             SharedPreferences.Editor editor = defaultValueSp.edit().putBoolean("_has_set_default_values", true);
             SharedPreferencesCompat.EditorCompat.getInstance().apply(editor);
         }
@@ -399,5 +404,96 @@ public class HourlyApplication extends Application {
         rt.stop();
         titles.put(uri, title);
         return title;
+    }
+
+    public static String getQuantityString(Context context, Locale locale, int id, Object... formatArgs) {
+        Resources res = context.getResources();
+        Configuration conf = res.getConfiguration();
+        Locale savedLocale = conf.locale;
+        if (Build.VERSION.SDK_INT >= 17)
+            conf.setLocale(locale);
+        else
+            conf.locale = locale;
+        res.updateConfiguration(conf, null);
+
+        String str = res.getQuantityString(id, (int) formatArgs[0], formatArgs);
+
+        if (Build.VERSION.SDK_INT >= 17)
+            conf.setLocale(savedLocale);
+        else
+            conf.locale = savedLocale;
+        res.updateConfiguration(conf, null);
+
+        return str;
+    }
+
+
+    public static String getString(Context context, Locale locale, int id, Object... formatArgs) {
+        Resources res = context.getResources();
+        Configuration conf = res.getConfiguration();
+        Locale savedLocale = conf.locale;
+        if (Build.VERSION.SDK_INT >= 17)
+            conf.setLocale(locale);
+        else
+            conf.locale = locale;
+        res.updateConfiguration(conf, null);
+
+        String str = res.getString(id, formatArgs);
+
+        if (Build.VERSION.SDK_INT >= 17)
+            conf.setLocale(savedLocale);
+        else
+            conf.locale = savedLocale;
+        res.updateConfiguration(conf, null);
+
+        return str;
+    }
+
+    public static String getQuantityString(Context context, int id, Object... formatArgs) {
+        Resources res = context.getResources();
+        String str = res.getQuantityString(id, (int) formatArgs[0], formatArgs);
+        return str;
+    }
+
+    public static String getHourString(Context context, int hour) {
+        Resources res = context.getResources();
+        Configuration conf = res.getConfiguration();
+        Locale locale = conf.locale;
+        return getHourString(context, locale, hour);
+    }
+
+    public static String getHourString(Context context, Locale locale, int hour) {
+        switch (hour) {
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                return getString(context, locale, R.string.day_night);
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+            case 9:
+            case 10:
+            case 11:
+                return getString(context, locale, R.string.day_am);
+            case 12:
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+            case 17:
+                return getString(context, locale, R.string.day_mid);
+            case 18:
+            case 19:
+            case 20:
+            case 21:
+            case 22:
+            case 23:
+                return getString(context, locale, R.string.day_pm);
+        }
+
+        throw new RuntimeException("bad hour");
     }
 }

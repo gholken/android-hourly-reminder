@@ -1,0 +1,65 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="enabled"
+        android:summary="Включить почасовые оповещения"
+        android:title="Включить" />
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/hour_default"
+        android:entries="@array/hour_values"
+        android:entryValues="@array/hour_values"
+        android:key="hours"
+        android:summary="Выбрать часы"
+        android:title="Часы" />
+
+    <MultiSelectListPreference
+        android:defaultValue="@array/weekdays_values"
+        android:entries="@array/weekdays_text"
+        android:entryValues="@array/weekdays_values"
+        android:key="weekdays"
+        android:summary="Выбрать дни недели"
+        android:title="Дни недели" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="beep"
+        android:summary="Проигрывать гудок"
+        android:title="Гудок" />
+
+    <SwitchPreferenceCompat
+        android:defaultValue="true"
+        android:key="speak"
+        android:summary="Произносить текущее время"
+        android:title="Голос" />
+
+    <com.github.axet.hourlyreminder.widgets.CustomSoundListPreference
+        android:defaultValue="off"
+        android:key="custom_sound"
+        android:entries="@array/custom_sound_text"
+        android:entryValues="@array/custom_sound_values"
+        android:summary="Проигрывать выбранный звуковой файл"
+        android:title="Звуковой файл" />
+
+    <com.github.axet.androidlibrary.widgets.RingtonePreference
+        android:defaultValue=""
+        android:key="ringtone"
+        android:summary="Установить звонок"
+        android:title="Звонок" />
+
+    <com.github.axet.androidlibrary.widgets.FilePathPreference
+        android:defaultValue=""
+        android:key="sound"
+        android:summary="Указать звуковой файл"
+        android:title="Звуковой файл" />
+
+    <ListPreference
+        android:defaultValue="60"
+        android:entries="@array/repeat_text"
+        android:entryValues="@array/repeat_values"
+        android:key="repeat"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="Установить повторение оповещения"
+        android:title="Периодичность" />
+</PreferenceScreen>

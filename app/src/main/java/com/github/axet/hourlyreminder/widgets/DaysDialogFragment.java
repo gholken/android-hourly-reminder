@@ -104,7 +104,7 @@ public class DaysDialogFragment extends PreferenceDialogFragment {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String s = prefs.getString(HourlyApplication.PREFERENCE_WEEKSTART, "");
         for (int i = 0; i < Week.DAYS.length; i++) {
-            if (s.equals(getString(Week.DAYS[i]))) {
+            if (s.equals(Week.DAYS_VALUES[i])) {
                 startweek = i;
                 break;
             }
@@ -112,14 +112,24 @@ public class DaysDialogFragment extends PreferenceDialogFragment {
 
         LinearLayout weekdaysValues = (LinearLayout) view.findViewById(R.id.alarm_week);
 
+        int[] vv = new int[]{
+                R.string.monday,
+                R.string.tuesday,
+                R.string.wednesday,
+                R.string.thursday,
+                R.string.friday,
+                R.string.saturday,
+                R.string.sunday,
+        };
+
         for (int i = 0; i < weekdaysValues.getChildCount(); i++) {
             final CheckBox child = (CheckBox) weekdaysValues.getChildAt(i);
             if (child instanceof CheckBox) {
-                String v = getString(Week.DAYS[startweek]);
-                child.setText(v.substring(0, 1));
-                final int week = Week.EVERYDAY[startweek];
+                String name = getString(vv[startweek]);
+                String tag = Week.DAYS_VALUES[startweek];
+                child.setText(name);
 
-                child.setTag(v);
+                child.setTag(tag);
 
                 child.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -127,7 +137,7 @@ public class DaysDialogFragment extends PreferenceDialogFragment {
                         changed(child);
                     }
                 });
-                boolean b = values.contains(v);
+                boolean b = values.contains(tag);
                 child.setChecked(b);
                 startweek++;
                 if (startweek >= Week.DAYS.length)

@@ -50,6 +50,7 @@ import com.github.axet.hourlyreminder.basics.Week;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
@@ -634,7 +635,7 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 File ff = f.getCurrentPath();
-                
+
                 SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
                 shared.edit().putString(HourlyApplication.PREFERENCE_LAST_PATH, ff.getParent()).commit();
 
@@ -728,8 +729,15 @@ public class AlarmsFragment extends Fragment implements ListAdapter, AbsListView
 
     void updateTime(View view, Alarm a) {
         TextView time = (TextView) view.findViewById(R.id.alarm_time);
-        View am = view.findViewById(R.id.alarm_am);
-        View pm = view.findViewById(R.id.alarm_pm);
+        TextView am = (TextView) view.findViewById(R.id.alarm_am);
+        TextView pm = (TextView) view.findViewById(R.id.alarm_pm);
+
+        Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(a.getTime());
+        int hour = cal.get(Calendar.HOUR_OF_DAY);
+
+        am.setText(HourlyApplication.getHourString(getActivity(), hour));
+        pm.setText(HourlyApplication.getHourString(getActivity(), hour));
 
         if (DateFormat.is24HourFormat(getActivity())) {
             SimpleDateFormat f = new SimpleDateFormat("HH:mm");

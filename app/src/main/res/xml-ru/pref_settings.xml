@@ -2,8 +2,8 @@
     <com.github.axet.androidlibrary.widgets.SeekBarPreference
         android:defaultValue="1"
         android:key="volume"
-        android:summary="Set text speech volume"
-        android:title="Volume" />
+        android:summary="Установить громкость оповещений"
+        android:title="Громкость" />
 
     <ListPreference
         android:defaultValue="0"
@@ -12,8 +12,8 @@
         android:key="increasing_volume"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Set Increasing Alarm Volume"
-        android:title="Increasing Alarm Volume" />
+        android:summary="Постепенно увеличить громкость"
+        android:title="Плавная громкость" />
 
     <ListPreference
         android:defaultValue="en_US"
@@ -22,44 +22,44 @@
         android:key="language"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Set Text-To-Speech Language"
-        android:title="TTS language" />
+        android:summary="Выбрать Язык Голоса"
+        android:title="Язык Голоса" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"
-        android:summary="Use 'alarm' event type for hourly reminders (more precise on timing)"
-        android:title="Alarm Type" />
+        android:summary="Использовать тип для оповещений 'alarm' (более точное срабатывание)"
+        android:title="Тип Оповещений" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="speak_ampm"
-        android:summary="Will speak time including AM/PM suffix"
-        android:title="Speak AM/PM" />
+        android:summary="Произность время дня и ночи (утро, вечер, день, ночь)"
+        android:title="Произносить время дня" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="callsilence"
-        android:summary="Do not play sounds during calls"
-        android:title="Silence during calls" />
+        android:summary="Не использовать звуки вовремя разговора по телефону"
+        android:title="Тишина вовремя звонков" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="musicsilence"
-        android:summary="Do not play sounds while listening music"
-        android:title="Silence during music" />
+        android:summary="Не использовать звуки вовремя прослушивания музыки"
+        android:title="Тишина вовремя музыки" />
 
     <SwitchPreferenceCompat
         android:defaultValue="false"
         android:key="vibrate"
-        android:summary="Vibrate while sounding an reminder / alarm"
-        android:title="Vibrate" />
+        android:summary="Использовать вибратор для оповещений"
+        android:title="Вибратор" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="notifications"
-        android:summary="Show notifications"
-        android:title="Notifications" />
+        android:summary="Показывать уведомления"
+        android:title="Уведомления" />
 
     <ListPreference
         android:defaultValue="Theme_White"
@@ -68,8 +68,8 @@
         android:key="theme"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Set application theme (dark / light)"
-        android:title="Application Theme" />
+        android:summary="Выбрать тему"
+        android:title="Тема приложения" />
 
     <ListPreference
         android:defaultValue="Mon"
@@ -78,6 +78,6 @@
         android:key="weekstart"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"
-        android:summary="Start week on specified day"
-        android:title="Start week on" />
+        android:summary="Первый день недели"
+        android:title="Начало недели" />
 </PreferenceScreen>

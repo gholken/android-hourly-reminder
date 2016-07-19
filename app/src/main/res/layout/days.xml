@@ -20,42 +20,42 @@
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:checked="true"
-            android:text="M" />
+            android:text="@string/monday" />
 
         <com.github.axet.hourlyreminder.widgets.RoundCheckbox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="T" />
+            android:text="@string/tuesday" />
 
         <com.github.axet.hourlyreminder.widgets.RoundCheckbox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="W" />
+            android:text="@string/wednesday" />
 
         <com.github.axet.hourlyreminder.widgets.RoundCheckbox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="T" />
+            android:text="@string/thursday" />
 
         <com.github.axet.hourlyreminder.widgets.RoundCheckbox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="F" />
+            android:text="@string/friday" />
 
         <com.github.axet.hourlyreminder.widgets.RoundCheckbox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="S" />
+            android:text="@string/saturday" />
 
         <com.github.axet.hourlyreminder.widgets.RoundCheckbox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="5dp"
-            android:text="S" />
+            android:text="@string/sunday" />
     </com.github.axet.androidlibrary.widgets.SquareLinearLayout>
 </FrameLayout>

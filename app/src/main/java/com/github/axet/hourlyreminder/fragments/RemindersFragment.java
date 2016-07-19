@@ -100,7 +100,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
             if (preference instanceof FilePathPreference) {
                 if (stringValue.isEmpty())
-                    stringValue = "(not selected)";
+                    stringValue = preference.getContext().getString(R.string.not_selected);
                 preference.setSummary(stringValue);
                 return true;
             }
@@ -333,7 +333,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
                             SharedPreferences shared = android.support.v7.preference.PreferenceManager.getDefaultSharedPreferences(getActivity());
                             boolean b = shared.getBoolean(HourlyApplication.PREFERENCE_ALARM, false);
                             if (!b) {
-                                Toast.makeText(getActivity(), "Setting alarm type to 'alarm', check settings.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), R.string.alarm_type_alarm, Toast.LENGTH_SHORT).show();
                                 SharedPreferences.Editor edit = shared.edit();
                                 edit.putBoolean(HourlyApplication.PREFERENCE_ALARM, true);
                                 edit.commit();
@@ -384,9 +384,9 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
     static void annonce(Context context, boolean v) {
         if (v) {
-            Toast.makeText(context, "Reminders set to vibrate only", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.reminders_vibrate, Toast.LENGTH_LONG).show();
         } else {
-            Toast.makeText(context, "Reminders set to 'silence'", Toast.LENGTH_LONG).show();
+            Toast.makeText(context, R.string.reminders_silence, Toast.LENGTH_LONG).show();
         }
     }
 
