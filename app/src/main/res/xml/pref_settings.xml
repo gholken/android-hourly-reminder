@@ -15,6 +15,16 @@
         android:summary="Set Increasing Alarm Volume"
         android:title="Increasing Alarm Volume" />
 
+    <ListPreference
+        android:defaultValue="en_US"
+        android:entries="@array/languages_text"
+        android:entryValues="@array/languages_values"
+        android:key="language"
+        android:negativeButtonText="@null"
+        android:positiveButtonText="@null"
+        android:summary="Set Text-To-Speech Language"
+        android:title="TTS language" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"

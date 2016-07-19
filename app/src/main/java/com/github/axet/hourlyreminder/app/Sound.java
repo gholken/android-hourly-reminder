@@ -2,6 +2,8 @@ package com.github.axet.hourlyreminder.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -41,6 +43,8 @@ public class Sound {
 
     // beep ms
     public static final int BEEP = 100;
+
+    public static final int DELAYED_DELAY = 5000;
 
     Context context;
     TextToSpeech tts;
@@ -540,12 +544,12 @@ public class Sound {
                 @Override
                 public void run() {
                     if (!playSpeech(time)) {
-                        tts.shutdown(); // on apk upgrade tts failed allwyas. close and restart.
+                        tts.shutdown(); // on apk upgrade tts failed always. close it and restart.
                         tts = null;
                         if (restart) {
                             Toast.makeText(context, context.getString(R.string.FailedTTS), Toast.LENGTH_SHORT).show();
                             clear.run();
-                        }else {
+                        } else {
                             restart = true;
                             Toast.makeText(context, context.getString(R.string.FailedTTSRestar), Toast.LENGTH_SHORT).show();
                             if (delayed != null) {
@@ -557,45 +561,94 @@ public class Sound {
                                     playSpeech(time, done);
                                 }
                             };
-                            handler.postDelayed(delayed, 5000);
+                            handler.postDelayed(delayed, DELAYED_DELAY);
                         }
                     }
                 }
             };
-            handler.postDelayed(delayed, 5000);
+            handler.postDelayed(delayed, DELAYED_DELAY);
         }
+    }
+
+    String getQuantityString(String locale, int id, Object... formatArgs) {
+        Resources res = context.getResources();
+        Configuration conf = res.getConfiguration();
+        Locale savedLocale = conf.locale;
+        if (Build.VERSION.SDK_INT >= 17)
+            conf.setLocale(new Locale(locale));
+        else
+            conf.locale = new Locale(locale);
+        res.updateConfiguration(conf, null);
+
+        String str = res.getQuantityString(id, (int) formatArgs[0], formatArgs);
+
+        if (Build.VERSION.SDK_INT >= 17)
+            conf.setLocale(savedLocale);
+        else
+            conf.locale = savedLocale;
+        res.updateConfiguration(conf, null);
+
+        return str;
     }
 
     boolean playSpeech(long time) {
         Calendar c = Calendar.getInstance();
         c.setTimeInMillis(time);
         int hour = c.get(Calendar.HOUR_OF_DAY);
+        int h = DateFormat.is24HourFormat(context) ? hour : c.get(Calendar.HOUR);
         int min = c.get(Calendar.MINUTE);
 
         String speak;
 
-        {
-            SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-            boolean speakAMPM = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
-            String ampm = "";
-            if (speakAMPM) {
-                ampm = hour >= 12 ? "PM" : "AM";
+        String lang = shared.getString(HourlyApplication.PREFERENCE_LANGUAGE, "en_US");
+        boolean speakAMPMFlag = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
+        String speakAMPM = "";
+        String speakHour;
+        String speakMinute;
+
+        // default
+        {
+            if (speakAMPMFlag) {
+                speakAMPM = hour >= 12 ? "PM" : "AM";
             }
 
             if (min != 0) {
                 if (min < 10) {
-                    speak = String.format("Time is %d o %d %s.", hour, min, ampm);
+                    speak = String.format("Time is %d o %d %s.", h, min, speakAMPM);
                 } else {
-                    speak = String.format("Time is %d %02d %s.", hour, min, ampm);
+                    speak = String.format("Time is %d %02d %s.", h, min, speakAMPM);
                 }
             } else {
-                if (speakAMPM)
-                    speak = String.format("Time is %d o'%s", hour, ampm);
+                if (speakAMPMFlag)
+                    speak = String.format("Time is %d %s", h, speakAMPM);
                 else
-                    speak = String.format("%d o'clock", hour);
+                    speak = String.format("%d o'clock", h);
             }
+            tts.setLanguage(new Locale("en_US"));
         }
+
+        if (lang.equals("ru_RU")) {
+            if (speakAMPMFlag) {
+                speakAMPM = hour >= 12 ? "Вечера" : "Дня";
+            }
+
+            speakHour = getQuantityString("ru", R.plurals.hours, h);
+            speakMinute = getQuantityString("ru", R.plurals.minutes, min);
+
+            if (min != 0) {
+                speak = String.format("Текущее время. %s. %s %s", speakHour, speakMinute, speakAMPM);
+            } else {
+                if (speakAMPMFlag)
+                    speak = String.format("Текущее время. %s %s", speakHour, speakAMPM);
+                else
+                    speak = String.format("%s", speakHour);
+            }
+            tts.setLanguage(new Locale(lang));
+        }
+
+        Log.d(TAG, speak);
 
         if (Build.VERSION.SDK_INT >= 21) {
             Bundle params = new Bundle();
