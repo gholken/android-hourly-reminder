@@ -42,7 +42,7 @@
     <string name="SoundSilencedMusic">(Звук выключен) - Музыка</string>
     <string name="SoundSilencedSettings">(Звук выключен) - Настройки</string>
     <string name="SoundSilencedVibrate">(Звук выключен) - Вибратор</string>
-    <string name="TimeIs">Текущее время %1$s</string>
+    <string name="ToastTime">Текущее время %1$s</string>
     <string name="Today">Сегодня</string>
     <string name="Tomorrow">Завтра</string>
     <string name="UpcomingAlarm">Оповещение Будильник</string>

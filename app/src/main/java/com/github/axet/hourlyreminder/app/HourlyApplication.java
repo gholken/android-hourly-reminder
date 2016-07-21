@@ -405,7 +405,7 @@ public class HourlyApplication extends Application {
         return title;
     }
 
-    public static String getQuantityString(Context context, Locale locale, int id, Object... formatArgs) {
+    public static String getQuantityString(Context context, Locale locale, int id, int n, Object... formatArgs) {
         Resources res = context.getResources();
         Configuration conf = res.getConfiguration();
         Locale savedLocale = conf.locale;
@@ -415,7 +415,7 @@ public class HourlyApplication extends Application {
             conf.locale = locale;
         res.updateConfiguration(conf, null);
 
-        String str = res.getQuantityString(id, (int) formatArgs[0], formatArgs);
+        String str = res.getQuantityString(id, n, formatArgs);
 
         if (Build.VERSION.SDK_INT >= 17)
             conf.setLocale(savedLocale);
@@ -448,9 +448,9 @@ public class HourlyApplication extends Application {
         return str;
     }
 
-    public static String getQuantityString(Context context, int id, Object... formatArgs) {
+    public static String getQuantityString(Context context, int id, int n, Object... formatArgs) {
         Resources res = context.getResources();
-        String str = res.getQuantityString(id, (int) formatArgs[0], formatArgs);
+        String str = res.getQuantityString(id, n, formatArgs);
         return str;
     }
 

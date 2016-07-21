@@ -194,7 +194,7 @@ public class TTS extends SoundConfig {
                 speakAMPM = HourlyApplication.getHourString(context, ru, hour);
             }
 
-            speakHour = HourlyApplication.getQuantityString(context, ru, R.plurals.hours, h);
+            speakHour = HourlyApplication.getQuantityString(context, ru, R.plurals.hours, h, h);
             speakMinute = HourlyApplication.getQuantityString(context, ru, R.plurals.minutes, min);
 
             if (min != 0) {
