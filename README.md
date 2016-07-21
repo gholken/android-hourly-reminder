@@ -12,6 +12,12 @@ Manual install
 
     gradle installDebug
 
+# Translate
+
+If you want to translate 'Hourly Reminder' to your language or just add speak engine please read this:
+
+  * https://github.com/axet/android-hourly-reminder/blob/master/docs/HowTo-Translate.md
+
 # Screenshots
 
 ![shot](/docs/shot.png)
