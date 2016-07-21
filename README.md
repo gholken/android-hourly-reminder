@@ -12,6 +12,12 @@ Manual install
 
     gradle installDebug
 
+# Translate
+
+If you want to translate 'Hourly Reminder' to your language or just add new speak engine please read this:
+
+  * [HOWTO-Translate.md](/docs/HOWTO-Translate.md)
+
 # Screenshots
 
 ![shot](/docs/shot.png)
