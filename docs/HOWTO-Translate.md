@@ -7,7 +7,7 @@ To translate 'Hourly Reminder' to your language you need to translate following 
   * [strings.xml](/app/src/main/res/values/strings.xml)
 
 Additional file from 'android-library'
-  * https://github.com/axet/android-library/blob/master/src/main/res/values/strings.xml
+  * [https://github.com/axet/android-library/.../strings.xml](https://github.com/axet/android-library/blob/master/src/main/res/values/strings.xml)
 
 In additional, you need to figure it out, which is the best way to pronounce current time. For example you may want to pronounce "hours" after hours and "minutes" after minutes. Or just prounouce time as it is. You can find how speach time string builded here:
 
