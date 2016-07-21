@@ -16,7 +16,7 @@ Manual install
 
 If you want to translate 'Hourly Reminder' to your language or just add new speak engine please read this:
 
-  * https://github.com/axet/android-hourly-reminder/blob/master/docs/HowTo-Translate.md
+  * [HowTo-Translate.md](/docs/HowTo-Translate.md)
 
 # Screenshots
 
