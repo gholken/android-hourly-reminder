@@ -23,10 +23,12 @@ In additional, you need to figure it out, which is the best way to pronounce cur
                 speakMinute = HourlyApplication.getQuantityString(context, ru, R.plurals.minutes, min);
 
             if (min != 0) {
-                speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakMinute + " " + speakAMPM);
+                speak = HourlyApplication.getString(context, en, R.string.speak_time,
+                  speakHour + " " + speakMinute + " " + speakAMPM);
             } else {
                 if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakAMPM);
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time,
+                      speakHour + " " + speakAMPM);
                 else
                     speak = HourlyApplication.getString(context, en, R.string.speak_time_24, speakHour);
             }
