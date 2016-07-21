@@ -39,26 +39,10 @@ import java.util.UUID;
 public class Sound extends TTS {
     public static final String TAG = Sound.class.getSimpleName();
 
-    public final static Uri DEFAULT_ALARM = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-
-    // beep ms
-    public static final int BEEP = 100;
-
     ToneGenerator tone;
     MediaPlayer player;
     AudioTrack track;
-    Set<Runnable> done = new HashSet<>();
-
     Runnable increaseVolume;
-
-    public enum Silenced {
-        NONE,
-        // vibrate instead of sound
-        VIBRATE,
-        SETTINGS,
-        CALL,
-        MUSIC
-    }
 
     public Sound(Context context) {
         super(context);
@@ -92,6 +76,7 @@ public class Sound extends TTS {
             samples[i + 1] = sample;
         }
         // old phones bug.
+        //
         // http://stackoverflow.com/questions/27602492
         //
         // with MODE_STATIC setNotificationMarkerPosition not called
