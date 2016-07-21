@@ -35,8 +35,7 @@ public class SoundConfig {
 
     public enum Silenced {
         NONE,
-        // vibrate instead of sound
-        VIBRATE,
+        VIBRATE, // vibrate instead of sound
         SETTINGS,
         CALL,
         MUSIC
