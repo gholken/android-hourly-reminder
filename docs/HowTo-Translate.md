@@ -10,3 +10,25 @@ In additional, you need to figure it out, which is the best way to pronounce cur
 
   * [TTS.java](/app/src/main/java/com/github/axet/hourlyreminder/app/TTS.java)
 
+```java
+            if (speakAMPMFlag) { // do we need to prounounce AM/PM?
+                speakAMPM = HourlyApplication.getHourString(context, en, hour);
+            }
+
+            speakHour = HourlyApplication.getQuantityString(context, ru, R.plurals.hours, h);
+            
+            if (min < 10) // in case we need to say 10 hours, 08 minutes : 10 "o" 8
+                speakMinute = String.format("o %d", min);
+            else
+                speakMinute = HourlyApplication.getQuantityString(context, ru, R.plurals.minutes, min);
+
+            if (min != 0) {
+                speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakMinute + " " + speakAMPM);
+            } else {
+                if (speakAMPMFlag)
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakAMPM);
+                else
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time_24, speakHour);
+            }
+            tts.setLanguage(en);
+```
