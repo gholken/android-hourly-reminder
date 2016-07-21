@@ -137,7 +137,7 @@
     <string name="SoundSilencedCall">(Sound Silenced) - Call</string>
     <string name="SoundSilencedMusic">(Sound Silenced) - Music</string>
     <string name="SoundSilencedSettings">(Sound Silenced) - Settings</string>
-    <string name="TimeIs">Time is %1$s</string>
+    <string name="ToastTime">Time is %1$s</string>
 
     <!--Alarm-->
     <string name="Everyday">Everyday</string>

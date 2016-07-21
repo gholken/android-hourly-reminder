@@ -2,25 +2,17 @@ package com.github.axet.hourlyreminder.app;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
 import android.media.AudioTrack;
 import android.media.MediaPlayer;
-import android.media.RingtoneManager;
 import android.media.ToneGenerator;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
 import android.os.Vibrator;
 import android.preference.PreferenceManager;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.UtteranceProgressListener;
 import android.telephony.TelephonyManager;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.Gravity;
 import android.widget.TextView;
@@ -28,13 +20,6 @@ import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
-
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Locale;
-import java.util.Set;
-import java.util.UUID;
 
 public class Sound extends TTS {
     public static final String TAG = Sound.class.getSimpleName();
@@ -179,7 +164,7 @@ public class Sound extends TTS {
                     break;
             }
             text += "\n";
-            text += context.getResources().getString(R.string.TimeIs, Alarm.format(context, time));
+            text += context.getResources().getString(R.string.ToastTime, Alarm.format(context, time));
 
             Toast t = Toast.makeText(context, text, Toast.LENGTH_SHORT);
             TextView v = (TextView) t.getView().findViewById(android.R.id.message);
@@ -416,29 +401,8 @@ public class Sound extends TTS {
         player.start();
     }
 
-    float getRingtoneVolume() {
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        if (Integer.parseInt(shared.getString(HourlyApplication.PREFERENCE_INCREASE_VOLUME, "0")) > 0) {
-            return 0;
-        }
-
-        return getVolume();
-    }
-
-    float getVolume() {
-        if (volume != null)
-            return volume;
-
-        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        return (float) (Math.pow(shared.getFloat(HourlyApplication.PREFERENCE_VOLUME, 1f), 3));
-    }
-
-    public void setVolume(float f) {
-        volume = f;
-    }
-
     public void timeToast(long time) {
-        String text = context.getResources().getString(R.string.TimeIs, Alarm.format(context, time));
+        String text = context.getResources().getString(R.string.ToastTime, Alarm.format(context, time));
         Toast.makeText(context, text, Toast.LENGTH_SHORT).show();
     }
 
