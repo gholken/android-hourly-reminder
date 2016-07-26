@@ -232,9 +232,15 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
                 }
             });
 
+            int dp5 = ThemeUtils.dp2px(context, 10);
+            int top = (int) getResources().getDimension(R.dimen.appbar_padding_top);
+            if (Build.VERSION.SDK_INT >= 17) {
+                dp5 = 0;
+                top = 0;
+            }
             RecyclerView v = getListView();
             v.setClipToPadding(false);
-            v.setPadding(0, 0, 0, ThemeUtils.dp2px(getActivity(), 61) + dim);
+            v.setPadding(dp5, top, dp5, dp5 + ThemeUtils.dp2px(getActivity(), 61) + dim);
         }
 
         return view;
