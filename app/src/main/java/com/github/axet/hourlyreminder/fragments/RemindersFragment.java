@@ -397,11 +397,23 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
         {
             final Context context = inflater.getContext();
             ViewGroup layout = (ViewGroup) view.findViewById(R.id.list_container);
+
+            int dim = (int) getResources().getDimension(R.dimen.fab_margin);
+
+            int pad = ThemeUtils.dp2px(context, 10);
+            int top = (int) getResources().getDimension(R.dimen.appbar_padding_top);
+            if (Build.VERSION.SDK_INT >= 17) { // so, it bugged only on 16
+                pad = 0;
+                top = 0;
+            }
+            RecyclerView v = getListView();
+            v.setClipToPadding(false);
+            v.setPadding(pad, top, pad, pad + ThemeUtils.dp2px(getActivity(), 61) + dim);
+
             FloatingActionButton f = new FloatingActionButton(context);
             f.setImageResource(R.drawable.play);
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ContentFrameLayout.LayoutParams.WRAP_CONTENT, ContentFrameLayout.LayoutParams.WRAP_CONTENT);
             lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-            int dim = (int) getResources().getDimension(R.dimen.fab_margin);
             lp.setMargins(dim, dim, dim, dim);
             f.setLayoutParams(lp);
             layout.addView(f);
@@ -415,10 +427,6 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
                     sound.soundReminder(System.currentTimeMillis());
                 }
             });
-
-            RecyclerView v = getListView();
-            v.setClipToPadding(false);
-            v.setPadding(0, 0, 0, ThemeUtils.dp2px(getActivity(), 61) + dim);
         }
 
         return view;
