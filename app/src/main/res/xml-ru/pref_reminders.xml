@@ -24,8 +24,8 @@
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="beep"
-        android:summary="Проигрывать гудок"
-        android:title="Гудок" />
+        android:summary="Проигрывать короткий сигнал"
+        android:title="Сигнал" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"

@@ -25,6 +25,12 @@
         android:summary="Set Text-To-Speech Language"
         android:title="TTS language" />
 
+    <com.github.axet.hourlyreminder.widgets.BeepPreference
+        android:defaultValue=""
+        android:key="beep_custom"
+        android:summary="Customize beep sound"
+        android:title="Beep Custom" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"

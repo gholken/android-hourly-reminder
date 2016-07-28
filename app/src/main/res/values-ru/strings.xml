@@ -144,4 +144,7 @@
     <string name="alarm_type_alarm">Установлен тип оповещений \'alarm\', проверьте настройки.</string>
     <string name="reminders_vibrate">Оповещения переведены в режим \'вибратор\'</string>
     <string name="reminders_silence">Оповещения переведены в беззвучный режим</string>
+
+    <string name="reset">Сброс</string>
+    <string name="play">Слушать</string>
 </resources>

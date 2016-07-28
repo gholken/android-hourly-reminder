@@ -30,8 +30,6 @@ public class SoundConfig {
     public static final String TAG = SoundConfig.class.getSimpleName();
 
     public final static Uri DEFAULT_ALARM = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM);
-    // beep ms
-    public static final int BEEP = 100;
 
     public enum Silenced {
         NONE,
