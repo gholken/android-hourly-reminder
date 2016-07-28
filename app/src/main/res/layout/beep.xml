@@ -1,69 +1,92 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:orientation="vertical"
     android:padding="5dp"
     tools:context=".activities.MainActivity$AlarmsFragment">
 
     <LinearLayout
-        android:id="@+id/beep_length_panel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentLeft="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:orientation="horizontal">
 
-        <EditText
-            android:id="@+id/beep_length"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:text="201" />
-
-        <TextView
+        <LinearLayout
+            android:id="@+id/beep_length_panel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="ms" />
+            android:layout_gravity="center"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/beep_length"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="201" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="ms" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/beep_freq_panel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/beep_freq"
+                    android:layout_width="80dp"
+                    android:layout_height="wrap_content"
+                    android:inputType="number"
+                    android:text="1801" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="freq" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/beep_reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/reset" />
+
+        </LinearLayout>
+
+        <FrameLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1">
+
+            <com.github.axet.hourlyreminder.widgets.BeepView
+                android:id="@+id/beep_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_gravity="center"
+                android:layout_toRightOf="@id/beep_length_panel"
+                android:padding="20dp" />
+        </FrameLayout>
     </LinearLayout>
 
     <LinearLayout
-        android:id="@+id/beep_freq_panel"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/beep_length_panel"
-        android:orientation="horizontal">
-
-        <EditText
-            android:id="@+id/beep_freq"
-            android:layout_width="80dp"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:text="1801" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="freq" />
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/beep_reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/beep_freq_panel"
-        android:text="@string/reset" />
-
-    <com.github.axet.hourlyreminder.widgets.BeepView
-        android:id="@+id/beep_view"
+        android:id="@+id/beep_seekbar_panel"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/beep_length_panel"
-        android:padding="20dp" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/beep_view"
+        android:layout_alignParentBottom="true"
         android:orientation="horizontal">
 
         <TextView
@@ -83,6 +106,6 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:text="20 kHz" />
-
     </LinearLayout>
-</RelativeLayout>
+
+</LinearLayout>

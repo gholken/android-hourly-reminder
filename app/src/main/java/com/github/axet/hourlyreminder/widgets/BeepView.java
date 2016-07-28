@@ -99,7 +99,11 @@ public class BeepView extends ViewGroup {
         @Override
         protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             int w = MeasureSpec.getSize(widthMeasureSpec);
-            int h = getPaddingTop();
+            int h = MeasureSpec.getSize(heightMeasureSpec);
+
+            w = Math.min(w, h);
+
+            h = getPaddingTop();
             h += w;
 
             setMeasuredDimension(w, h);
