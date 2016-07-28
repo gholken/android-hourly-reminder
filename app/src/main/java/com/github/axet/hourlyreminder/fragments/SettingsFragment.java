@@ -32,6 +32,7 @@ import com.github.axet.androidlibrary.widgets.ThemeUtils;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
+import com.github.axet.hourlyreminder.widgets.BeepDialogFragment;
 import com.github.axet.hourlyreminder.widgets.HoursDialogFragment;
 
 public class SettingsFragment extends PreferenceFragment implements PreferenceFragment.OnPreferenceDisplayDialogCallback, SharedPreferences.OnSharedPreferenceChangeListener {
@@ -60,6 +61,13 @@ public class SettingsFragment extends PreferenceFragment implements PreferenceFr
 
         if (preference.getKey().equals(HourlyApplication.PREFERENCE_HOURS)) {
             HoursDialogFragment f = HoursDialogFragment.newInstance(preference.getKey());
+            ((DialogFragment) f).setTargetFragment(this, 0);
+            ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
+            return true;
+        }
+
+        if (preference.getKey().equals(HourlyApplication.PREFERENCE_BEEP_CUSTOM)) {
+            BeepDialogFragment f = BeepDialogFragment.newInstance(preference.getKey());
             ((DialogFragment) f).setTargetFragment(this, 0);
             ((DialogFragment) f).show(this.getFragmentManager(), "android.support.v14.preference.PreferenceFragment.DIALOG");
             return true;

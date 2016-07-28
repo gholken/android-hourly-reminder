@@ -20,6 +20,7 @@ import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.widgets.BeepDialogFragment;
 
 public class Sound extends TTS {
     public static final String TAG = Sound.class.getSimpleName();
@@ -49,14 +50,16 @@ public class Sound extends TTS {
     }
 
     // https://gist.github.com/slightfoot/6330866
-    private AudioTrack generateTone(double freqHz, int durationMs) {
+    public static AudioTrack generateTone(double freqHz, int durationMs) {
         int sampleRate = 44100;
         int count = sampleRate * durationMs / 1000;
         int end = count;
         int stereo = count * 2;
         short[] samples = new short[stereo];
         for (int i = 0; i < stereo; i += 2) {
-            short sample = (short) (Math.sin(2 * Math.PI * i / (sampleRate / freqHz)) * 0x7FFF);
+            int si = i / 2;
+            double sx = 2 * Math.PI * si / (sampleRate / freqHz);
+            short sample = (short) (Math.sin(sx) * 0x7FFF);
             samples[i + 0] = sample;
             samples[i + 1] = sample;
         }
@@ -265,11 +268,22 @@ public class Sound extends TTS {
         }
     }
 
+
     public void playBeep(final Runnable done) {
+        SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        String b = shared.getString(HourlyApplication.PREFERENCE_BEEP_CUSTOM, "1800:100");
+
+        BeepDialogFragment.BeepConfig beep = new BeepDialogFragment.BeepConfig();
+        beep.load(b);
+
+        playBeep(generateTone(beep.value_f, beep.value_l), done);
+    }
+
+    public void playBeep(AudioTrack t, final Runnable done) {
         if (track != null)
             track.release();
 
-        track = generateTone(900, BEEP);
+        track = t;
 
         if (Build.VERSION.SDK_INT < 21) {
             track.setStereoVolume(getVolume(), getVolume());

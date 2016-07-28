@@ -25,6 +25,12 @@
         android:summary="Выбрать Язык Голоса"
         android:title="Язык Голоса" />
 
+    <com.github.axet.hourlyreminder.widgets.BeepPreference
+        android:defaultValue=""
+        android:key="beep_custom"
+        android:summary="Настроить длительность и частоту сигнала"
+        android:title="Настроить сигнал" />
+
     <SwitchPreferenceCompat
         android:defaultValue="true"
         android:key="alarm"
