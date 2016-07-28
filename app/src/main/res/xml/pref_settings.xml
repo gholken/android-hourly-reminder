@@ -29,7 +29,7 @@
         android:defaultValue=""
         android:key="beep_custom"
         android:summary="Customize beep sound"
-        android:title="Beep Custom" />
+        android:title="Custom Beep" />
 
     <SwitchPreferenceCompat
         android:defaultValue="true"
