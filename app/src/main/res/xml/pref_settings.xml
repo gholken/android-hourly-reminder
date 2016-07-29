@@ -26,7 +26,7 @@
         android:title="TTS language" />
 
     <com.github.axet.hourlyreminder.widgets.BeepPreference
-        android:defaultValue=""
+        android:defaultValue="1800:100"
         android:key="beep_custom"
         android:summary="Customize beep sound"
         android:title="Custom Beep" />
