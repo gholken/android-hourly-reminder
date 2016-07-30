@@ -14,6 +14,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v13.app.FragmentCompat;
@@ -61,6 +62,7 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
     public final static Uri DEFAULT_NOTIFICATION = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
 
     Sound sound;
+    Handler handler = new Handler();
 
     static String getTitle(Context context, String t) {
         String s = HourlyApplication.getTitle(context, t);
@@ -392,33 +394,42 @@ public class RemindersFragment extends PreferenceFragment implements PreferenceF
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+        final View view = super.onCreateView(inflater, container, savedInstanceState);
 
         {
             final Context context = inflater.getContext();
             ViewGroup layout = (ViewGroup) view.findViewById(R.id.list_container);
-
-            int dim = (int) getResources().getDimension(R.dimen.fab_margin);
-
-            int pad = ThemeUtils.dp2px(context, 10);
-            int top = (int) getResources().getDimension(R.dimen.appbar_padding_top);
-            if (Build.VERSION.SDK_INT >= 17) { // so, it bugged only on 16
-                pad = 0;
-                top = 0;
-            }
             RecyclerView v = getListView();
-            v.setClipToPadding(false);
-            v.setPadding(pad, top, pad, pad + ThemeUtils.dp2px(getActivity(), 61) + dim);
 
-            FloatingActionButton f = new FloatingActionButton(context);
-            f.setImageResource(R.drawable.play);
+            int fab_margin = (int) getResources().getDimension(R.dimen.fab_margin);
+            int fab_size = ThemeUtils.dp2px(getActivity(), 61);
+            int pad = 0;
+            int top = 0;
+            if (Build.VERSION.SDK_INT <= 16) { // so, it bugged only on 16
+                pad = ThemeUtils.dp2px(context, 10);
+                top = (int) getResources().getDimension(R.dimen.appbar_padding_top);
+            }
+
+            v.setClipToPadding(false);
+            v.setPadding(pad, top, pad, pad + fab_size + fab_margin);
+
+            FloatingActionButton fab = new FloatingActionButton(context);
+            fab.setImageResource(R.drawable.play);
             FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(ContentFrameLayout.LayoutParams.WRAP_CONTENT, ContentFrameLayout.LayoutParams.WRAP_CONTENT);
             lp.gravity = Gravity.BOTTOM | Gravity.RIGHT;
-            lp.setMargins(dim, dim, dim, dim);
-            f.setLayoutParams(lp);
-            layout.addView(f);
+            lp.setMargins(fab_margin, fab_margin, fab_margin, fab_margin);
+            fab.setLayoutParams(lp);
+            layout.addView(fab);
 
-            f.setOnClickListener(new View.OnClickListener() {
+            // fix nexus 9 tabled bug, when fab showed offscreen
+            handler.post(new Runnable() {
+                @Override
+                public void run() {
+                    view.requestLayout();
+                }
+            });
+
+            fab.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (sound.playerClose()) {
