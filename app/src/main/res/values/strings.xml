@@ -251,6 +251,7 @@
     <string name="reminders_silence">Reminders set to \'silence\'</string>
 
     <string name="speak_time">Time is %1$s</string>
+    <string name="speak_time_12">%1$s o\'clock</string>
     <string name="speak_time_24">%1$s hundred hours</string>
     <string name="reset">Reset</string>
     <string name="play">Play</string>

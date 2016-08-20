@@ -138,6 +138,7 @@
     <string name="title_activity_settings">Настройки</string>
 
     <string name="speak_time">Текущее время %1$s</string>
+    <string name="speak_time_12">%1$s</string>
     <string name="speak_time_24">%1$s</string>
 
     <string name="not_selected">(не выбрано)</string>

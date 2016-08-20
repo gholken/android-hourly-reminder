@@ -155,7 +155,8 @@ public class TTS extends SoundConfig {
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
 
-        boolean speakAMPMFlag = !DateFormat.is24HourFormat(context) && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
+        boolean is24 = DateFormat.is24HourFormat(context);
+        boolean speakAMPMFlag = !is24 && shared.getBoolean(HourlyApplication.PREFERENCE_SPEAK_AMPM, false);
 
         String lang = shared.getString(HourlyApplication.PREFERENCE_LANGUAGE, "");
 
@@ -187,10 +188,13 @@ public class TTS extends SoundConfig {
             if (min != 0) {
                 speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakMinute + " " + speakAMPM);
             } else {
-                if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
-                else
+                if (is24) {
                     speak = HourlyApplication.getString(context, ru, R.string.speak_time_24, speakHour);
+                } else if (speakAMPMFlag) {
+                    speak = HourlyApplication.getString(context, ru, R.string.speak_time, ". " + speakHour + ". " + speakAMPM);
+                } else {
+                    speak = HourlyApplication.getString(context, ru, R.string.speak_time_12, speakHour);
+                }
             }
             tts.setLanguage(ru);
         }
@@ -212,10 +216,13 @@ public class TTS extends SoundConfig {
             if (min != 0) {
                 speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakMinute + " " + speakAMPM);
             } else {
-                if (speakAMPMFlag)
-                    speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakAMPM);
-                else
+                if (is24) {
                     speak = HourlyApplication.getString(context, en, R.string.speak_time_24, speakHour);
+                } else if (speakAMPMFlag) {
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time, speakHour + " " + speakAMPM);
+                } else {
+                    speak = HourlyApplication.getString(context, en, R.string.speak_time_12, speakHour);
+                }
             }
             tts.setLanguage(en);
         }
