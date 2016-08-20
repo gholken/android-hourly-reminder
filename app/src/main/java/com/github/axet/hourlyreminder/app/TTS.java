@@ -3,29 +3,16 @@ package com.github.axet.hourlyreminder.app;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.media.AudioAttributes;
-import android.media.AudioFormat;
-import android.media.AudioManager;
-import android.media.AudioTrack;
-import android.media.MediaPlayer;
-import android.media.RingtoneManager;
-import android.media.ToneGenerator;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.UtteranceProgressListener;
-import android.telephony.TelephonyManager;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.view.Gravity;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.github.axet.hourlyreminder.R;
-import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -218,7 +205,7 @@ public class TTS extends SoundConfig {
             speakHour = String.format("%d", h);
 
             if (min < 10)
-                speakMinute = String.format("o %d", min);
+                speakMinute = String.format("oh %d", min);
             else
                 speakMinute = String.format("%d", min);
 
