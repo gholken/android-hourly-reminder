@@ -10,12 +10,12 @@ import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.TabLayout;
 import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
@@ -70,45 +70,38 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
     }
 
     public static class SettingsTabView extends ImageView {
+        Drawable d;
+
         public SettingsTabView(Context context, TabLayout.Tab tab, ColorStateList colors) {
             super(context);
 
-            Drawable d;
-
-            if (Build.VERSION.SDK_INT >= 21)
-                d = getResources().getDrawable(R.drawable.ic_more_vert_24dp, getContext().getTheme());
-            else
-                d = getResources().getDrawable(R.drawable.ic_more_vert_24dp);
+            d = ContextCompat.getDrawable(context, R.drawable.ic_more_vert_24dp);
 
             setImageDrawable(d);
 
             setColorFilter(colors.getDefaultColor());
         }
 
-        @Override
-        protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-            super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        void updateLayout() {
             ViewParent p = getParent();
-            if (p != null) {
-                // TabView extends LinearLayout
+            if (p != null && p instanceof LinearLayout) { // TabView extends LinearLayout
                 LinearLayout l = (LinearLayout) p;
                 LinearLayout.LayoutParams lp = (LinearLayout.LayoutParams) l.getLayoutParams();
                 if (lp != null) {
                     lp.weight = 0;
                     lp.width = LinearLayout.LayoutParams.WRAP_CONTENT;
-                    int pad = l.getMeasuredHeight() / 2 - getMeasuredWidth() / 2;
 
-                    if (pad < 0)
-                        pad = 0;
-
-                    l.setPadding(pad, 0, pad, 0);
+                    int left = l.getMeasuredHeight() / 2 - d.getIntrinsicWidth() / 2;
+                    int right = left;
+                    left -= l.getPaddingLeft();
+                    right -= l.getPaddingRight();
+                    if (left < 0)
+                        left = 0;
+                    if (right < 0)
+                        right = 0;
+                    setPadding(left, 0, right, 0);
                 }
             }
-        }
-
-        @Override
-        public void requestLayout() {
-            super.requestLayout();
         }
     }
 
@@ -143,7 +136,9 @@ public class MainActivity extends AppCompatActivity implements SharedPreferences
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
         TabLayout.Tab tab = tabLayout.getTabAt(2);
-        tab.setCustomView(new SettingsTabView(this, tab, tabLayout.getTabTextColors()));
+        SettingsTabView v = new SettingsTabView(this, tab, tabLayout.getTabTextColors());
+        tab.setCustomView(v);
+        v.updateLayout();
 
 //        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 //        fab.setOnClickListener(new View.OnClickListener() {
