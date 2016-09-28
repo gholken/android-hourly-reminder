@@ -48,7 +48,7 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_DAYS = "weekdays";
     public static final String PREFERENCE_REPEAT = "repeat";
     public static final String PREFERENCE_ALARM = "alarm";
-    public static final String PREFERENCE_ALARMS_PREFIX = "ALARM_";
+    public static final String PREFERENCE_ALARMS_PREFIX = "alarm_";
 
     public static final String PREFERENCE_BEEP_CUSTOM = "beep_custom";
 
@@ -75,6 +75,9 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_LAST_PATH = "lastpath";
 
     public static final String PREFERENCE_LANGUAGE = "language";
+
+    public static final String PREFERENCE_ACTIVE_ALARM= "active_alarm";
+
 
     static HashMap<Uri, String> titles = new HashMap<>();
 
@@ -116,7 +119,7 @@ public class HourlyApplication extends Application {
         ArrayList<Alarm> alarms = new ArrayList<>();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        int c = shared.getInt(PREFERENCE_ALARMS_PREFIX + "COUNT", -1);
+        int c = shared.getInt(PREFERENCE_ALARMS_PREFIX + "count", -1);
         if (c == -1) // <=1.4.4
             c = shared.getInt("Alarm_" + "Count", 0);
         if (c == 0) { // default alarms list
@@ -167,8 +170,8 @@ public class HourlyApplication extends Application {
         for (int i = 0; i < c; i++) {
             try {
                 String json = shared.getString(PREFERENCE_ALARMS_PREFIX + i, "");
-                JSONObject o = new JSONObject();
                 if (json.isEmpty()) { // <=1.4.4
+                    JSONObject o = new JSONObject();
                     String prefix = "Alarm_" + i + "_";
                     o.put("id", shared.getLong(prefix + "Id", System.currentTimeMillis()));
                     o.put("time", shared.getLong(prefix + "Time", 0));
@@ -179,25 +182,15 @@ public class HourlyApplication extends Application {
                     o.put("ringtone_value", shared.getString(prefix + "Ringtone_Value", ""));
                     o.put("beep", shared.getBoolean(prefix + "Beep", false));
                     o.put("speech", shared.getBoolean(prefix + "Speech", false));
-                } else {
-                    o = new JSONObject(json);
+                    json = o.toString();
                 }
-                Alarm a = new Alarm(context);
-                a.id = o.getLong("id");
+                Alarm a = new Alarm(context, json);
 
                 while (ids.contains(a.id)) {
                     a.id++;
                 }
                 ids.add(a.id);
 
-                a.time = o.getLong("time");
-                a.enable = o.getBoolean("enable");
-                a.weekdaysCheck = o.getBoolean("weekdays");
-                a.setWeekDaysProperty(o.getJSONArray("weekdays_values"));
-                a.ringtone = o.getBoolean("ringtone");
-                a.ringtoneValue = o.getString("ringtone_value");
-                a.beep = o.getBoolean("beep");
-                a.speech = o.getBoolean("speech");
                 alarms.add(a);
             } catch (JSONException e) {
                 throw new RuntimeException(e);
@@ -210,7 +203,7 @@ public class HourlyApplication extends Application {
     public static void saveAlarms(Context context, List<Alarm> alarms) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = shared.edit();
-        edit.putInt(PREFERENCE_ALARMS_PREFIX + "COUNT", alarms.size());
+        edit.putInt(PREFERENCE_ALARMS_PREFIX + "count", alarms.size());
 
         Set<Long> ids = new TreeSet<>();
 
@@ -222,21 +215,7 @@ public class HourlyApplication extends Application {
             }
             ids.add(a.id);
 
-            try {
-                JSONObject o = new JSONObject();
-                o.put("id", a.id);
-                o.put("time", a.time);
-                o.put("enable", a.enable);
-                o.put("weekdays", a.weekdaysCheck);
-                o.put("weekdays_values", new JSONArray(a.getWeekDaysProperty()));
-                o.put("ringtone", a.ringtone);
-                o.put("ringtone_value", a.ringtoneValue);
-                o.put("beep", a.beep);
-                o.put("speech", a.speech);
-                edit.putString(PREFERENCE_ALARMS_PREFIX + i, o.toString());
-            } catch (JSONException e) {
-                throw new RuntimeException(e);
-            }
+            edit.putString(PREFERENCE_ALARMS_PREFIX + i, a.save());
         }
         edit.commit();
 

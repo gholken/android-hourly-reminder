@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
@@ -25,6 +26,7 @@ import java.util.Date;
  * status bar and navigation/system bar) with user interaction.
  */
 public class AlarmActivity extends AppCompatActivity {
+    public static final String TAG = AlarmActivity.class.getSimpleName();
 
     Handler handler = new Handler();
     Runnable updateClock;
@@ -40,6 +42,7 @@ public class AlarmActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate");
 
         setTheme(HourlyApplication.getTheme(this, R.style.AppThemeLight_NoActionBar, R.style.AppThemeDark_NoActionBar));
 
@@ -160,6 +163,7 @@ public class AlarmActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "onDestory");
 
         FireAlarmService.dismissActiveAlarm(this);
 

@@ -9,6 +9,10 @@ import android.text.format.DateFormat;
 
 import com.github.axet.hourlyreminder.app.HourlyApplication;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -71,6 +75,25 @@ public class Alarm extends Week {
         ringtoneValue = DEFAULT_RING.toString();
 
         setTime(9, 0);
+    }
+
+    public Alarm(Context context, String json) {
+        this(context);
+        try {
+            JSONObject o = new JSONObject(json);
+            Alarm a = this;
+            a.id = o.getLong("id");
+            a.time = o.getLong("time");
+            a.enable = o.getBoolean("enable");
+            a.weekdaysCheck = o.getBoolean("weekdays");
+            a.setWeekDaysProperty(o.getJSONArray("weekdays_values"));
+            a.ringtone = o.getBoolean("ringtone");
+            a.ringtoneValue = o.getString("ringtone_value");
+            a.beep = o.getBoolean("beep");
+            a.speech = o.getBoolean("speech");
+        }catch(JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Alarm(Context context, long time) {
@@ -139,6 +162,25 @@ public class Alarm extends Week {
         cal.setTimeInMillis(time);
         int min = cal.get(Calendar.MINUTE);
         return min;
+    }
+
+    public String save() {
+        try {
+            Alarm a = this;
+            JSONObject o = new JSONObject();
+            o.put("id", a.id);
+            o.put("time", a.time);
+            o.put("enable", a.enable);
+            o.put("weekdays", a.weekdaysCheck);
+            o.put("weekdays_values", new JSONArray(a.getWeekDaysProperty()));
+            o.put("ringtone", a.ringtone);
+            o.put("ringtone_value", a.ringtoneValue);
+            o.put("beep", a.beep);
+            o.put("speech", a.speech);
+            return o.toString();
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
