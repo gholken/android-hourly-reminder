@@ -4,6 +4,9 @@ import android.content.Context;
 
 import com.github.axet.hourlyreminder.R;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -91,6 +94,18 @@ public class Week {
             }
         }
         throw new RuntimeException("unknown day");
+    }
+
+    public void setWeekDaysProperty(JSONArray a) {
+        TreeSet<String> ss = new TreeSet<>();
+        for (int i = 0; i < a.length(); i++) {
+            try {
+                ss.add(a.getString(i));
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        setWeekDaysProperty(ss);
     }
 
     public void setWeekDaysProperty(Set<String> set) {

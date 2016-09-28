@@ -9,11 +9,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Vibrator;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.telephony.PhoneStateListener;
@@ -22,12 +20,12 @@ import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
-import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.R;
 import com.github.axet.hourlyreminder.activities.AlarmActivity;
 import com.github.axet.hourlyreminder.activities.MainActivity;
-import com.github.axet.hourlyreminder.basics.Alarm;
+import com.github.axet.hourlyreminder.app.HourlyApplication;
 import com.github.axet.hourlyreminder.app.Sound;
+import com.github.axet.hourlyreminder.basics.Alarm;
 
 import java.util.Calendar;
 
@@ -46,7 +44,6 @@ public class FireAlarmService extends Service {
     public static final int ALARM_AUTO_OFF = 15;
 
     FireAlarmReceiver receiver = new FireAlarmReceiver();
-    Binder binder = new Binder();
     Sound sound;
     Handler handle = new Handler();
     Runnable alive;
@@ -110,20 +107,12 @@ public class FireAlarmService extends Service {
                 .putExtra("ringtoneValue", a.ringtoneValue));
     }
 
-    public Alarm getAlarm(Intent intent) {
-        Alarm a = new Alarm(this);
-
-        a.time = intent.getLongExtra("time", 0);
-        a.beep = intent.getBooleanExtra("beep", false);
-        a.speech = intent.getBooleanExtra("speech", false);
-        a.ringtone = intent.getBooleanExtra("ringtone", false);
-        a.ringtoneValue = intent.getStringExtra("ringtoneValue");
-
-        return a;
-    }
-
     public static void dismissActiveAlarm(Context context) {
         context.stopService(new Intent(context, FireAlarmService.class));
+        final SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor edit = shared.edit();
+        edit.remove(HourlyApplication.PREFERENCE_ACTIVE_ALARM);
+        edit.commit();
     }
 
     public FireAlarmService() {
@@ -135,6 +124,18 @@ public class FireAlarmService extends Service {
         Log.d(TAG, "onCreate");
 
         sound = new Sound(this);
+    }
+
+    public Alarm getAlarm(Intent intent) {
+        Alarm a = new Alarm(this);
+
+        a.time = intent.getLongExtra("time", 0);
+        a.beep = intent.getBooleanExtra("beep", false);
+        a.speech = intent.getBooleanExtra("speech", false);
+        a.ringtone = intent.getBooleanExtra("ringtone", false);
+        a.ringtoneValue = intent.getStringExtra("ringtoneValue");
+
+        return a;
     }
 
     @Override
@@ -155,7 +156,22 @@ public class FireAlarmService extends Service {
             tm.listen(pscl, PhoneStateListener.LISTEN_CALL_STATE);
         }
 
-        Alarm a = getAlarm(intent);
+        Alarm a;
+
+        if (intent == null) {
+            Log.d(TAG, "onStartCommand restart");
+            String json = shared.getString(HourlyApplication.PREFERENCE_ACTIVE_ALARM, "");
+            if (json.isEmpty())
+                return START_NOT_STICKY;
+
+            a = new Alarm(this, json);
+        } else {
+            a = getAlarm(intent);
+
+            SharedPreferences.Editor editor = shared.edit();
+            editor.putString(HourlyApplication.PREFERENCE_ACTIVE_ALARM, a.save());
+            editor.commit();
+        }
 
         Log.d(TAG, "time=" + Alarm.format(a.time));
 

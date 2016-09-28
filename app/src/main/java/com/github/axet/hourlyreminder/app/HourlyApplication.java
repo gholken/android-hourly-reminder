@@ -21,6 +21,10 @@ import com.github.axet.hourlyreminder.basics.Reminder;
 import com.github.axet.hourlyreminder.basics.Week;
 import com.github.axet.hourlyreminder.services.AlarmService;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -44,7 +48,7 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_DAYS = "weekdays";
     public static final String PREFERENCE_REPEAT = "repeat";
     public static final String PREFERENCE_ALARM = "alarm";
-    public static final String PREFERENCE_ALARMS_PREFIX = "Alarm_";
+    public static final String PREFERENCE_ALARMS_PREFIX = "alarm_";
 
     public static final String PREFERENCE_BEEP_CUSTOM = "beep_custom";
 
@@ -71,6 +75,9 @@ public class HourlyApplication extends Application {
     public static final String PREFERENCE_LAST_PATH = "lastpath";
 
     public static final String PREFERENCE_LANGUAGE = "language";
+
+    public static final String PREFERENCE_ACTIVE_ALARM= "active_alarm";
+
 
     static HashMap<Uri, String> titles = new HashMap<>();
 
@@ -112,8 +119,10 @@ public class HourlyApplication extends Application {
         ArrayList<Alarm> alarms = new ArrayList<>();
 
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
-        int c = shared.getInt(PREFERENCE_ALARMS_PREFIX + "Count", 0);
-        if (c == 0) {
+        int c = shared.getInt(PREFERENCE_ALARMS_PREFIX + "count", -1);
+        if (c == -1) // <=1.4.4
+            c = shared.getInt("Alarm_" + "Count", 0);
+        if (c == 0) { // default alarms list
             Set<Long> ids = new TreeSet<>();
 
             Alarm a;
@@ -159,24 +168,33 @@ public class HourlyApplication extends Application {
         Set<Long> ids = new TreeSet<>();
 
         for (int i = 0; i < c; i++) {
-            String prefix = PREFERENCE_ALARMS_PREFIX + i + "_";
-            Alarm a = new Alarm(context);
-            a.id = shared.getLong(prefix + "Id", System.currentTimeMillis());
+            try {
+                String json = shared.getString(PREFERENCE_ALARMS_PREFIX + i, "");
+                if (json.isEmpty()) { // <=1.4.4
+                    JSONObject o = new JSONObject();
+                    String prefix = "Alarm_" + i + "_";
+                    o.put("id", shared.getLong(prefix + "Id", System.currentTimeMillis()));
+                    o.put("time", shared.getLong(prefix + "Time", 0));
+                    o.put("enable", shared.getBoolean(prefix + "Enable", false));
+                    o.put("weekdays", shared.getBoolean(prefix + "WeekDays", false));
+                    o.put("weekdays_values", new JSONArray(shared.getStringSet(prefix + "WeekDays_Values", null)));
+                    o.put("ringtone", shared.getBoolean(prefix + "Ringtone", false));
+                    o.put("ringtone_value", shared.getString(prefix + "Ringtone_Value", ""));
+                    o.put("beep", shared.getBoolean(prefix + "Beep", false));
+                    o.put("speech", shared.getBoolean(prefix + "Speech", false));
+                    json = o.toString();
+                }
+                Alarm a = new Alarm(context, json);
 
-            while (ids.contains(a.id)) {
-                a.id++;
+                while (ids.contains(a.id)) {
+                    a.id++;
+                }
+                ids.add(a.id);
+
+                alarms.add(a);
+            } catch (JSONException e) {
+                throw new RuntimeException(e);
             }
-            ids.add(a.id);
-
-            a.time = shared.getLong(prefix + "Time", 0);
-            a.enable = shared.getBoolean(prefix + "Enable", false);
-            a.weekdaysCheck = shared.getBoolean(prefix + "WeekDays", false);
-            a.setWeekDaysProperty(shared.getStringSet(prefix + "WeekDays_Values", null));
-            a.ringtone = shared.getBoolean(prefix + "Ringtone", false);
-            a.ringtoneValue = shared.getString(prefix + "Ringtone_Value", "");
-            a.beep = shared.getBoolean(prefix + "Beep", false);
-            a.speech = shared.getBoolean(prefix + "Speech", false);
-            alarms.add(a);
         }
 
         return alarms;
@@ -185,28 +203,19 @@ public class HourlyApplication extends Application {
     public static void saveAlarms(Context context, List<Alarm> alarms) {
         SharedPreferences shared = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor edit = shared.edit();
-        edit.putInt(PREFERENCE_ALARMS_PREFIX + "Count", alarms.size());
+        edit.putInt(PREFERENCE_ALARMS_PREFIX + "count", alarms.size());
 
         Set<Long> ids = new TreeSet<>();
 
         for (int i = 0; i < alarms.size(); i++) {
             Alarm a = alarms.get(i);
-            String prefix = PREFERENCE_ALARMS_PREFIX + i + "_";
 
             while (ids.contains(a.id)) {
                 a.id++;
             }
             ids.add(a.id);
 
-            edit.putLong(prefix + "Id", a.id);
-            edit.putLong(prefix + "Time", a.time);
-            edit.putBoolean(prefix + "Enable", a.enable);
-            edit.putBoolean(prefix + "WeekDays", a.weekdaysCheck);
-            edit.putStringSet(prefix + "WeekDays_Values", a.getWeekDaysProperty());
-            edit.putBoolean(prefix + "Ringtone", a.ringtone);
-            edit.putString(prefix + "Ringtone_Value", a.ringtoneValue);
-            edit.putBoolean(prefix + "Beep", a.beep);
-            edit.putBoolean(prefix + "Speech", a.speech);
+            edit.putString(PREFERENCE_ALARMS_PREFIX + i, a.save());
         }
         edit.commit();
 
